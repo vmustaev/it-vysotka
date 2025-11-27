@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: my_db
+    ports:
+      - "5431:5432"
+
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend/app
+    restart: always
+    ports:
+      - "80:80"
