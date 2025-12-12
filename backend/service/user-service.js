@@ -4,7 +4,8 @@ const uuid = require('uuid');
 const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
 const mailService = require('./mail-service');
-const ApiError = require('../exceptions/api-error')
+const ApiError = require('../exceptions/api-error');
+const { user } = require('pg/lib/defaults');
 
 class UserService {
     async registration(email, password) {
@@ -29,12 +30,64 @@ class UserService {
     }
 
     async activate(activationLink){
-        const user = await UserModel.findOne({activationLink})
+        const user = await UserModel.findOne({ where : {activationLink}})
         if (!user){
             throw ApiError.BadRequest(`Некорректная ссылка активации`)
         }
         user.isActivated = true;
         await user.save();
+    }
+
+    async login(email, password){
+        const user = await UserModel.findOne({where : {email}});
+        if(!user){
+            throw ApiError.BadRequest("Пользователь с таким email не найден")
+        }
+
+        const isPasswordEquals = await bcrypt.compare(password, user.password);
+        if (!isPasswordEquals){
+            throw ApiError.BadRequest("Неверный пароль")
+        }
+
+        const userDto = new UserDto(user);
+        const tokens = tokenService.generateTokens({...userDto});
+        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        user
+        return {
+            ...tokens,
+            user: userDto
+        }
+    }
+
+    async logout(refreshToken){
+        const token = await tokenService.removeToken(refreshToken);
+        return token;
+    }
+
+    async refresh(refreshToken){
+        if(!refreshToken){
+            throw ApiError.UnauthorizedError();
+        }
+        const userData = tokenService.validateRefreshToken(refreshToken);
+        const tokenFromDb = await tokenService.findToken(refreshToken);
+        if (!userData || !tokenFromDb){
+            throw ApiError.UnauthorizedError();
+        }
+        
+        const user = await UserModel.findByPk(userData.id);
+        const userDto = new UserDto(user);
+        const tokens = tokenService.generateTokens({...userDto});
+        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        user
+        return {
+            ...tokens,
+            user: userDto
+        }
+    }
+
+    async getAllUsers(){
+        const users = await UserModel.findAll();
+        return users;
     }
 }
 
