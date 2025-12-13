@@ -1,54 +1,48 @@
-import React, { useContext, useEffect, useState } from 'react';
-import LoginForm from "./components/LoginForm";
+import React, { useContext, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Context } from "./index";
 import { observer } from "mobx-react-lite";
-import UserService from "./services/UserService";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Regulations from "./pages/Regulations";
+import Gallery from "./pages/Gallery";
+import Results from "./pages/Results";
+import Contacts from "./pages/Contacts";
 
-const App = () => {
+const App = observer(() => {
     const { store } = useContext(Context);
-    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
-            store.checkAuth()
+            store.checkAuth();
         }
-    }, [])
-
-    async function getUsers() {
-        try {
-            const response = await UserService.fetchUsers();
-            setUsers(response.data);
-        } catch (e) {
-            console.log(e);
-        }
-    }
+    }, [store]);
 
     if (store.isLoading) {
-        return <div>Загрузка...</div>
-    }
-
-    if (!store.isAuth) {
-        return (
-            <div>
-                <LoginForm />
-                <button onClick={getUsers}>Получить пользователей</button>
-            </div>
-        );
+        return <div>Загрузка...</div>;
     }
 
     return (
         <div>
-            <h1>{store.isAuth ? `Пользователь авторизован ${store.user.email}` : 'АВТОРИЗУЙТЕСЬ'}</h1>
-            <h1>{store.user.isActivated ? 'Аккаунт подтвержден по почте' : 'ПОДТВЕРДИТЕ АККАУНТ!!!!'}</h1>
-            <button onClick={() => store.logout()}>Выйти</button>
-            <div>
-                <button onClick={getUsers}>Получить пользователей</button>
-            </div>
-            {users.map(user =>
-                <div key={user.email}>{user.email}</div>
-            )}
+            <Navbar />
+            
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/regulations" element={<Regulations />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/results" element={<Results />} />
+                <Route path="/contacts" element={<Contacts />} />
+                
+                <Route path="/login" element={
+                    store.isAuth ? <Navigate to="/" /> : <Login />
+                } />
+                <Route path="/register" element={
+                    store.isAuth ? <Navigate to="/" /> : <Login />
+                } />
+            </Routes>
         </div>
     );
-};
+});
 
-export default observer(App);
+export default App;
