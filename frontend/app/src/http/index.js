@@ -41,7 +41,7 @@ $api.interceptors.response.use((config) => {
             return $api.request(originalRequest);
         } catch (e) {
             console.log('НЕ АВТОРИЗОВАН');
-            sessionStorage.removeItem('wasAuth');
+            localStorage.removeItem('wasAuth');
             clearAccessToken();
         }
     }
