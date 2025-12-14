@@ -2,6 +2,19 @@ import axios from 'axios';
 
 export const API_URL = `http://localhost:80/api`;
 
+let accessToken = "";
+
+export const setAccessToken = (token) => {
+    accessToken = token;
+};
+
+export const getAccessToken = () => {
+    return accessToken;
+};
+
+export const clearAccessToken = () => {
+    accessToken = "";
+};
 
 const $api = axios.create({
     withCredentials: true,
@@ -9,7 +22,9 @@ const $api = axios.create({
 });
 
 $api.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+    }
     return config;
 });
 
@@ -22,10 +37,12 @@ $api.interceptors.response.use((config) => {
         originalRequest._isRetry = true;
         try {
             const response = await axios.post(`${API_URL}/refresh`, { withCredentials: true });
-            localStorage.setItem('token', response.data.accessToken);
+            accessToken = response.data.accessToken;
             return $api.request(originalRequest);
         } catch (e) {
             console.log('НЕ АВТОРИЗОВАН');
+            sessionStorage.removeItem('wasAuth');
+            clearAccessToken();
         }
     }
     throw error;

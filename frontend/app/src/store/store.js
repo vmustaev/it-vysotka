@@ -1,6 +1,6 @@
 import AuthService from "../services/AuthService";
 import axios from 'axios';
-import { API_URL } from "../http";
+import { API_URL, setAccessToken, getAccessToken, clearAccessToken } from "../http";
 import { makeAutoObservable } from "mobx";
 
 export default class Store {
@@ -28,7 +28,8 @@ export default class Store {
         try {
             const response = await AuthService.login(email, password);
             console.log(response)
-            localStorage.setItem('token', response.data.accessToken);
+            setAccessToken(response.data.accessToken);
+            sessionStorage.setItem('wasAuth', 'true');
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e) {
@@ -40,7 +41,8 @@ export default class Store {
         try {
             const response = await AuthService.registration(email, password);
             console.log(response)
-            localStorage.setItem('token', response.data.accessToken);
+            setAccessToken(response.data.accessToken);
+            sessionStorage.setItem('wasAuth', 'true');
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e) {
@@ -51,7 +53,8 @@ export default class Store {
     async logout() {
         try {
             const response = await AuthService.logout();
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('wasAuth');
+            clearAccessToken();
             this.setAuth(false);
             this.setUser({});
         } catch (e) {
@@ -61,13 +64,23 @@ export default class Store {
 
     async checkAuth() {
         this.setLoading(true);
+
+        const wasAuth = sessionStorage.getItem('wasAuth');
+        
+        if (!wasAuth) {
+            this.setLoading(false);
+            return;
+        }
+        
         try {
             const response = await axios.post(`${API_URL}/refresh`, { withCredentials: true })
             console.log(response);
-            localStorage.setItem('token', response.data.accessToken);
+            setAccessToken(response.data.accessToken);
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e) {
+            sessionStorage.removeItem('wasAuth');
+            clearAccessToken();
             console.log(e.response?.data?.message);
         } finally {
             this.setLoading(false);

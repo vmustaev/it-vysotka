@@ -14,9 +14,7 @@ const App = observer(() => {
     const { store } = useContext(Context);
 
     useEffect(() => {
-        if (localStorage.getItem('token')) {
-            store.checkAuth();
-        }
+        store.checkAuth();
     }, [store]);
 
     if (store.isLoading) {
