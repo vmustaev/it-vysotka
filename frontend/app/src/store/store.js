@@ -24,31 +24,39 @@ export default class Store {
         this.isLoading = bool;
     }
 
-    async login(email, password) {
-        try {
-            const response = await AuthService.login(email, password);
-            console.log(response)
+    async registration(formData) {
+    try {
+        const response = await AuthService.registration(formData);
+        console.log(response);
+        if (response.data.accessToken) {
             setAccessToken(response.data.accessToken);
             localStorage.setItem('wasAuth', 'true');
             this.setAuth(true);
             this.setUser(response.data.user);
-        } catch (e) {
-            console.log(e.response?.data?.message);
         }
+        return response;
+    } catch (e) {
+        console.log(e.response?.data?.message || 'Ошибка регистрации');
+        throw e;
     }
+}
 
-    async registration(email, password) {
-        try {
-            const response = await AuthService.registration(email, password);
-            console.log(response)
+async login(email, password) {
+    try {
+        const response = await AuthService.login(email, password);
+        console.log(response);
+        if (response.data.accessToken) {
             setAccessToken(response.data.accessToken);
             localStorage.setItem('wasAuth', 'true');
             this.setAuth(true);
             this.setUser(response.data.user);
-        } catch (e) {
-            console.log(e.response?.data?.message);
         }
+        return response;
+    } catch (e) {
+        console.log(e.response?.data?.message || 'Ошибка входа');
+        throw e;
     }
+}
 
     async logout() {
         try {

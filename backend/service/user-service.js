@@ -27,9 +27,27 @@ class UserService {
             );
         }
         
-        const hashPassword = await bcrypt.hash(password, 3);
         const activationLink = uuid.v4();
-
+        
+        try {
+            await mailService.sendActivationMail(email, `${process.env.URL}/api/activate/${activationLink}`);
+        } catch (error) {
+            if (error.message.includes('invalid mailbox')) {
+                throw ApiError.BadRequest(
+                    'Указанный email не существует или недоступен',
+                    ['Указанный email не существует или недоступен'],
+                    { email: ['Указанный email не существует или недоступен'] }
+                );
+            }
+            throw ApiError.BadRequest(
+                'Ошибка отправки письма активации. Пожалуйста, проверьте email',
+                [error.message],
+                { email: ['Ошибка отправки письма активации'] }
+            );
+        }
+        
+        const hashPassword = await bcrypt.hash(password, 3);
+        
         const user = await UserModel.create({
             email, 
             password: hashPassword, 
@@ -46,8 +64,6 @@ class UserService {
             format: additionalData.format,
             grade: additionalData.grade
         });
-        
-        await mailService.sendActivationMail(email, `${process.env.URL}/api/activate/${activationLink}`);
         
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});

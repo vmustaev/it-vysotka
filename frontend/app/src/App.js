@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Regulations from "./pages/Regulations";
 import Gallery from "./pages/Gallery";
 import Results from "./pages/Results";
@@ -36,7 +37,7 @@ const App = observer(() => {
                     store.isAuth ? <Navigate to="/" /> : <Login />
                 } />
                 <Route path="/register" element={
-                    store.isAuth ? <Navigate to="/" /> : <Login />
+                    store.isAuth ? <Navigate to="/" /> : <Register />
                 } />
             </Routes>
         </div>

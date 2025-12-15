@@ -41,8 +41,7 @@ const registrationValidation = [
     body('password')
         .notEmpty().withMessage(errorMessages.PASSWORD_REQUIRED)
         .isLength({ min: 8, max: 32 }).withMessage(errorMessages.PASSWORD_LENGTH)
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage(errorMessages.PASSWORD_COMPLEXITY),
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage(errorMessages.PASSWORD_COMPLEXITY),
     
     body('password_confirmation')
         .notEmpty().withMessage('Подтверждение пароля обязательно')

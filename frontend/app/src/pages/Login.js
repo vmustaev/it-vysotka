@@ -1,72 +1,136 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 
 const LoginPage = observer(() => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isLogin, setIsLogin] = useState(true);
+    const [errors, setErrors] = useState({});
     const { store } = useContext(Context);
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const isRegisterPage = location.pathname === '/register';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!isRegisterPage) {
+        try {
             await store.login(email, password);
-        } else {
-            await store.registration(email, password);
-        }
-        
-        if (store.isAuth) {
-            navigate('/');
+            
+            if (store.isAuth) {
+                navigate('/');
+            }
+        } catch (e) {
+            if (e.response?.data?.fieldErrors) {
+                const backendErrors = {};
+                Object.entries(e.response.data.fieldErrors).forEach(([field, errorList]) => {
+                    backendErrors[field] = errorList;
+                });
+                setErrors(backendErrors);
+            } else if (e.response?.data?.message) {
+                setErrors({ general: [e.response.data.message] });
+            }
         }
     };
 
-    const switchMode = () => {
-        navigate(isRegisterPage ? '/login' : '/register');
+    const getFieldError = (fieldName) => {
+        return errors[fieldName] ? errors[fieldName][0] : '';
+    };
+
+    const isFieldInvalid = (fieldName) => {
+        return errors[fieldName] && errors[fieldName].length > 0;
     };
 
     return (
-        <div className="login-page">
-            <div className="login-form">
-                <h2>{isRegisterPage ? 'Регистрация' : 'Вход'}</h2>
+        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
+            <h2>Вход</h2>
+            
+            {errors.general && (
+                <div style={{
+                    background: '#ffebee',
+                    color: '#c62828',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    marginBottom: '15px'
+                }}>
+                    {errors.general[0]}
+                </div>
+            )}
+            
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
+                        }}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: `1px solid ${isFieldInvalid('email') ? 'red' : '#ccc'}`,
+                            borderRadius: '4px'
+                        }}
+                        required
+                    />
+                    {isFieldInvalid('email') && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                            {getFieldError('email')}
+                        </div>
+                    )}
+                </div>
                 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    
-                    <div className="form-group">
-                        <input
-                            type="password"
-                            placeholder="Пароль"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    
-                    <button type="submit" className="submit-btn">
-                        {isRegisterPage ? 'Зарегистрироваться' : 'Войти'}
-                    </button>
-                </form>
+                <div>
+                    <input
+                        type="password"
+                        placeholder="Пароль"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (errors.password) setErrors(prev => ({ ...prev, password: [] }));
+                        }}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: `1px solid ${isFieldInvalid('password') ? 'red' : '#ccc'}`,
+                            borderRadius: '4px'
+                        }}
+                        required
+                    />
+                    {isFieldInvalid('password') && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                            {getFieldError('password')}
+                        </div>
+                    )}
+                </div>
                 
-                <button onClick={switchMode} className="switch-btn">
-                    {isRegisterPage 
-                        ? 'Уже есть аккаунт? Войти' 
-                        : 'Нет аккаунта? Зарегистрироваться'}
+                <button 
+                    type="submit"
+                    style={{
+                        padding: '12px',
+                        background: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Войти
                 </button>
+            </form>
+            
+            <div style={{ textAlign: 'center', marginTop: '15px' }}>
+                <a 
+                    href="/register" 
+                    style={{ color: '#2196F3', textDecoration: 'none' }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate('/register');
+                    }}
+                >
+                    Нет аккаунта? Зарегистрироваться
+                </a>
             </div>
         </div>
     );
