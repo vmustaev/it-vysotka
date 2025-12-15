@@ -6,14 +6,33 @@ class UserController {
     async registration(req, res, next)
     {
         try{
-            const errors = validationResult(req);
-            if(!errors.isEmpty()){
-                return next(ApiError.BadRequest("Ошибка при валидации", errors.array()))
-            }
-            const {email, password} = req.body;
-            const userData = await userService.registration(email, password);
+            const {
+                email, password, password_confirmation,
+                last_name, first_name, second_name, birthday,
+                region, city, school, programming_language,
+                phone, format, grade
+            } = req.body;
+            
+            const additionalData = {
+                last_name,
+                first_name,
+                second_name: second_name || null,
+                birthday,
+                region,
+                city,
+                school,
+                programming_language,
+                phone,
+                format,
+                grade: parseInt(grade)
+            };
+            
+            const userData = await userService.registration(email, password, additionalData);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
-            return res.json(userData);
+            return res.json({
+                success: true,
+                data: userData
+            });
         } catch (e) {
             next(e);
         }

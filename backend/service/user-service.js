@@ -5,18 +5,48 @@ const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
 const mailService = require('./mail-service');
 const ApiError = require('../exceptions/api-error');
-const { user } = require('pg/lib/defaults');
+const errorMessages = require('../validation/error-messages');
 
 class UserService {
-    async registration(email, password) {
+    async registration(email, password, additionalData) {
         const candidate = await UserModel.findOne({ where: { email } });
         if (candidate) {
-            throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`); 
+            throw ApiError.BadRequest(
+                errorMessages.EMAIL_EXISTS,
+                [errorMessages.EMAIL_EXISTS],
+                { email: [errorMessages.EMAIL_EXISTS] }
+            ); 
         }
+        
+        const phoneExists = await UserModel.findOne({ where: { phone: additionalData.phone } });
+        if (phoneExists) {
+            throw ApiError.BadRequest(
+                errorMessages.PHONE_EXISTS,
+                [errorMessages.PHONE_EXISTS],
+                { phone: [errorMessages.PHONE_EXISTS] }
+            );
+        }
+        
         const hashPassword = await bcrypt.hash(password, 3);
         const activationLink = uuid.v4();
 
-        const user = await UserModel.create({email, password: hashPassword, activationLink})
+        const user = await UserModel.create({
+            email, 
+            password: hashPassword, 
+            activationLink,
+            last_name: additionalData.last_name,
+            first_name: additionalData.first_name,
+            second_name: additionalData.second_name,
+            birthday: additionalData.birthday,
+            region: additionalData.region,
+            city: additionalData.city,
+            school: additionalData.school,
+            programming_language: additionalData.programming_language,
+            phone: additionalData.phone,
+            format: additionalData.format,
+            grade: additionalData.grade
+        });
+        
         await mailService.sendActivationMail(email, `${process.env.URL}/api/activate/${activationLink}`);
         
         const userDto = new UserDto(user);
@@ -32,7 +62,7 @@ class UserService {
     async activate(activationLink){
         const user = await UserModel.findOne({ where : {activationLink}})
         if (!user){
-            throw ApiError.BadRequest(`Некорректная ссылка активации`)
+            throw ApiError.BadRequest(errorMessages.ACTIVATION_LINK_INVALID)
         }
         user.isActivated = true;
         await user.save();
@@ -41,18 +71,25 @@ class UserService {
     async login(email, password){
         const user = await UserModel.findOne({where : {email}});
         if(!user){
-            throw ApiError.BadRequest("Пользователь с таким email не найден")
+            throw ApiError.BadRequest(
+                errorMessages.EMAIL_NOT_FOUND,
+                [errorMessages.EMAIL_NOT_FOUND],
+                { email: [errorMessages.EMAIL_NOT_FOUND] }
+            )
         }
 
         const isPasswordEquals = await bcrypt.compare(password, user.password);
         if (!isPasswordEquals){
-            throw ApiError.BadRequest("Неверный пароль")
+            throw ApiError.BadRequest(
+                errorMessages.PASSWORD_INCORRECT,
+                [errorMessages.PASSWORD_INCORRECT],
+                { password: [errorMessages.PASSWORD_INCORRECT] }
+            )
         }
 
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        user
         return {
             ...tokens,
             user: userDto
@@ -78,7 +115,6 @@ class UserService {
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        user
         return {
             ...tokens,
             user: userDto
