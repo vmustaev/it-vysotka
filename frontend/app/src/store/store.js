@@ -25,38 +25,33 @@ export default class Store {
     }
 
     async registration(formData) {
-    try {
-        const response = await AuthService.registration(formData);
-        console.log(response);
-        if (response.data.accessToken) {
-            setAccessToken(response.data.accessToken);
-            localStorage.setItem('wasAuth', 'true');
-            this.setAuth(true);
-            this.setUser(response.data.user);
+        try {
+            const response = await AuthService.registration(formData);
+            console.log('Registration response:', response);
+            
+            return response;
+        } catch (e) {
+            console.log('Registration error:', e.response?.data);
+            throw e;
         }
-        return response;
-    } catch (e) {
-        console.log(e.response?.data?.message || 'Ошибка регистрации');
-        throw e;
     }
-}
 
-async login(email, password) {
-    try {
-        const response = await AuthService.login(email, password);
-        console.log(response);
-        if (response.data.accessToken) {
-            setAccessToken(response.data.accessToken);
-            localStorage.setItem('wasAuth', 'true');
-            this.setAuth(true);
-            this.setUser(response.data.user);
+    async login(email, password) {
+        try {
+            const response = await AuthService.login(email, password);
+            console.log(response);
+            if (response.data.accessToken) {
+                setAccessToken(response.data.accessToken);
+                localStorage.setItem('wasAuth', 'true');
+                this.setAuth(true);
+                this.setUser(response.data.user);
+            }
+            return response;
+        } catch (e) {
+            console.log(e.response?.data?.message || 'Ошибка входа');
+            throw e;
         }
-        return response;
-    } catch (e) {
-        console.log(e.response?.data?.message || 'Ошибка входа');
-        throw e;
     }
-}
 
     async logout() {
         try {
@@ -82,15 +77,25 @@ async login(email, password) {
 
         try {
             const response = await axios.post(`${API_URL}/refresh`, { withCredentials: true })
-            console.log(response);
-            setAccessToken(response.data.accessToken);
-            localStorage.setItem('wasAuth', 'true');
-            this.setAuth(true);
-            this.setUser(response.data.user);
+            console.log('Check auth response:', response);
+            
+            if (response.data.user && response.data.user.isActivated) {
+                setAccessToken(response.data.accessToken);
+                localStorage.setItem('wasAuth', 'true');
+                this.setAuth(true);
+                this.setUser(response.data.user);
+            } else {
+                localStorage.removeItem('wasAuth');
+                clearAccessToken();
+                this.setAuth(false);
+                this.setUser({});
+            }
         } catch (e) {
             localStorage.removeItem('wasAuth');
             clearAccessToken();
-            console.log(e.response?.data?.message);
+            this.setAuth(false);
+            this.setUser({});
+            console.log('Auth check error:', e.response?.data?.message);
         } finally {
             this.setLoading(false);
         }

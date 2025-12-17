@@ -94,6 +94,14 @@ class UserService {
             )
         }
 
+        if (!user.isActivated) {
+            throw ApiError.BadRequest(
+                'Аккаунт не активирован. Пожалуйста, проверьте вашу почту и активируйте аккаунт.',
+                ['Аккаунт не активирован'],
+                { general: ['Аккаунт не активирован'] }
+            )
+        }
+
         const isPasswordEquals = await bcrypt.compare(password, user.password);
         if (!isPasswordEquals){
             throw ApiError.BadRequest(

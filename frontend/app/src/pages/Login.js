@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 
@@ -7,8 +7,19 @@ const LoginPage = observer(() => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState('');
     const { store } = useContext(Context);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    
+    useEffect(() => {
+        const registered = searchParams.get('registered');
+        if (registered === 'true') {
+            setSuccessMessage('Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.');
+            
+            navigate('/login', { replace: true });
+        }
+    }, [searchParams, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,6 +31,8 @@ const LoginPage = observer(() => {
                 navigate('/');
             }
         } catch (e) {
+            setSuccessMessage('');
+
             if (e.response?.data?.fieldErrors) {
                 const backendErrors = {};
                 Object.entries(e.response.data.fieldErrors).forEach(([field, errorList]) => {
@@ -43,6 +56,22 @@ const LoginPage = observer(() => {
     return (
         <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
             <h2>Вход</h2>
+            
+            {successMessage && (
+                <div style={{
+                    background: '#e8f5e9',
+                    color: '#2e7d32',
+                    padding: '15px',
+                    borderRadius: '4px',
+                    marginBottom: '20px',
+                    border: '1px solid #c8e6c9'
+                }}>
+                    {successMessage}
+                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                        После активации войдите в аккаунт
+                    </div>
+                </div>
+            )}
             
             {errors.general && (
                 <div style={{

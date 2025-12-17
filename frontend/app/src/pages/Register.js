@@ -49,11 +49,9 @@ const RegisterPage = observer(() => {
         setErrors({});
         
         try {
-            const response = await store.registration(formData);
+            await store.registration(formData);
             
-            if (store.isAuth) {
-                navigate('/');
-            }
+            navigate('/login?registered=true');
         } catch (e) {
             if (e.response?.data?.fieldErrors) {
                 const backendErrors = {};
@@ -61,8 +59,10 @@ const RegisterPage = observer(() => {
                     backendErrors[field] = errorList;
                 });
                 setErrors(backendErrors);
+            } else if (e.response?.data?.message) {
+                setErrors({ general: [e.response.data.message] });
             } else {
-                console.log('Ошибка регистрации:', e.response?.data?.message);
+                setErrors({ general: ['Ошибка регистрации'] });
             }
         } finally {
             setIsLoading(false);
@@ -80,6 +80,18 @@ const RegisterPage = observer(() => {
     return (
         <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
             <h2>Регистрация</h2>
+            
+            {errors.general && (
+                <div style={{
+                    background: '#ffebee',
+                    color: '#c62828',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    marginBottom: '15px'
+                }}>
+                    {errors.general[0]}
+                </div>
+            )}
             
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <div>
