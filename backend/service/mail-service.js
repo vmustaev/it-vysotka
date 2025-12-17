@@ -30,6 +30,24 @@ class MailService {
 
         })
     }
+
+    async sendResetMail(to, link){
+        await this.transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to,
+            subject: 'Сброс пароля',
+            text: "",
+            html: 
+                `
+                    <div>
+                        <h1>Сброс пароля</h1>
+                        <p>Для сброса пароля перейдите по ссылке:</p>
+                        <a href="${link}">${link}</a>
+                        <p>Ссылка действительна 15 минут.</p>
+                    </div>
+                `
+        });
+    }
 }
 
 module.exports = new MailService();

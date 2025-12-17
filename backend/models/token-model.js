@@ -10,7 +10,11 @@ const TokenSchema = sequelize.define('Token', {
             key: 'id'
         }
     },
-    refreshToken: {
+    token: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    type: {
         type: DataTypes.STRING,
         allowNull: false
     }

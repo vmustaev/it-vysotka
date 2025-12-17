@@ -66,11 +66,24 @@ class UserService {
         });
         
         const userDto = new UserDto(user);
-        const tokens = tokenService.generateTokens({...userDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        
+        const accessToken = tokenService.generateToken(
+            { ...userDto }, 
+            'access', 
+            '10s'
+        );
+        
+        const refreshToken = tokenService.generateToken(
+            { ...userDto }, 
+            'refresh', 
+            '30s'
+        );
+        
+        await tokenService.saveToken(userDto.id, refreshToken, 'refresh');
 
         return {
-            ...tokens,
+            accessToken,
+            refreshToken,
             user: userDto
         }
     }
@@ -112,10 +125,24 @@ class UserService {
         }
 
         const userDto = new UserDto(user);
-        const tokens = tokenService.generateTokens({...userDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+        const accessToken = tokenService.generateToken(
+            { ...userDto }, 
+            'access', 
+            '10s'
+        );
+        
+        const refreshToken = tokenService.generateToken(
+            { ...userDto }, 
+            'refresh', 
+            '30s'
+        );
+        
+        await tokenService.saveToken(userDto.id, refreshToken, 'refresh');
+        
         return {
-            ...tokens,
+            accessToken,
+            refreshToken,
             user: userDto
         }
     }
@@ -129,20 +156,101 @@ class UserService {
         if(!refreshToken){
             throw ApiError.UnauthorizedError();
         }
-        const userData = tokenService.validateRefreshToken(refreshToken);
-        const tokenFromDb = await tokenService.findToken(refreshToken);
+        
+        const userData = tokenService.validateToken(refreshToken, 'refresh');
+        
+        const tokenFromDb = await tokenService.findToken(refreshToken, 'refresh');
+        
         if (!userData || !tokenFromDb){
             throw ApiError.UnauthorizedError();
         }
         
         const user = await UserModel.findByPk(userData.id);
         const userDto = new UserDto(user);
-        const tokens = tokenService.generateTokens({...userDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        
+        const accessToken = tokenService.generateToken(
+            { ...userDto }, 
+            'access', 
+            '10s'
+        );
+        
+        const newRefreshToken = tokenService.generateToken(
+            { ...userDto }, 
+            'refresh', 
+            '30s'
+        );
+        
+        await tokenService.saveToken(userDto.id, newRefreshToken, 'refresh');
+        
         return {
-            ...tokens,
+            accessToken,
+            refreshToken: newRefreshToken,
             user: userDto
         }
+    }
+
+    async requestPasswordReset(email) {
+        const user = await UserModel.findOne({ where: { email } });
+        
+        if (!user) {
+            return { success: true };
+        }
+
+        if (!user.isActivated) {
+            throw ApiError.BadRequest('Аккаунт не активирован');
+        }
+
+        const resetToken = tokenService.generateToken(
+            { 
+                userId: user.id,
+                email: user.email 
+            }, 
+            'reset', 
+            '30s'
+        );
+        
+        await tokenService.saveToken(user.id, resetToken, 'reset');
+
+        const resetLink = `${process.env.URL}/reset-password?token=${resetToken}`;
+        
+        mailService.sendResetMail(email, resetLink);
+
+        return { success: true };
+    }
+
+    async resetPassword(token, newPassword) {
+        const tokenData = tokenService.validateToken(token, 'reset');
+        
+        if (!tokenData) {
+            throw ApiError.BadRequest('Ссылка недействительна');
+        }
+
+        const tokenInDb = await tokenService.findToken(token, 'reset');
+        
+        if (!tokenInDb) {
+            throw ApiError.BadRequest('Токен не найден');
+        }
+
+        const user = await UserModel.findByPk(tokenData.userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,32}$/;
+        if (!passwordRegex.test(newPassword)) {
+            throw ApiError.BadRequest(
+                'Пароль должен содержать от 8 до 32 символов, включая хотя бы одну заглавную букву, одну строчную букву и одну цифру'
+            );
+        }
+
+        const hashPassword = await bcrypt.hash(newPassword, 3);
+        user.password = hashPassword;
+        await user.save();
+
+        await tokenService.removeToken(token, 'reset');
+
+        return { success: true };
     }
 
     async getAllUsers(){

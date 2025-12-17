@@ -51,7 +51,12 @@ const RegisterPage = observer(() => {
         try {
             await store.registration(formData);
             
-            navigate('/login?registered=true');
+            navigate('/login', { 
+            state: { 
+                registrationSuccess: true,
+                message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.'
+            } 
+        });
         } catch (e) {
             if (e.response?.data?.fieldErrors) {
                 const backendErrors = {};

@@ -10,6 +10,7 @@ import Regulations from "./pages/Regulations";
 import Gallery from "./pages/Gallery";
 import Results from "./pages/Results";
 import Contacts from "./pages/Contacts";
+import NotFound from "./pages/NotFound";
 
 const App = observer(() => {
     const { store } = useContext(Context);
@@ -39,6 +40,8 @@ const App = observer(() => {
                 <Route path="/register" element={
                     store.isAuth ? <Navigate to="/" /> : <Register />
                 } />
+
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </div>
     );

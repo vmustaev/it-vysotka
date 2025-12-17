@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 
@@ -10,16 +10,15 @@ const LoginPage = observer(() => {
     const [successMessage, setSuccessMessage] = useState('');
     const { store } = useContext(Context);
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+    const location = useLocation();
     
     useEffect(() => {
-        const registered = searchParams.get('registered');
-        if (registered === 'true') {
-            setSuccessMessage('Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.');
+        if (location.state?.registrationSuccess) {
+            setSuccessMessage(location.state.message || 'Регистрация успешна!');
             
-            navigate('/login', { replace: true });
+            navigate(location.pathname, { replace: true, state: {} });
         }
-    }, [searchParams, navigate]);
+    }, [location, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
