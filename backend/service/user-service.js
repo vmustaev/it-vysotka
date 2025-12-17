@@ -66,7 +66,7 @@ class UserService {
         });
         
         const userDto = new UserDto(user);
-        
+
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
             'access', 
@@ -148,7 +148,7 @@ class UserService {
     }
 
     async logout(refreshToken){
-        const token = await tokenService.removeToken(refreshToken);
+        const token = await tokenService.removeToken(refreshToken, 'refresh');
         return token;
     }
 
