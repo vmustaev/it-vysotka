@@ -193,7 +193,11 @@ class UserService {
         const user = await UserModel.findOne({ where: { email } });
         
         if (!user) {
-            return { success: true };
+            throw ApiError.BadRequest(
+                errorMessages.EMAIL_NOT_FOUND,
+                [errorMessages.EMAIL_NOT_FOUND],
+                { email: [errorMessages.EMAIL_NOT_FOUND] }
+            )
         }
 
         if (!user.isActivated) {

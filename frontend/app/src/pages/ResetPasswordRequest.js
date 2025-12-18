@@ -1,46 +1,39 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Context } from "../index";
-import { observer } from "mobx-react-lite";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from '../http';
 
-const LoginPage = observer(() => {
+const ResetPasswordRequest = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const { store } = useContext(Context);
     const navigate = useNavigate();
-    const location = useLocation();
-    
-    useEffect(() => {
-        if (location.state?.registrationSuccess) {
-            setSuccessMessage(location.state.message || 'Регистрация успешна!');
-            
-            navigate(location.pathname, { replace: true, state: {} });
-        }
-    }, [location, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        try {
-            await store.login(email, password);
-            
-            if (store.isAuth) {
-                navigate('/');
-            }
-        } catch (e) {
-            setSuccessMessage('');
+        setErrors({});
+        setSuccessMessage('');
+        setIsLoading(true);
 
-            if (e.response?.data?.fieldErrors) {
-                const backendErrors = {};
-                Object.entries(e.response.data.fieldErrors).forEach(([field, errorList]) => {
-                    backendErrors[field] = errorList;
-                });
-                setErrors(backendErrors);
-            } else if (e.response?.data?.message) {
-                setErrors({ general: [e.response.data.message] });
+        try {
+            await axios.post('/password/reset/request', { email });
+            
+            setSuccessMessage('Ссылка для сброса пароля отправлена на ваш email. Проверьте почту.');
+            setEmail('');
+            
+            setTimeout(() => {
+                navigate('/login');
+            }, 5000);
+        } catch (error) {
+            if (error.response?.data?.fieldErrors) {
+                setErrors(error.response.data.fieldErrors);
+            } else if (error.response?.data?.message) {
+                setErrors({ general: [error.response.data.message] });
+            } else {
+                setErrors({ general: ['Ошибка при отправке запроса'] });
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -54,7 +47,10 @@ const LoginPage = observer(() => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Вход</h2>
+            <h2>Сброс пароля</h2>
+            <p style={{ marginBottom: '20px', color: '#666' }}>
+                Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
+            </p>
             
             {successMessage && (
                 <div style={{
@@ -67,7 +63,7 @@ const LoginPage = observer(() => {
                 }}>
                     {successMessage}
                     <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                        После активации войдите в аккаунт
+                        Вы будете перенаправлены на страницу входа через 5 секунд...
                     </div>
                 </div>
             )}
@@ -101,6 +97,7 @@ const LoginPage = observer(() => {
                             borderRadius: '4px'
                         }}
                         required
+                        disabled={isLoading}
                     />
                     {isFieldInvalid('email') && (
                         <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
@@ -109,71 +106,36 @@ const LoginPage = observer(() => {
                     )}
                 </div>
                 
-                <div>
-                    <input
-                        type="password"
-                        placeholder="Пароль"
-                        value={password}
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                            if (errors.password) setErrors(prev => ({ ...prev, password: [] }));
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('password') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
-                        required
-                    />
-                    {isFieldInvalid('password') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                            {getFieldError('password')}
-                        </div>
-                    )}
-                </div>
-                
                 <button 
                     type="submit"
+                    disabled={isLoading}
                     style={{
                         padding: '12px',
-                        background: '#4CAF50',
+                        background: isLoading ? '#ccc' : '#4CAF50',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
-                        cursor: 'pointer'
+                        cursor: isLoading ? 'not-allowed' : 'pointer'
                     }}
                 >
-                    Войти
+                    {isLoading ? 'Отправка...' : 'Отправить ссылку для сброса'}
                 </button>
             </form>
             
             <div style={{ textAlign: 'center', marginTop: '15px' }}>
                 <a 
-                    href="/register" 
+                    href="/login" 
                     style={{ color: '#2196F3', textDecoration: 'none' }}
                     onClick={(e) => {
                         e.preventDefault();
-                        navigate('/register');
+                        navigate('/login');
                     }}
                 >
-                    Нет аккаунта? Зарегистрироваться
-                </a>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                <a
-                    href="/reset-password-request"
-                    style={{ color: '#666', textDecoration: 'none', fontSize: '14px' }}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/reset-password-request');
-                    }}
-                >
-                    Забыли пароль?
+                    Вернуться ко входу
                 </a>
             </div>
         </div>
     );
-});
+};
 
-export default LoginPage;
+export default ResetPasswordRequest;
