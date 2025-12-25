@@ -25,13 +25,25 @@ const ResetPasswordRequest = () => {
                 navigate('/login');
             }, 5000);
         } catch (error) {
-            if (error.response?.data?.fieldErrors) {
-                setErrors(error.response.data.fieldErrors);
-            } else if (error.response?.data?.message) {
-                setErrors({ general: [error.response.data.message] });
+            console.log('Reset password error:', error);
+            console.log('Error response:', error.response?.data);
+            
+            const responseData = error.response?.data;
+            const newErrors = {};
+            
+            // Копируем fieldErrors если есть
+            if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
+                Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                setErrors({ general: ['Ошибка при отправке запроса'] });
+                // Показываем общее сообщение только если НЕТ ошибок полей
+                if (responseData?.message) {
+                    newErrors._message = responseData.message;
+                } else {
+                    newErrors._message = 'Ошибка при отправке запроса';
+                }
             }
+            
+            setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
@@ -68,7 +80,7 @@ const ResetPasswordRequest = () => {
                 </div>
             )}
             
-            {errors.general && (
+            {errors._message && (
                 <div style={{
                     background: '#ffebee',
                     color: '#c62828',
@@ -76,7 +88,7 @@ const ResetPasswordRequest = () => {
                     borderRadius: '4px',
                     marginBottom: '15px'
                 }}>
-                    {errors.general[0]}
+                    {errors._message}
                 </div>
             )}
             

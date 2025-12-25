@@ -39,12 +39,16 @@ export default class Store {
     async login(email, password) {
         try {
             const response = await AuthService.login(email, password);
-            console.log(response);
-            if (response.data.accessToken) {
-                setAccessToken(response.data.accessToken);
+            console.log('Login response:', response);
+            
+            // Данные теперь в response.data.data
+            const responseData = response.data.data || response.data;
+            
+            if (responseData.accessToken) {
+                setAccessToken(responseData.accessToken);
                 localStorage.setItem('wasAuth', 'true');
                 this.setAuth(true);
-                this.setUser(response.data.user);
+                this.setUser(responseData.user);
             }
             return response;
         } catch (e) {
@@ -76,14 +80,17 @@ export default class Store {
         }
 
         try {
-            const response = await axios.post(`${API_URL}/refresh`, { withCredentials: true })
+            const response = await axios.post(`${API_URL}/refresh`, {}, { withCredentials: true })
             console.log('Check auth response:', response);
             
-            if (response.data.user && response.data.user.isActivated) {
-                setAccessToken(response.data.accessToken);
+            // Данные теперь в response.data.data
+            const responseData = response.data.data || response.data;
+            
+            if (responseData.user && responseData.user.isActivated) {
+                setAccessToken(responseData.accessToken);
                 localStorage.setItem('wasAuth', 'true');
                 this.setAuth(true);
-                this.setUser(response.data.user);
+                this.setUser(responseData.user);
             } else {
                 localStorage.removeItem('wasAuth');
                 clearAccessToken();

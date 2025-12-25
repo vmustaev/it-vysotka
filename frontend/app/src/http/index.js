@@ -33,16 +33,24 @@ $api.interceptors.response.use((config) => {
     return config;
 }, async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && error.config && !error.config._isRetry) {
+    
+    // Проверяем наличие error.response (может отсутствовать при сетевых ошибках)
+    if (error.response?.status === 401 && error.config && !error.config._isRetry) {
         originalRequest._isRetry = true;
         try {
-            const response = await axios.post(`${API_URL}/refresh`, { withCredentials: true });
-            accessToken = response.data.accessToken;
+            const response = await axios.post(`${API_URL}/refresh`, {}, { withCredentials: true });
+            // Данные теперь в response.data.data
+            const responseData = response.data.data || response.data;
+            setAccessToken(responseData.accessToken);
             return $api.request(originalRequest);
         } catch (e) {
             console.log('НЕ АВТОРИЗОВАН');
             localStorage.removeItem('wasAuth');
             clearAccessToken();
+            // Редирект на логин если пользователь не на публичной странице
+            if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+                window.location.href = '/login';
+            }
         }
     }
     throw error;

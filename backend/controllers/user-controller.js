@@ -31,6 +31,7 @@ class UserController {
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
             return res.json({
                 success: true,
+                message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.',
                 data: userData
             });
         } catch (e) {
@@ -44,7 +45,11 @@ class UserController {
             const {email, password} = req.body;
             const userData = await userService.login(email, password);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
-            return res.json(userData);
+            return res.json({
+                success: true,
+                message: 'Вход выполнен успешно',
+                data: userData
+            });
         } catch (e) {
             next(e);
         }
@@ -54,9 +59,12 @@ class UserController {
     {
         try{
             const {refreshToken} = req.cookies;
-            const token = await userService.logout(refreshToken);
+            await userService.logout(refreshToken || null);
             res.clearCookie("refreshToken");
-            return res.json(token);
+            return res.json({
+                success: true,
+                message: 'Выход выполнен успешно'
+            });
 
         } catch (e) {
             next(e);
@@ -66,11 +74,13 @@ class UserController {
     async activate(req, res, next)
     {
         try{
-            const activationLink = req.params.link;
-            await userService.activate(activationLink);
-            return res.redirect('/login');
+            const activationToken = req.params.link;
+            await userService.activate(activationToken);
+            // Редирект на фронтенд с успешным сообщением
+            return res.redirect(`${process.env.URL}/login?activated=true`);
         } catch (e) {
-            next(e);
+            // Редирект на фронтенд с ошибкой
+            return res.redirect(`${process.env.URL}/login?activation_error=true`);
         }
     }
 
@@ -78,9 +88,17 @@ class UserController {
     {
         try{
             const {refreshToken} = req.cookies;
+            
+            if (!refreshToken) {
+                return next(ApiError.UnauthorizedError());
+            }
+            
             const userData = await userService.refresh(refreshToken);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
-            return res.json(userData);
+            return res.json({
+                success: true,
+                data: userData
+            });
 
         } catch (e) {
             next(e);
@@ -91,7 +109,10 @@ class UserController {
     {
         try{
             const users = await userService.getAllUsers();
-            return res.json(users);
+            return res.json({
+                success: true,
+                data: users
+            });
         } catch (e) {
             next(e);
         }

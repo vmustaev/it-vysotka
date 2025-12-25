@@ -14,7 +14,8 @@ module.exports = function (err, req, res, next) {
 
     return res.status(500).json({
         success: false,
-        message: "Непредвиденная ошибка",
-        errors: [err.message]
+        message: "Непредвиденная ошибка сервера",
+        errors: process.env.NODE_ENV === 'development' ? [err.message] : ['Произошла внутренняя ошибка сервера'],
+        fieldErrors: {}
     })
 }

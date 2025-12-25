@@ -51,13 +51,22 @@ const ResetPassword = () => {
                 navigate('/login');
             }, 3000);
         } catch (error) {
-            if (error.response?.data?.fieldErrors) {
-                setErrors(error.response.data.fieldErrors);
-            } else if (error.response?.data?.message) {
-                setErrors({ general: [error.response.data.message] });
+            const responseData = error.response?.data;
+            const newErrors = {};
+            
+            // Копируем fieldErrors если есть
+            if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
+                Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                setErrors({ general: ['Ошибка при сбросе пароля'] });
+                // Показываем общее сообщение только если НЕТ ошибок полей
+                if (responseData?.message) {
+                    newErrors._message = responseData.message;
+                } else {
+                    newErrors._message = 'Ошибка при сбросе пароля';
+                }
             }
+            
+            setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
@@ -103,7 +112,7 @@ const ResetPassword = () => {
                         </div>
                     )}
                     
-                    {errors.general && (
+                    {errors._message && (
                         <div style={{
                             background: '#ffebee',
                             color: '#c62828',
@@ -111,7 +120,7 @@ const ResetPassword = () => {
                             borderRadius: '4px',
                             marginBottom: '15px'
                         }}>
-                            {errors.general[0]}
+                            {errors._message}
                         </div>
                     )}
                     

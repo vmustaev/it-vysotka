@@ -18,6 +18,19 @@ const TokenSchema = sequelize.define('Token', {
         type: DataTypes.STRING,
         allowNull: false
     }
-}, {timestamps: false});
+}, {
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['token', 'type']
+        },
+        {
+            fields: ['userId', 'type']
+        },
+        {
+            fields: ['createdAt']
+        }
+    ]
+});
 
 module.exports = TokenSchema;

@@ -16,10 +16,6 @@ const UserSchema = sequelize.define('User', {
         allowNull: false,
         defaultValue: false
     },
-    activationLink: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
     last_name: {
         type: DataTypes.STRING,
         allowNull: false

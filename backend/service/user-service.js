@@ -27,31 +27,11 @@ class UserService {
             );
         }
         
-        const activationLink = uuid.v4();
-        
-        try {
-            await mailService.sendActivationMail(email, `${process.env.URL}/api/activate/${activationLink}`);
-        } catch (error) {
-            if (error.message.includes('invalid mailbox')) {
-                throw ApiError.BadRequest(
-                    'Указанный email не существует или недоступен',
-                    ['Указанный email не существует или недоступен'],
-                    { email: ['Указанный email не существует или недоступен'] }
-                );
-            }
-            throw ApiError.BadRequest(
-                'Ошибка отправки письма активации. Пожалуйста, проверьте email',
-                [error.message],
-                { email: ['Ошибка отправки письма активации'] }
-            );
-        }
-        
         const hashPassword = await bcrypt.hash(password, 3);
         
         const user = await UserModel.create({
             email, 
-            password: hashPassword, 
-            activationLink,
+            password: hashPassword,
             last_name: additionalData.last_name,
             first_name: additionalData.first_name,
             second_name: additionalData.second_name,
@@ -66,6 +46,25 @@ class UserService {
         });
         
         const userDto = new UserDto(user);
+
+        // Генерируем UUID activation токен (7 дней = 10080 минут)
+        const activationToken = await tokenService.generateUuidToken(user.id, 'activation');
+        
+        // Отправляем письмо с активацией
+        try {
+            await mailService.sendActivationMail(
+                email, 
+                `${process.env.URL}/api/activate/${activationToken}`
+            );
+        } catch (e) {
+            // Если письмо не отправилось, удаляем созданного пользователя и токены
+            await tokenService.removeToken(activationToken, 'activation');
+            await user.destroy();
+            throw ApiError.InternalError(
+                'Ошибка отправки письма активации. Попробуйте зарегистрироваться позже.',
+                ['Ошибка отправки email']
+            );
+        }
 
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
@@ -88,13 +87,40 @@ class UserService {
         }
     }
 
-    async activate(activationLink){
-        const user = await UserModel.findOne({ where : {activationLink}})
-        if (!user){
-            throw ApiError.BadRequest(errorMessages.ACTIVATION_LINK_INVALID)
+    async activate(activationToken){
+        // Валидируем UUID токен (7 дней = 10080 минут)
+        const tokenData = await tokenService.validateUuidToken(activationToken, 'activation', 10080);
+        
+        if (!tokenData) {
+            throw ApiError.BadRequest(
+                'Ссылка активации недействительна или истекла',
+                ['Ссылка активации недействительна или истекла']
+            );
         }
+        
+        // Находим пользователя
+        const user = await UserModel.findByPk(tokenData.userId);
+        
+        if (!user){
+            throw ApiError.BadRequest(
+                'Пользователь не найден',
+                ['Пользователь не найден']
+            );
+        }
+        
+        if (user.isActivated) {
+            throw ApiError.BadRequest(
+                'Аккаунт уже активирован',
+                ['Аккаунт уже активирован']
+            );
+        }
+        
+        // Активируем пользователя
         user.isActivated = true;
         await user.save();
+        
+        // Удаляем токен активации
+        await tokenService.removeToken(activationToken, 'activation');
     }
 
     async login(email, password){
@@ -110,8 +136,7 @@ class UserService {
         if (!user.isActivated) {
             throw ApiError.BadRequest(
                 'Аккаунт не активирован. Пожалуйста, проверьте вашу почту и активируйте аккаунт.',
-                ['Аккаунт не активирован'],
-                { general: ['Аккаунт не активирован'] }
+                ['Аккаунт не активирован. Пожалуйста, проверьте вашу почту и активируйте аккаунт.']
             )
         }
 
@@ -148,6 +173,11 @@ class UserService {
     }
 
     async logout(refreshToken){
+        if (!refreshToken) {
+            // Если токена нет, просто возвращаем успех
+            return { success: true };
+        }
+        
         const token = await tokenService.removeToken(refreshToken, 'refresh');
         return token;
     }
@@ -166,6 +196,13 @@ class UserService {
         }
         
         const user = await UserModel.findByPk(userData.id);
+        
+        if (!user) {
+            // Пользователь удален, удаляем токен
+            await tokenService.removeToken(refreshToken, 'refresh');
+            throw ApiError.UnauthorizedError();
+        }
+        
         const userDto = new UserDto(user);
         
         const accessToken = tokenService.generateToken(
@@ -180,6 +217,8 @@ class UserService {
             '30s'
         );
         
+        // Удаляем старый refresh token перед сохранением нового (защита от replay атак)
+        await tokenService.removeToken(refreshToken, 'refresh');
         await tokenService.saveToken(userDto.id, newRefreshToken, 'refresh');
         
         return {
@@ -201,19 +240,17 @@ class UserService {
         }
 
         if (!user.isActivated) {
-            throw ApiError.BadRequest('Аккаунт не активирован');
+            throw ApiError.BadRequest(
+                'Аккаунт не активирован. Пожалуйста, сначала активируйте аккаунт по ссылке из письма.',
+                ['Аккаунт не активирован. Пожалуйста, сначала активируйте аккаунт по ссылке из письма.']
+            );
         }
 
-        const resetToken = tokenService.generateToken(
-            { 
-                userId: user.id,
-                email: user.email 
-            }, 
-            'reset', 
-            '30s'
-        );
-        
-        await tokenService.saveToken(user.id, resetToken, 'reset');
+        // Удаляем старые reset токены пользователя перед созданием нового
+        await tokenService.removeAllUserTokens(user.id, 'reset');
+
+        // Генерируем UUID reset токен (15 минут)
+        const resetToken = await tokenService.generateUuidToken(user.id, 'reset');
 
         const resetLink = `${process.env.URL}/reset-password?token=${resetToken}`;
         
@@ -223,28 +260,38 @@ class UserService {
     }
 
     async resetPassword(token, newPassword) {
-        const tokenData = tokenService.validateToken(token, 'reset');
+        // Валидируем UUID токен (15 минут)
+        const tokenData = await tokenService.validateUuidToken(token, 'reset', 15);
         
         if (!tokenData) {
-            throw ApiError.BadRequest('Ссылка недействительна');
-        }
-
-        const tokenInDb = await tokenService.findToken(token, 'reset');
-        
-        if (!tokenInDb) {
-            throw ApiError.BadRequest('Токен не найден');
+            throw ApiError.BadRequest(
+                'Ссылка для сброса пароля недействительна или истекла',
+                ['Ссылка для сброса пароля недействительна или истекла']
+            );
         }
 
         const user = await UserModel.findByPk(tokenData.userId);
         
         if (!user) {
-            throw ApiError.BadRequest('Пользователь не найден');
+            throw ApiError.BadRequest(
+                'Пользователь не найден',
+                ['Пользователь не найден']
+            );
         }
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,32}$/;
         if (!passwordRegex.test(newPassword)) {
             throw ApiError.BadRequest(
-                'Пароль должен содержать от 8 до 32 символов, включая хотя бы одну заглавную букву, одну строчную букву и одну цифру'
+                errorMessages.PASSWORD_COMPLEXITY,
+                [errorMessages.PASSWORD_COMPLEXITY],
+                { newPassword: [errorMessages.PASSWORD_COMPLEXITY] }
+            );
+        }
+
+        if (!user.isActivated) {
+            throw ApiError.BadRequest(
+                'Аккаунт не активирован. Пожалуйста, сначала активируйте аккаунт',
+                ['Аккаунт не активирован. Пожалуйста, сначала активируйте аккаунт']
             );
         }
 
@@ -252,7 +299,12 @@ class UserService {
         user.password = hashPassword;
         await user.save();
 
+        // Удаляем reset токен
         await tokenService.removeToken(token, 'reset');
+        
+        // Удаляем все refresh токены пользователя для безопасности
+        // (если пароль был скомпрометирован, все сессии должны быть закрыты)
+        await tokenService.removeAllUserTokens(user.id, 'refresh');
 
         return { success: true };
     }

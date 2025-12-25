@@ -13,10 +13,23 @@ const LoginPage = observer(() => {
     const location = useLocation();
     
     useEffect(() => {
+        // Обработка успешной регистрации
         if (location.state?.registrationSuccess) {
             setSuccessMessage(location.state.message || 'Регистрация успешна!');
-            
             navigate(location.pathname, { replace: true, state: {} });
+        }
+        
+        // Обработка активации через URL параметры
+        const params = new URLSearchParams(location.search);
+        if (params.get('activated') === 'true') {
+            setSuccessMessage('Аккаунт успешно активирован! Теперь вы можете войти.');
+            // Очищаем URL
+            navigate(location.pathname, { replace: true });
+        }
+        if (params.get('activation_error') === 'true') {
+            setErrors({ _message: 'Ошибка активации. Ссылка недействительна или истекла.' });
+            // Очищаем URL
+            navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);
 
@@ -31,16 +44,24 @@ const LoginPage = observer(() => {
             }
         } catch (e) {
             setSuccessMessage('');
+            const responseData = e.response?.data;
+            const newErrors = {};
 
-            if (e.response?.data?.fieldErrors) {
-                const backendErrors = {};
-                Object.entries(e.response.data.fieldErrors).forEach(([field, errorList]) => {
-                    backendErrors[field] = errorList;
-                });
-                setErrors(backendErrors);
-            } else if (e.response?.data?.message) {
-                setErrors({ general: [e.response.data.message] });
+            // Копируем fieldErrors если есть
+            if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
+                Object.assign(newErrors, responseData.fieldErrors);
+            } else {
+                // Показываем общее сообщение только если НЕТ ошибок полей
+                if (responseData?.message) {
+                    newErrors._message = responseData.message;
+                } else if (responseData?.errors && responseData.errors.length > 0) {
+                    newErrors._message = Array.isArray(responseData.errors) ? responseData.errors[0] : responseData.errors;
+                } else {
+                    newErrors._message = 'Ошибка входа';
+                }
             }
+            
+            setErrors(newErrors);
         }
     };
 
@@ -72,7 +93,7 @@ const LoginPage = observer(() => {
                 </div>
             )}
             
-            {errors.general && (
+            {errors._message && (
                 <div style={{
                     background: '#ffebee',
                     color: '#c62828',
@@ -80,7 +101,7 @@ const LoginPage = observer(() => {
                     borderRadius: '4px',
                     marginBottom: '15px'
                 }}>
-                    {errors.general[0]}
+                    {errors._message}
                 </div>
             )}
             

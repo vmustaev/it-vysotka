@@ -58,17 +58,22 @@ const RegisterPage = observer(() => {
             } 
         });
         } catch (e) {
-            if (e.response?.data?.fieldErrors) {
-                const backendErrors = {};
-                Object.entries(e.response.data.fieldErrors).forEach(([field, errorList]) => {
-                    backendErrors[field] = errorList;
-                });
-                setErrors(backendErrors);
-            } else if (e.response?.data?.message) {
-                setErrors({ general: [e.response.data.message] });
+            const responseData = e.response?.data;
+            const newErrors = {};
+            
+            // Копируем fieldErrors если есть
+            if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
+                Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                setErrors({ general: ['Ошибка регистрации'] });
+                // Показываем общее сообщение только если НЕТ ошибок полей
+                if (responseData?.message) {
+                    newErrors._message = responseData.message;
+                } else {
+                    newErrors._message = 'Ошибка регистрации';
+                }
             }
+            
+            setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
@@ -86,7 +91,7 @@ const RegisterPage = observer(() => {
         <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
             <h2>Регистрация</h2>
             
-            {errors.general && (
+            {errors._message && (
                 <div style={{
                     background: '#ffebee',
                     color: '#c62828',
@@ -94,7 +99,7 @@ const RegisterPage = observer(() => {
                     borderRadius: '4px',
                     marginBottom: '15px'
                 }}>
-                    {errors.general[0]}
+                    {errors._message}
                 </div>
             )}
             
