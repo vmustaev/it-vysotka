@@ -13,71 +13,40 @@ const Navbar = observer(() => {
     };
 
     return (
-        <div style={{
-            background: '#333',
-            padding: '10px 20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            color: 'white'
-        }}>
-            <div style={{ display: 'flex', gap: '15px' }}>
-                <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Главная</Link>
-                <Link to="/regulations" style={{ color: 'white', textDecoration: 'none' }}>Регламент</Link>
-                <Link to="/gallery" style={{ color: 'white', textDecoration: 'none' }}>Галерея</Link>
-                <Link to="/results" style={{ color: 'white', textDecoration: 'none' }}>Результаты</Link>
-                <Link to="/contacts" style={{ color: 'white', textDecoration: 'none' }}>Контакты</Link>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                {store.isAuth ? (
-                    <>
-                        <span style={{ marginRight: '10px' }}>{store.user.email}</span>
-                        <button 
-                            onClick={handleLogout}
-                            style={{
-                                background: '#ff4444',
-                                color: 'white',
-                                border: 'none',
-                                padding: '5px 10px',
-                                borderRadius: '3px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Выйти
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>
-                            <button style={{
-                                background: '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                padding: '5px 10px',
-                                borderRadius: '3px',
-                                cursor: 'pointer',
-                                marginRight: '5px'
-                            }}>
+        <nav className="navbar">
+            <div className="navbar-content">
+                <div className="navbar-links">
+                    <Link to="/" className="navbar-link">Главная</Link>
+                    <Link to="/regulations" className="navbar-link">Регламент</Link>
+                    <Link to="/gallery" className="navbar-link">Галерея</Link>
+                    <Link to="/results" className="navbar-link">Результаты</Link>
+                    <Link to="/contacts" className="navbar-link">Контакты</Link>
+                </div>
+                
+                <div className="navbar-actions">
+                    {store.isAuth ? (
+                        <>
+                            <span className="navbar-user">{store.user.email}</span>
+                            <button 
+                                onClick={handleLogout}
+                                className="btn btn-danger btn-sm"
+                            >
+                                Выйти
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="btn btn-secondary btn-sm">
                                 Войти
-                            </button>
-                        </Link>
-                        <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>
-                            <button style={{
-                                background: '#2196F3',
-                                color: 'white',
-                                border: 'none',
-                                padding: '5px 10px',
-                                borderRadius: '3px',
-                                cursor: 'pointer'
-                            }}>
+                            </Link>
+                            <Link to="/register" className="btn btn-primary btn-sm">
                                 Регистрация
-                            </button>
-                        </Link>
-                    </>
-                )}
+                            </Link>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </nav>
     );
 });
 

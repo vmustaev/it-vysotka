@@ -58,93 +58,72 @@ const ResetPasswordRequest = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Сброс пароля</h2>
-            <p style={{ marginBottom: '20px', color: '#666' }}>
-                Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
-            </p>
-            
-            {successMessage && (
-                <div style={{
-                    background: '#e8f5e9',
-                    color: '#2e7d32',
-                    padding: '15px',
-                    borderRadius: '4px',
-                    marginBottom: '20px',
-                    border: '1px solid #c8e6c9'
-                }}>
-                    {successMessage}
-                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                        Вы будете перенаправлены на страницу входа через 5 секунд...
-                    </div>
-                </div>
-            )}
-            
-            {errors._message && (
-                <div style={{
-                    background: '#ffebee',
-                    color: '#c62828',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    marginBottom: '15px'
-                }}>
-                    {errors._message}
-                </div>
-            )}
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('email') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
-                        required
-                        disabled={isLoading}
-                    />
-                    {isFieldInvalid('email') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                            {getFieldError('email')}
+        <div className="page">
+            <div className="form-container">
+                <div className="form-card">
+                    <h2 className="form-title">Сброс пароля</h2>
+                    <p style={{ marginBottom: '20px', color: 'var(--text-secondary)', textAlign: 'center' }}>
+                        Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
+                    </p>
+                    
+                    {successMessage && (
+                        <div className="alert alert-success">
+                            {successMessage}
+                            <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                                Вы будете перенаправлены на страницу входа через 5 секунд...
+                            </div>
                         </div>
                     )}
+                    
+                    {errors._message && (
+                        <div className="alert alert-error">
+                            {errors._message}
+                        </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="form">
+                        <div className="form-group">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
+                                }}
+                                className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
+                                required
+                                disabled={isLoading}
+                            />
+                            {isFieldInvalid('email') && (
+                                <div className="form-error">
+                                    {getFieldError('email')}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <button 
+                            type="submit"
+                            disabled={isLoading}
+                            className="btn btn-secondary btn-lg"
+                        >
+                            {isLoading ? 'Отправка...' : 'Отправить ссылку для сброса'}
+                        </button>
+                    </form>
+                    
+                    <div className="text-center mt-lg">
+                        <a 
+                            href="/login" 
+                            className="text-primary"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/login');
+                            }}
+                        >
+                            Вернуться ко входу
+                        </a>
+                    </div>
                 </div>
-                
-                <button 
-                    type="submit"
-                    disabled={isLoading}
-                    style={{
-                        padding: '12px',
-                        background: isLoading ? '#ccc' : '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: isLoading ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    {isLoading ? 'Отправка...' : 'Отправить ссылку для сброса'}
-                </button>
-            </form>
-            
-            <div style={{ textAlign: 'center', marginTop: '15px' }}>
-                <a 
-                    href="/login" 
-                    style={{ color: '#2196F3', textDecoration: 'none' }}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/login');
-                    }}
-                >
-                    Вернуться ко входу
-                </a>
             </div>
         </div>
     );

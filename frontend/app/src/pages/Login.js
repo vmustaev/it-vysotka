@@ -74,124 +74,99 @@ const LoginPage = observer(() => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Вход</h2>
-            
-            {successMessage && (
-                <div style={{
-                    background: '#e8f5e9',
-                    color: '#2e7d32',
-                    padding: '15px',
-                    borderRadius: '4px',
-                    marginBottom: '20px',
-                    border: '1px solid #c8e6c9'
-                }}>
-                    {successMessage}
-                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                        После активации войдите в аккаунт
+        <div className="page">
+            <div className="form-container">
+                <div className="form-card">
+                    <h2 className="form-title">Вход</h2>
+                    
+                    {successMessage && (
+                        <div className="alert alert-success">
+                            {successMessage}
+                            <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                                После активации войдите в аккаунт
+                            </div>
+                        </div>
+                    )}
+                    
+                    {errors._message && (
+                        <div className="alert alert-error">
+                            {errors._message}
+                        </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="form">
+                        <div className="form-group">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
+                                }}
+                                className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
+                                required
+                            />
+                            {isFieldInvalid('email') && (
+                                <div className="form-error">
+                                    {getFieldError('email')}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="form-group">
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={password}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errors.password) setErrors(prev => ({ ...prev, password: [] }));
+                                }}
+                                className={`form-input ${isFieldInvalid('password') ? 'error' : ''}`}
+                                required
+                            />
+                            {isFieldInvalid('password') && (
+                                <div className="form-error">
+                                    {getFieldError('password')}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <button 
+                            type="submit"
+                            className="btn btn-secondary btn-lg"
+                        >
+                            Войти
+                        </button>
+                    </form>
+                    
+                    <div className="text-center mt-lg">
+                        <a 
+                            href="/register" 
+                            className="text-primary"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/register');
+                            }}
+                        >
+                            Нет аккаунта? Зарегистрироваться
+                        </a>
+                    </div>
+                    <div className="text-center mt-sm">
+                        <a
+                            href="/reset-password-request"
+                            className="text-secondary"
+                            style={{ fontSize: '14px' }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/reset-password-request');
+                            }}
+                        >
+                            Забыли пароль?
+                        </a>
                     </div>
                 </div>
-            )}
-            
-            {errors._message && (
-                <div style={{
-                    background: '#ffebee',
-                    color: '#c62828',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    marginBottom: '15px'
-                }}>
-                    {errors._message}
-                </div>
-            )}
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('email') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
-                        required
-                    />
-                    {isFieldInvalid('email') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                            {getFieldError('email')}
-                        </div>
-                    )}
-                </div>
-                
-                <div>
-                    <input
-                        type="password"
-                        placeholder="Пароль"
-                        value={password}
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                            if (errors.password) setErrors(prev => ({ ...prev, password: [] }));
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('password') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
-                        required
-                    />
-                    {isFieldInvalid('password') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                            {getFieldError('password')}
-                        </div>
-                    )}
-                </div>
-                
-                <button 
-                    type="submit"
-                    style={{
-                        padding: '12px',
-                        background: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Войти
-                </button>
-            </form>
-            
-            <div style={{ textAlign: 'center', marginTop: '15px' }}>
-                <a 
-                    href="/register" 
-                    style={{ color: '#2196F3', textDecoration: 'none' }}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/register');
-                    }}
-                >
-                    Нет аккаунта? Зарегистрироваться
-                </a>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                <a
-                    href="/reset-password-request"
-                    style={{ color: '#666', textDecoration: 'none', fontSize: '14px' }}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/reset-password-request');
-                    }}
-                >
-                    Забыли пароль?
-                </a>
             </div>
         </div>
     );

@@ -1,0 +1,5 @@
+/* Главный файл стилей - импортирует все остальные */
+@import './variables.css';
+@import './global.css';
+@import './components.css';
+

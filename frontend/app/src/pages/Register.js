@@ -1,7 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
+import SearchableSelect from '../components/SearchableSelect';
+import $api from '../http';
 
 const RegisterPage = observer(() => {
     const [formData, setFormData] = useState({
@@ -26,6 +28,96 @@ const RegisterPage = observer(() => {
     const { store } = useContext(Context);
     const navigate = useNavigate();
 
+    // States for dropdowns
+    const [regions, setRegions] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [schools, setSchools] = useState([]);
+    const [isLoadingRegions, setIsLoadingRegions] = useState(false);
+    const [isLoadingCities, setIsLoadingCities] = useState(false);
+    const [isLoadingSchools, setIsLoadingSchools] = useState(false);
+
+    // Load regions on mount
+    useEffect(() => {
+        loadRegions();
+    }, []);
+
+    // Load cities when region changes
+    useEffect(() => {
+        if (formData.region) {
+            loadCities(formData.region);
+            // Reset city and school when region changes
+            setFormData(prev => ({
+                ...prev,
+                city: '',
+                school: ''
+            }));
+            setCities([]);
+            setSchools([]);
+        } else {
+            setCities([]);
+            setSchools([]);
+        }
+    }, [formData.region]);
+
+    // Load schools when city changes
+    useEffect(() => {
+        if (formData.region && formData.city) {
+            loadSchools(formData.region, formData.city);
+            // Reset school when city changes
+            setFormData(prev => ({
+                ...prev,
+                school: ''
+            }));
+            setSchools([]);
+        } else {
+            setSchools([]);
+        }
+    }, [formData.region, formData.city]);
+
+    const loadRegions = async () => {
+        try {
+            setIsLoadingRegions(true);
+            const response = await $api.get('/schools/regions');
+            setRegions(response.data.data || []);
+        } catch (error) {
+            console.error('Error loading regions:', error);
+        } finally {
+            setIsLoadingRegions(false);
+        }
+    };
+
+    const loadCities = async (region) => {
+        if (!region) return;
+        try {
+            setIsLoadingCities(true);
+            const response = await $api.get('/schools/cities', {
+                params: { region }
+            });
+            setCities(response.data.data || []);
+        } catch (error) {
+            console.error('Error loading cities:', error);
+        } finally {
+            setIsLoadingCities(false);
+        }
+    };
+
+    const loadSchools = async (region, city) => {
+        if (!region || !city) return;
+        try {
+            setIsLoadingSchools(true);
+            const response = await $api.get('/schools', {
+                params: { region, city }
+            });
+            setSchools(response.data.data || []);
+        } catch (error) {
+            console.error('Error loading schools:', error);
+        } finally {
+            setIsLoadingSchools(false);
+        }
+    };
+
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -36,6 +128,51 @@ const RegisterPage = observer(() => {
             setErrors(prev => ({
                 ...prev,
                 [name]: []
+            }));
+        }
+    };
+
+    const handleRegionChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            region: value,
+            city: '',
+            school: ''
+        }));
+        setCities([]);
+        setSchools([]);
+        if (errors.region) {
+            setErrors(prev => ({
+                ...prev,
+                region: []
+            }));
+        }
+    };
+
+    const handleCityChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            city: value,
+            school: ''
+        }));
+        setSchools([]);
+        if (errors.city) {
+            setErrors(prev => ({
+                ...prev,
+                city: []
+            }));
+        }
+    };
+
+    const handleSchoolChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            school: value
+        }));
+        if (errors.school) {
+            setErrors(prev => ({
+                ...prev,
+                school: []
             }));
         }
     };
@@ -88,265 +225,203 @@ const RegisterPage = observer(() => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-            <h2>Регистрация</h2>
-            
-            {errors._message && (
-                <div style={{
-                    background: '#ffebee',
-                    color: '#c62828',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    marginBottom: '15px'
-                }}>
-                    {errors._message}
-                </div>
-            )}
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div>
+        <div className="page">
+            <div className="form-container">
+                <div className="form-card">
+                    <h2 className="form-title">Регистрация</h2>
+                    
+                    {errors._message && (
+                        <div className="alert alert-error">
+                            {errors._message}
+                        </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="form">
+                <div className="form-group">
                     <input
                         type="email"
                         name="email"
                         placeholder="Email*"
                         value={formData.email}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('email') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('email') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('email')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="password"
                         name="password"
                         placeholder="Пароль*"
                         value={formData.password}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('password') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('password') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('password') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('password')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="password"
                         name="password_confirmation"
                         placeholder="Подтверждение пароля*"
                         value={formData.password_confirmation}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('password_confirmation') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('password_confirmation') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('password_confirmation') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('password_confirmation')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="text"
                         name="last_name"
                         placeholder="Фамилия* (только кириллица)"
                         value={formData.last_name}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('last_name') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('last_name') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('last_name') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('last_name')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="text"
                         name="first_name"
                         placeholder="Имя* (только кириллица)"
                         value={formData.first_name}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('first_name') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('first_name') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('first_name') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('first_name')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="text"
                         name="second_name"
                         placeholder="Отчество (только кириллица)"
                         value={formData.second_name}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('second_name') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('second_name') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('second_name') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('second_name')}
                         </div>
                     )}
                 </div>
 
-                <div>
-                    <label>Дата рождения*</label>
+                <div className="form-group">
+                    <label className="form-label">Дата рождения*</label>
                     <input
                         type="date"
                         name="birthday"
                         value={formData.birthday}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('birthday') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('birthday') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('birthday') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('birthday')}
                         </div>
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                        <input
-                            type="text"
-                            name="region"
-                            placeholder="Регион*"
+                <div className="form-row">
+                    <div className="form-group">
+                        <SearchableSelect
                             value={formData.region}
-                            onChange={handleChange}
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                border: `1px solid ${isFieldInvalid('region') ? 'red' : '#ccc'}`,
-                                borderRadius: '4px'
-                            }}
+                            onChange={handleRegionChange}
+                            options={regions}
+                            placeholder="Регион*"
+                            isLoading={isLoadingRegions}
+                            error={isFieldInvalid('region')}
                         />
                         {isFieldInvalid('region') && (
-                            <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                            <div className="form-error">
                                 {getFieldError('region')}
                             </div>
                         )}
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <input
-                            type="text"
-                            name="city"
-                            placeholder="Город*"
+                    <div className="form-group">
+                        <SearchableSelect
                             value={formData.city}
-                            onChange={handleChange}
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                border: `1px solid ${isFieldInvalid('city') ? 'red' : '#ccc'}`,
-                                borderRadius: '4px'
-                            }}
+                            onChange={handleCityChange}
+                            options={cities}
+                            placeholder="Населенный пункт*"
+                            isLoading={isLoadingCities}
+                            disabled={!formData.region}
+                            error={isFieldInvalid('city')}
                         />
                         {isFieldInvalid('city') && (
-                            <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                            <div className="form-error">
                                 {getFieldError('city')}
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div>
-                    <input
-                        type="text"
-                        name="school"
-                        placeholder="Школа*"
+                <div className="form-group">
+                    <SearchableSelect
                         value={formData.school}
-                        onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('school') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        onChange={handleSchoolChange}
+                        options={schools}
+                        placeholder="Школа*"
+                        isLoading={isLoadingSchools}
+                        disabled={!formData.region || !formData.city}
+                        error={isFieldInvalid('school')}
                     />
                     {isFieldInvalid('school') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('school')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <input
                         type="tel"
                         name="phone"
                         placeholder="Телефон* (+7XXXXXXXXXX)"
                         value={formData.phone}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('phone') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-input ${isFieldInvalid('phone') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('phone') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('phone')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <select
                         name="grade"
                         value={formData.grade}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('grade') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-select ${isFieldInvalid('grade') ? 'error' : ''}`}
                     >
                         <option value="">Выберите класс*</option>
                         {[...Array(11)].map((_, i) => (
@@ -354,52 +429,42 @@ const RegisterPage = observer(() => {
                         ))}
                     </select>
                     {isFieldInvalid('grade') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('grade')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <select
                         name="programming_language"
                         value={formData.programming_language}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('programming_language') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-select ${isFieldInvalid('programming_language') ? 'error' : ''}`}
                     >
                         <option value="C++">C++</option>
                         <option value="Python">Python</option>
                         <option value="Java">Java</option>
                     </select>
                     {isFieldInvalid('programming_language') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('programming_language')}
                         </div>
                     )}
                 </div>
 
-                <div>
+                <div className="form-group">
                     <select
                         name="format"
                         value={formData.format}
                         onChange={handleChange}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: `1px solid ${isFieldInvalid('format') ? 'red' : '#ccc'}`,
-                            borderRadius: '4px'
-                        }}
+                        className={`form-select ${isFieldInvalid('format') ? 'error' : ''}`}
                     >
                         <option value="онлайн">Онлайн</option>
                         <option value="очный">Очный</option>
                     </select>
                     {isFieldInvalid('format') && (
-                        <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                        <div className="form-error">
                             {getFieldError('format')}
                         </div>
                     )}
@@ -408,23 +473,15 @@ const RegisterPage = observer(() => {
                 <button 
                     type="submit"
                     disabled={isLoading}
-                    style={{
-                        padding: '12px',
-                        background: isLoading ? '#cccccc' : '#2196F3',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: isLoading ? 'not-allowed' : 'pointer',
-                        opacity: isLoading ? 0.7 : 1
-                    }}
+                    className="btn btn-primary btn-lg"
                 >
                     {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
                 </button>
 
-                <div style={{ textAlign: 'center' }}>
+                <div className="text-center">
                     <a 
                         href="/login" 
-                        style={{ color: '#2196F3', textDecoration: 'none' }}
+                        className="text-primary"
                         onClick={(e) => {
                             e.preventDefault();
                             navigate('/login');
@@ -434,6 +491,8 @@ const RegisterPage = observer(() => {
                     </a>
                 </div>
             </form>
+                </div>
+            </div>
         </div>
     );
 });

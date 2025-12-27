@@ -22,7 +22,7 @@ const App = observer(() => {
     }, [store]);
 
     if (store.isLoading) {
-        return <div>Загрузка...</div>;
+        return <div className="loading">Загрузка...</div>;
     }
 
     return (

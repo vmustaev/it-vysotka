@@ -6,6 +6,11 @@ const router = require('./router/index')
 const sequelize = require('./db');
 const errorMiddleware = require('./middlewares/error-middleware')
 
+// Импортируем модели для автоматического создания таблиц
+require('./models/user-model');
+require('./models/token-model');
+require('./models/school-model');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 

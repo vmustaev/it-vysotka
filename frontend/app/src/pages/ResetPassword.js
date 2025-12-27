@@ -81,132 +81,100 @@ const ResetPassword = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Установка нового пароля</h2>
-            
-            {!token ? (
-                <div style={{
-                    background: '#fff3cd',
-                    color: '#856404',
-                    padding: '15px',
-                    borderRadius: '4px',
-                    marginBottom: '20px'
-                }}>
-                    Загрузка...
-                </div>
-            ) : (
-                <>
-                    {successMessage && (
-                        <div style={{
-                            background: '#e8f5e9',
-                            color: '#2e7d32',
-                            padding: '15px',
-                            borderRadius: '4px',
-                            marginBottom: '20px',
-                            border: '1px solid #c8e6c9'
-                        }}>
-                            {successMessage}
-                            <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                                Перенаправление на страницу входа...
-                            </div>
-                        </div>
-                    )}
+        <div className="page">
+            <div className="form-container">
+                <div className="form-card">
+                    <h2 className="form-title">Установка нового пароля</h2>
                     
-                    {errors._message && (
-                        <div style={{
-                            background: '#ffebee',
-                            color: '#c62828',
-                            padding: '10px',
-                            borderRadius: '4px',
-                            marginBottom: '15px'
-                        }}>
-                            {errors._message}
+                    {!token ? (
+                        <div className="alert alert-warning">
+                            Загрузка...
                         </div>
-                    )}
-                    
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div>
-                            <input
-                                type="password"
-                                placeholder="Новый пароль"
-                                value={newPassword}
-                                onChange={(e) => {
-                                    setNewPassword(e.target.value);
-                                    if (errors.newPassword) setErrors(prev => ({ ...prev, newPassword: [] }));
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: `1px solid ${isFieldInvalid('newPassword') ? 'red' : '#ccc'}`,
-                                    borderRadius: '4px'
-                                }}
-                                required
-                                disabled={isLoading}
-                            />
-                            {isFieldInvalid('newPassword') && (
-                                <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                                    {getFieldError('newPassword')}
+                    ) : (
+                        <>
+                            {successMessage && (
+                                <div className="alert alert-success">
+                                    {successMessage}
+                                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                                        Перенаправление на страницу входа...
+                                    </div>
                                 </div>
                             )}
-                            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                                Минимум 8 символов, заглавные и строчные буквы, цифры
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <input
-                                type="password"
-                                placeholder="Подтвердите пароль"
-                                value={confirmPassword}
-                                onChange={(e) => {
-                                    setConfirmPassword(e.target.value);
-                                    if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: [] }));
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: `1px solid ${isFieldInvalid('confirmPassword') ? 'red' : '#ccc'}`,
-                                    borderRadius: '4px'
-                                }}
-                                required
-                                disabled={isLoading}
-                            />
-                            {isFieldInvalid('confirmPassword') && (
-                                <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
-                                    {getFieldError('confirmPassword')}
+                            
+                            {errors._message && (
+                                <div className="alert alert-error">
+                                    {errors._message}
                                 </div>
                             )}
-                        </div>
-                        
-                        <button 
-                            type="submit"
-                            disabled={isLoading}
-                            style={{
-                                padding: '12px',
-                                background: isLoading ? '#ccc' : '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: isLoading ? 'not-allowed' : 'pointer'
+                            
+                            <form onSubmit={handleSubmit} className="form">
+                                <div className="form-group">
+                                    <input
+                                        type="password"
+                                        placeholder="Новый пароль"
+                                        value={newPassword}
+                                        onChange={(e) => {
+                                            setNewPassword(e.target.value);
+                                            if (errors.newPassword) setErrors(prev => ({ ...prev, newPassword: [] }));
+                                        }}
+                                        className={`form-input ${isFieldInvalid('newPassword') ? 'error' : ''}`}
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                    {isFieldInvalid('newPassword') && (
+                                        <div className="form-error">
+                                            {getFieldError('newPassword')}
+                                        </div>
+                                    )}
+                                    <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                                        Минимум 8 символов, заглавные и строчные буквы, цифры
+                                    </div>
+                                </div>
+                                
+                                <div className="form-group">
+                                    <input
+                                        type="password"
+                                        placeholder="Подтвердите пароль"
+                                        value={confirmPassword}
+                                        onChange={(e) => {
+                                            setConfirmPassword(e.target.value);
+                                            if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: [] }));
+                                        }}
+                                        className={`form-input ${isFieldInvalid('confirmPassword') ? 'error' : ''}`}
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                    {isFieldInvalid('confirmPassword') && (
+                                        <div className="form-error">
+                                            {getFieldError('confirmPassword')}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <button 
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="btn btn-secondary btn-lg"
+                                >
+                                    {isLoading ? 'Сохранение...' : 'Сохранить новый пароль'}
+                                </button>
+                            </form>
+                        </>
+                    )}
+                    
+                    <div className="text-center mt-lg">
+                        <a 
+                            href="/login" 
+                            className="text-primary"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/login');
                             }}
                         >
-                            {isLoading ? 'Сохранение...' : 'Сохранить новый пароль'}
-                        </button>
-                    </form>
-                </>
-            )}
-            
-            <div style={{ textAlign: 'center', marginTop: '15px' }}>
-                <a 
-                    href="/login" 
-                    style={{ color: '#2196F3', textDecoration: 'none' }}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/login');
-                    }}
-                >
-                    Вернуться ко входу
-                </a>
+                            Вернуться ко входу
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     );

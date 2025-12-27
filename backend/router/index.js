@@ -1,6 +1,7 @@
 const Router = require('express').Router;
 const userController = require('../controllers/user-controller');
 const passwordResetController = require('../controllers/password-reset-controller');
+const schoolController = require('../controllers/school-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const validationMiddleware = require('../middlewares/validation-middleware');
@@ -16,5 +17,10 @@ router.get('/users', authMiddleware, userController.getUsers);
 
 router.post('/password/reset/request', passwordResetRequestValidation, validationMiddleware, passwordResetController.requestReset);
 router.post('/password/reset', passwordResetValidation, validationMiddleware, passwordResetController.resetPassword);
+
+// School routes
+router.get('/schools/regions', schoolController.getRegions);
+router.get('/schools/cities', schoolController.getCities);
+router.get('/schools', schoolController.getSchools);
 
 module.exports = router;
