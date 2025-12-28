@@ -57,6 +57,19 @@
   margin-right: var(--spacing-sm);
 }
 
+.navbar-btn {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-base);
+  min-width: 100px;
+  transition: all var(--transition-base);
+}
+
+.navbar-btn:hover:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+  opacity: 0.9;
+}
+
 /* Кнопки */
 .btn {
   display: inline-flex;
@@ -100,6 +113,35 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Специальные стили для кнопок в навбаре */
+.navbar-actions .btn-primary,
+.navbar-actions .btn-primary:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: var(--text-inverse) !important;
+  transform: translateY(0);
+  box-shadow: none;
+  opacity: 1;
+}
+
+.navbar-actions .btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-actions .btn-secondary,
+.navbar-actions .btn-secondary:hover:not(:disabled) {
+  background: var(--secondary-color);
+  color: var(--text-inverse) !important;
+  transform: translateY(0);
+  box-shadow: none;
+  opacity: 1;
+}
+
+.navbar-actions .btn-secondary:hover:not(:disabled) {
+  background: var(--secondary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
 .btn-danger {
   background: #ef4444;
   color: var(--text-inverse);
@@ -134,7 +176,7 @@
 
 /* Формы */
 .form-container {
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   padding: var(--spacing-xl);
 }

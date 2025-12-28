@@ -36,10 +36,10 @@ const Navbar = observer(() => {
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className="btn btn-secondary btn-sm">
+                            <Link to="/login" className="btn btn-secondary navbar-btn">
                                 Войти
                             </Link>
-                            <Link to="/register" className="btn btn-primary btn-sm">
+                            <Link to="/register" className="btn btn-primary navbar-btn">
                                 Регистрация
                             </Link>
                         </>

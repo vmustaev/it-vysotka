@@ -118,6 +118,56 @@ const RegisterPage = observer(() => {
 
 
 
+    const formatPhoneNumber = (value) => {
+        // Удаляем все нецифровые символы
+        const cleaned = value.replace(/\D/g, '');
+        
+        if (!cleaned) {
+            return '';
+        }
+        
+        // Если начинается с 8, заменяем на 7
+        let digits = cleaned.startsWith('8') ? '7' + cleaned.slice(1) : cleaned;
+        
+        // Если начинается не с 7, добавляем 7 в начало
+        if (!digits.startsWith('7')) {
+            digits = '7' + digits;
+        }
+        
+        // Ограничиваем до 11 цифр (7 + 10)
+        digits = digits.slice(0, 11);
+        
+        // Форматируем: +7 (XXX) XXX-XX-XX
+        if (digits.length === 1) {
+            return `+${digits}`;
+        } else if (digits.length <= 4) {
+            return `+${digits.slice(0, 1)} (${digits.slice(1)}`;
+        } else if (digits.length <= 7) {
+            return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4)}`;
+        } else if (digits.length <= 9) {
+            return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+        } else {
+            return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
+        }
+    };
+
+    const handlePhoneChange = (e) => {
+        const { value } = e.target;
+        const formatted = formatPhoneNumber(value);
+        
+        setFormData(prev => ({
+            ...prev,
+            phone: formatted
+        }));
+        
+        if (errors.phone) {
+            setErrors(prev => ({
+                ...prev,
+                phone: []
+            }));
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -186,7 +236,26 @@ const RegisterPage = observer(() => {
         setErrors({});
         
         try {
-            await store.registration(formData);
+            // Очищаем телефон от форматирования перед отправкой
+            const cleanedPhone = formData.phone.replace(/\D/g, '');
+            let phoneToSend = cleanedPhone;
+            
+            // Если начинается с 8, заменяем на 7
+            if (phoneToSend.startsWith('8')) {
+                phoneToSend = '7' + phoneToSend.slice(1);
+            }
+            // Если не начинается с 7, добавляем 7
+            else if (phoneToSend && !phoneToSend.startsWith('7')) {
+                phoneToSend = '7' + phoneToSend;
+            }
+            
+            // Формируем данные для отправки с очищенным телефоном
+            const dataToSend = {
+                ...formData,
+                phone: phoneToSend ? `+${phoneToSend}` : ''
+            };
+            
+            await store.registration(dataToSend);
             
             navigate('/login', { 
             state: { 
@@ -404,9 +473,9 @@ const RegisterPage = observer(() => {
                     <input
                         type="tel"
                         name="phone"
-                        placeholder="Телефон* (+7XXXXXXXXXX)"
+                        placeholder="Телефон* (+7 (XXX) XXX-XX-XX)"
                         value={formData.phone}
-                        onChange={handleChange}
+                        onChange={handlePhoneChange}
                         className={`form-input ${isFieldInvalid('phone') ? 'error' : ''}`}
                     />
                     {isFieldInvalid('phone') && (
