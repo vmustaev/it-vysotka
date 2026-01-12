@@ -8,9 +8,15 @@ const errorMiddleware = require('./middlewares/error-middleware')
 const path = require('path');
 
 // Импортируем модели для автоматического создания таблиц
-require('./models/user-model');
-require('./models/token-model');
-require('./models/school-model');
+const UserModel = require('./models/user-model');
+const TokenModel = require('./models/token-model');
+const SchoolModel = require('./models/school-model');
+const TeamModel = require('./models/team-model');
+
+// Настройка связей между моделями
+// Команда имеет много участников (через teamId в User)
+TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });
+UserModel.belongsTo(TeamModel, { foreignKey: 'teamId', as: 'Team' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;

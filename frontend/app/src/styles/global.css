@@ -82,6 +82,15 @@ a:hover {
   color: var(--primary-dark);
 }
 
+/* Переопределение для кнопок-ссылок */
+a.btn {
+  color: inherit;
+}
+
+a.btn:hover {
+  color: inherit;
+}
+
 /* Списки */
 ul, ol {
   margin-bottom: var(--spacing-md);

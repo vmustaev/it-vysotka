@@ -27,12 +27,10 @@ class UserController {
                 grade: parseInt(grade)
             };
             
-            const userData = await userService.registration(email, password, additionalData);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
+            await userService.registration(email, password, additionalData);
             return res.json({
                 success: true,
-                message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.',
-                data: userData
+                message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.'
             });
         } catch (e) {
             next(e);

@@ -14,13 +14,14 @@ import Contacts from "./pages/Contacts";
 import NotFound from "./pages/NotFound";
 import ResetPasswordRequest from "./pages/ResetPasswordRequest";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
 
 const App = observer(() => {
     const { store } = useContext(Context);
 
     useEffect(() => {
         store.checkAuth();
-    }, [store]);
+    }, []); // Вызываем только один раз при монтировании
 
     if (store.isLoading) {
         return <div className="loading">Загрузка...</div>;
@@ -49,6 +50,11 @@ const App = observer(() => {
                 } />
                 <Route path="/reset-password" element={
                     store.isAuth ? <Navigate to="/" /> : <ResetPassword />
+                } />
+
+                <Route path="/profile" element={
+                    store.isLoading ? <div className="loading">Загрузка...</div> : 
+                    store.isAuth ? <Profile /> : <Navigate to="/login" />
                 } />
 
                 <Route path="*" element={<NotFound />} />

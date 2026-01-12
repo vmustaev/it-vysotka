@@ -59,6 +59,22 @@ const UserSchema = sequelize.define('User', {
     grade: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    teamId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        references: {
+            model: 'teams',
+            key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+    },
+    isLead: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 }, {timestamps: false});
 

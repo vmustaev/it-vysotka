@@ -11,7 +11,7 @@ const TokenSchema = sequelize.define('Token', {
         }
     },
     token: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
     },
     type: {

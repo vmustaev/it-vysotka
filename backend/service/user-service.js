@@ -66,24 +66,9 @@ class UserService {
             );
         }
 
-        const accessToken = tokenService.generateToken(
-            { ...userDto }, 
-            'access', 
-            '10s'
-        );
-        
-        const refreshToken = tokenService.generateToken(
-            { ...userDto }, 
-            'refresh', 
-            '30s'
-        );
-        
-        await tokenService.saveToken(userDto.id, refreshToken, 'refresh');
-
         return {
-            accessToken,
-            refreshToken,
-            user: userDto
+            success: true,
+            message: 'Пожалуйста, проверьте вашу почту для активации аккаунта'
         }
     }
 
@@ -154,13 +139,13 @@ class UserService {
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
             'access', 
-            '10s'
+            '1m'
         );
         
         const refreshToken = tokenService.generateToken(
             { ...userDto }, 
             'refresh', 
-            '30s'
+            '3m'
         );
         
         await tokenService.saveToken(userDto.id, refreshToken, 'refresh');
@@ -208,13 +193,13 @@ class UserService {
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
             'access', 
-            '10s'
+            '1m'
         );
         
         const newRefreshToken = tokenService.generateToken(
             { ...userDto }, 
             'refresh', 
-            '30s'
+            '3m'
         );
         
         // Удаляем старый refresh token перед сохранением нового (защита от replay атак)

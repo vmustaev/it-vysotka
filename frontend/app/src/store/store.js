@@ -6,7 +6,7 @@ import { makeAutoObservable } from "mobx";
 export default class Store {
     user = {};
     isAuth = false;
-    isLoading = false;
+    isLoading = true; // Начинаем с true, чтобы дождаться checkAuth
 
     constructor() {
         makeAutoObservable(this);
@@ -76,6 +76,8 @@ export default class Store {
 
         if (!wasAuth) {
             this.setLoading(false);
+            this.setAuth(false);
+            this.setUser({});
             return;
         }
 

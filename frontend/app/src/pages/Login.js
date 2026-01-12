@@ -40,7 +40,24 @@ const LoginPage = observer(() => {
             await store.login(email, password);
             
             if (store.isAuth) {
-                navigate('/');
+                // Проверяем, есть ли teamToken в query параметрах
+                const params = new URLSearchParams(location.search);
+                const teamToken = params.get('teamToken');
+                
+                if (teamToken) {
+                    // После входа переходим на API endpoint для присоединения к команде
+                    // Используем относительный путь через nginx
+                    window.location.href = `/api/team/join/${teamToken}`;
+                    return;
+                }
+                
+                // Если был переход со страницы присоединения к команде, возвращаемся туда
+                const from = location.state?.from;
+                if (from && from.startsWith('/team/join/')) {
+                    navigate(from);
+                } else {
+                    navigate('/');
+                }
             }
         } catch (e) {
             setSuccessMessage('');
