@@ -1,0 +1,203 @@
+@import './variables.css';
+
+/* Hero секция */
+.hero-section {
+    text-align: center;
+    padding: var(--spacing-3xl) var(--spacing-lg);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-radius: var(--border-radius-xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.hero-title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    line-height: var(--line-height-tight);
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-actions {
+    margin-top: var(--spacing-xl);
+}
+
+/* Аккордеон информации */
+.info-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.info-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.info-card:hover {
+    border-color: var(--primary-color);
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--transition-fast);
+}
+
+.info-header:hover {
+    background-color: var(--bg-secondary);
+}
+
+.info-header h3 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.info-icon {
+    font-size: var(--font-size-xl);
+    color: var(--primary-color);
+    font-weight: var(--font-weight-normal);
+    margin-left: var(--spacing-md);
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+    transition: transform var(--transition-fast);
+}
+
+.info-body {
+    padding: 0 var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    animation: slideDown var(--transition-base) ease-out;
+}
+
+.info-body p {
+    margin: var(--spacing-md) 0 0 0;
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Преимущества */
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefit-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.benefit-card:hover {
+    border-color: var(--secondary-color);
+}
+
+.benefit-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.benefit-card p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: var(--line-height-relaxed);
+}
+
+/* Партнёры */
+.sponsors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.sponsors-grid img {
+    width: 100%;
+    height: auto;
+    max-height: 100px;
+    object-fit: contain;
+    transition: transform var(--transition-base);
+    padding: var(--spacing-md);
+}
+
+.sponsors-grid img:hover {
+    transform: scale(1.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: var(--spacing-2xl) var(--spacing-md);
+    }
+
+    .hero-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--font-size-base);
+    }
+
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sponsors-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+
+    .info-header {
+        padding: var(--spacing-md);
+    }
+
+    .info-header h3 {
+        font-size: var(--font-size-sm);
+    }
+
+    .info-body {
+        padding: 0 var(--spacing-md) var(--spacing-md) var(--spacing-md);
+    }
+}
+

@@ -15,6 +15,10 @@ const Navbar = observer(() => {
     return (
         <nav className="navbar">
             <div className="navbar-content">
+                <Link to="/" className="navbar-logo">
+                    <img src="/assets/img/logo.png" alt="IT-ВыСотка" />
+                </Link>
+
                 <div className="navbar-links">
                     <Link to="/" className="navbar-link">Главная</Link>
                     <Link to="/regulations" className="navbar-link">Регламент</Link>

@@ -3,12 +3,13 @@
 /* Навигация */
 .navbar {
   background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
   position: sticky;
-  top: 0;
+  top: var(--spacing-sm);
   z-index: var(--z-sticky);
   height: var(--navbar-height);
+  margin: 0 var(--spacing-md);
 }
 
 .navbar-content {
@@ -19,6 +20,23 @@
   justify-content: space-between;
   align-items: center;
   height: 100%;
+  gap: var(--spacing-xl);
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.navbar-logo img {
+  height: 45px;
+  width: auto;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-logo:hover img {
+  transform: scale(1.05);
 }
 
 .navbar-links {
@@ -323,8 +341,8 @@
 
 /* Страницы */
 .page {
-  min-height: calc(100vh - var(--navbar-height));
   padding: var(--spacing-2xl) var(--spacing-lg);
+  flex: 1;
 }
 
 .page-header {
@@ -560,6 +578,17 @@
 @media (max-width: 768px) {
   .navbar-content {
     padding: 0 var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .navbar {
+    margin: 0;
+    top: 0;
+    border-radius: 0;
+  }
+
+  .navbar-logo img {
+    height: 35px;
   }
   
   .navbar-links {

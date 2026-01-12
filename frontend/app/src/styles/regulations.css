@@ -1,0 +1,156 @@
+@import './variables.css';
+
+/* Основной контент */
+.registration-info {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.intro-text {
+    font-size: var(--font-size-base);
+    text-align: center;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto var(--spacing-2xl);
+    line-height: var(--line-height-relaxed);
+}
+
+/* Карточки - минималистичный стиль */
+.registration-info .card {
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    transition: all var(--transition-base);
+}
+
+.registration-info .card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.registration-info .card-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-md);
+}
+
+.registration-info .card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.registration-info .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.registration-info .card-body p {
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+}
+
+.registration-info .card-body ul {
+    margin: 0;
+    padding-left: var(--spacing-lg);
+}
+
+.registration-info .card-body li {
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-xs);
+}
+
+.registration-info .card-body a:not(.btn) {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.registration-info .btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* Важное уведомление */
+.important-note {
+    margin: var(--spacing-3xl) auto 0;
+    max-width: 1200px;
+}
+
+.important-note-content {
+    background: var(--bg-primary);
+    border: 2px solid #dc2626;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow);
+}
+
+.important-note h3 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: #dc2626;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.important-note p {
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+}
+
+.important-note a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    font-weight: var(--font-weight-medium);
+}
+
+.important-note a:hover {
+    color: var(--primary-dark);
+}
+
+
+/* Заголовки секций */
+.section-title {
+    text-align: center;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: var(--font-size-2xl) !important;
+    }
+
+    .intro-text {
+        font-size: var(--font-size-sm);
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .registration-info .btn {
+        width: 100%;
+        align-self: stretch;
+    }
+
+    .important-note-content {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* Улучшения для кнопок */
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}

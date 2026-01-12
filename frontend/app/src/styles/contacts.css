@@ -1,0 +1,81 @@
+@import './variables.css';
+
+/* Сетка контактов */
+.contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Карточка контакта */
+.contact-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    transition: all var(--transition-base);
+}
+
+.contact-card:hover {
+    border-color: var(--primary-color);
+}
+
+.contact-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contact-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.contact-body {
+    font-size: var(--font-size-base);
+}
+
+.contact-body a {
+    color: var(--primary-color);
+    text-decoration: none;
+    line-height: var(--line-height-relaxed);
+}
+
+.contact-body a:hover {
+    text-decoration: underline;
+}
+
+/* Карта */
+.map-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.map-container iframe {
+    display: block;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .contacts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-card {
+        padding: var(--spacing-lg);
+    }
+
+    .map-container {
+        border-radius: var(--border-radius);
+    }
+}
+

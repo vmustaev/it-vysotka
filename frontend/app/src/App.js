@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Context } from "./index";
 import { observer } from "mobx-react-lite";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -52,6 +53,8 @@ const App = observer(() => {
 
                 <Route path="*" element={<NotFound />} />
             </Routes>
+
+            <Footer />
         </div>
     );
 });
