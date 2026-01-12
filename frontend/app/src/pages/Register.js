@@ -17,9 +17,9 @@ const RegisterPage = observer(() => {
         region: '',
         city: '',
         school: '',
-        programming_language: 'C++',
+        programming_language: '',
         phone: '',
-        format: 'онлайн',
+        format: '',
         grade: ''
     });
 
@@ -310,7 +310,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="email"
                         name="email"
-                        placeholder="Email*"
+                        placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
@@ -326,7 +326,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="password"
                         name="password"
-                        placeholder="Пароль*"
+                        placeholder="Пароль"
                         value={formData.password}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('password') ? 'error' : ''}`}
@@ -342,7 +342,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="password"
                         name="password_confirmation"
-                        placeholder="Подтверждение пароля*"
+                        placeholder="Подтверждение пароля"
                         value={formData.password_confirmation}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('password_confirmation') ? 'error' : ''}`}
@@ -358,7 +358,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="text"
                         name="last_name"
-                        placeholder="Фамилия* (только кириллица)"
+                        placeholder="Фамилия"
                         value={formData.last_name}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('last_name') ? 'error' : ''}`}
@@ -374,7 +374,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="text"
                         name="first_name"
-                        placeholder="Имя* (только кириллица)"
+                        placeholder="Имя"
                         value={formData.first_name}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('first_name') ? 'error' : ''}`}
@@ -390,7 +390,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="text"
                         name="second_name"
-                        placeholder="Отчество (только кириллица)"
+                        placeholder="Отчество (необязательно)"
                         value={formData.second_name}
                         onChange={handleChange}
                         className={`form-input ${isFieldInvalid('second_name') ? 'error' : ''}`}
@@ -403,7 +403,7 @@ const RegisterPage = observer(() => {
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Дата рождения*</label>
+                    <label className="form-label">Дата рождения</label>
                     <input
                         type="date"
                         name="birthday"
@@ -424,7 +424,7 @@ const RegisterPage = observer(() => {
                             value={formData.region}
                             onChange={handleRegionChange}
                             options={regions}
-                            placeholder="Регион*"
+                            placeholder="Регион"
                             isLoading={isLoadingRegions}
                             error={isFieldInvalid('region')}
                         />
@@ -439,7 +439,7 @@ const RegisterPage = observer(() => {
                             value={formData.city}
                             onChange={handleCityChange}
                             options={cities}
-                            placeholder="Населенный пункт*"
+                            placeholder="Населенный пункт"
                             isLoading={isLoadingCities}
                             disabled={!formData.region}
                             error={isFieldInvalid('city')}
@@ -457,7 +457,7 @@ const RegisterPage = observer(() => {
                         value={formData.school}
                         onChange={handleSchoolChange}
                         options={schools}
-                        placeholder="Школа*"
+                        placeholder="Школа"
                         isLoading={isLoadingSchools}
                         disabled={!formData.region || !formData.city}
                         error={isFieldInvalid('school')}
@@ -473,7 +473,7 @@ const RegisterPage = observer(() => {
                     <input
                         type="tel"
                         name="phone"
-                        placeholder="Телефон* (+7 (XXX) XXX-XX-XX)"
+                        placeholder="Телефон"
                         value={formData.phone}
                         onChange={handlePhoneChange}
                         className={`form-input ${isFieldInvalid('phone') ? 'error' : ''}`}
@@ -492,7 +492,7 @@ const RegisterPage = observer(() => {
                         onChange={handleChange}
                         className={`form-select ${isFieldInvalid('grade') ? 'error' : ''}`}
                     >
-                        <option value="">Выберите класс*</option>
+                        <option value="">Выберите класс</option>
                         {[...Array(11)].map((_, i) => (
                             <option key={i} value={i + 1}>{i + 1} класс</option>
                         ))}
@@ -511,6 +511,7 @@ const RegisterPage = observer(() => {
                         onChange={handleChange}
                         className={`form-select ${isFieldInvalid('programming_language') ? 'error' : ''}`}
                     >
+                        <option value="">Выберите язык программирования</option>
                         <option value="C++">C++</option>
                         <option value="Python">Python</option>
                         <option value="Java">Java</option>
@@ -529,6 +530,7 @@ const RegisterPage = observer(() => {
                         onChange={handleChange}
                         className={`form-select ${isFieldInvalid('format') ? 'error' : ''}`}
                     >
+                        <option value="">Выберите формат участия</option>
                         <option value="онлайн">Онлайн</option>
                         <option value="очный">Очный</option>
                     </select>
