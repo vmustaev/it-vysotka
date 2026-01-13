@@ -31,11 +31,9 @@ const ResetPasswordRequest = () => {
             const responseData = error.response?.data;
             const newErrors = {};
             
-            // Копируем fieldErrors если есть
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                // Показываем общее сообщение только если НЕТ ошибок полей
                 if (responseData?.message) {
                     newErrors._message = responseData.message;
                 } else {

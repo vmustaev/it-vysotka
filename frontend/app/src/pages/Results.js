@@ -15,7 +15,6 @@ const Results = () => {
                     </p>
                 </div>
 
-                {/* Результаты */}
                 <div className="section">
                     <div className="tabs">
                         <button 
@@ -155,7 +154,6 @@ const Results = () => {
                     </div>
                 </div>
 
-                {/* Задания */}
                 <div className="section">
                     <h2 className="section-title">Задания чемпионата</h2>
                     

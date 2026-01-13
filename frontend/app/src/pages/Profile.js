@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Context } from "../index";
 import TeamService from '../services/TeamService';
 import UserService from '../services/UserService';
+import ConfirmDialog from '../components/ConfirmDialog';
 import '../styles/profile.css';
 
 const Profile = () => {
@@ -10,49 +11,62 @@ const Profile = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const [team, setTeam] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [teamError, setTeamError] = useState('');
+    const [teamSuccess, setTeamSuccess] = useState('');
     const [teamName, setTeamName] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: null, confirmText: 'Подтвердить', danger: false });
 
     useEffect(() => {
-        // Обработка query параметров после присоединения к команде
+        document.body.style.overflowY = 'scroll';
+        return () => {
+            document.body.style.overflowY = '';
+        };
+    }, []);
+
+
+    useEffect(() => {
         const joined = searchParams.get('joined');
         const joinError = searchParams.get('join_error');
         
         if (joined === 'true') {
-            setSuccess('Вы успешно присоединились к команде!');
-            setSearchParams({}, { replace: true }); // Очищаем query параметры
-            // Обновляем данные пользователя
+            setTeamSuccess('Вы успешно присоединились к команде!');
+            setSearchParams({}, { replace: true });
             if (store.isAuth) {
                 store.checkAuth().then(() => {
-                    loadData();
+                    loadData(true);
                 });
             }
-            return; // Выходим, чтобы не вызывать loadData дважды
+            return;
         }
         
         if (joinError) {
             const errorMsg = decodeURIComponent(joinError);
-            setError(errorMsg);
-            setSearchParams({}, { replace: true }); // Очищаем query параметры
+            setTeamError(errorMsg);
+            setSearchParams({}, { replace: true });
+            if (store.isAuth) {
+                store.checkAuth().then(() => {
+                    loadData(false);
+                });
+            }
+            return;
         }
 
-        if (store.isAuth && store.user && store.user.id) {
+        if (store.isAuth && store.user && store.user.id && !store.isLoading) {
             loadData();
-        } else if (!store.isLoading) {
-            // Если не загружается и не авторизован, просто показываем пустой профиль
-            setLoading(false);
         }
     }, [store.isAuth, store.user?.id, store.isLoading, searchParams, setSearchParams]);
 
-    const loadData = async () => {
+    const loadData = async (showLoading = false) => {
         try {
-            setLoading(true);
+            if (showLoading) {
+                setLoading(true);
+            }
             setError('');
             
-            // Загружаем информацию о команде, если пользователь в команде
             if (store.user && store.user.teamId) {
                 const response = await TeamService.getMyTeam();
                 setTeam(response.data.id ? response.data : null);
@@ -63,17 +77,19 @@ const Profile = () => {
             console.error(e);
             setTeam(null);
         } finally {
-            setLoading(false);
+            if (showLoading) {
+                setLoading(false);
+            }
         }
     };
 
     const handleCreateTeam = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
+        setTeamError('');
+        setTeamSuccess('');
 
         if (!teamName.trim()) {
-            setError('Введите название команды');
+            setTeamError('Введите название команды');
             return;
         }
 
@@ -82,85 +98,168 @@ const Profile = () => {
             setTeam(response.data);
             setTeamName('');
             setShowCreateForm(false);
-            setSuccess('Команда успешно создана!');
-            // Обновляем данные пользователя через checkAuth
+            setTeamSuccess('Команда успешно создана!');
             if (store.isAuth) {
                 await store.checkAuth();
             }
         } catch (e) {
+            const errorMessage = e.response?.data?.message || '';
+            const isAlreadyInTeam = errorMessage.includes('уже состоите в команде') || 
+                                   errorMessage.includes('состоите в команде');
+            
             if (e.response?.data?.errors) {
                 const errors = e.response.data.errors;
                 if (errors.name) {
-                    setError(errors.name[0]);
+                    setTeamError(errors.name[0]);
                 } else if (Array.isArray(errors)) {
-                    setError(errors[0]);
+                    setTeamError(errors[0]);
                 } else {
-                    setError(e.response.data.message || 'Ошибка создания команды');
+                    setTeamError(e.response.data.message || 'Ошибка создания команды');
                 }
             } else {
-                setError(e.response?.data?.message || 'Ошибка создания команды');
+                setTeamError(errorMessage || 'Ошибка создания команды');
+            }
+            
+            if (isAlreadyInTeam) {
+                if (store.isAuth) {
+                    await store.checkAuth();
+                }
+                await loadData(false);
             }
         }
     };
 
-    const handleLeaveTeam = async () => {
-        if (!window.confirm('Вы уверены, что хотите покинуть команду?')) {
-            return;
+    const handleLeaveTeam = async (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
+        
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Покинуть команду',
+            message: 'Вы уверены, что хотите покинуть команду?',
+            confirmText: 'Покинуть',
+            cancelText: 'Отмена',
+            danger: true,
+            onConfirm: async () => {
+                setConfirmDialog({ isOpen: false });
+                setTeamError('');
+                setTeamSuccess('');
 
-        try {
-            await TeamService.leaveTeam();
-            setTeam(null);
-            setSuccess('Вы успешно покинули команду');
-            // Обновляем данные пользователя через checkAuth
-            if (store.isAuth) {
-                await store.checkAuth();
+                try {
+                    const response = await TeamService.leaveTeam();
+                    setTeam(null);
+                    const message = response.data?.message || 'Вы успешно покинули команду';
+                    if (message.includes('не состоите в команде')) {
+                        setTeamSuccess('Команда была удалена капитаном');
+                    } else {
+                        setTeamSuccess(message);
+                    }
+                    if (store.isAuth) {
+                        await store.checkAuth();
+                    }
+                    await loadData(true);
+                } catch (e) {
+                    console.error('Ошибка при выходе из команды:', e);
+                    if (e.response?.data?.message?.includes('не состоите в команде')) {
+                        setTeam(null);
+                        setTeamSuccess('Команда была удалена капитаном');
+                        if (store.isAuth) {
+                            await store.checkAuth();
+                        }
+                        await loadData(true);
+                    } else {
+                        setTeamError(e.response?.data?.message || 'Ошибка при выходе из команды');
+                    }
+                }
             }
-        } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при выходе из команды');
-        }
+        });
     };
 
     const handleKickMember = async (userId) => {
-        if (!window.confirm('Вы уверены, что хотите исключить этого участника?')) {
-            return;
-        }
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Исключить участника',
+            message: 'Вы уверены, что хотите исключить этого участника?',
+            confirmText: 'Исключить',
+            cancelText: 'Отмена',
+            danger: true,
+            onConfirm: async () => {
+                setConfirmDialog({ isOpen: false });
+                setTeamError('');
+                setTeamSuccess('');
 
-        try {
-            await TeamService.kickMember(userId);
-            await loadData();
-            setSuccess('Участник исключен из команды');
-        } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при исключении участника');
-        }
+                try {
+                    const response = await TeamService.kickMember(userId);
+                    const message = response.data?.message || 'Участник исключен из команды';
+                    if (message.includes('уже не состоит') || message.includes('не состоит в команде')) {
+                        setTeamSuccess('Участник уже вышел из команды');
+                    } else {
+                        setTeamSuccess(message);
+                    }
+                    await loadData(false);
+                } catch (e) {
+                    console.error('Ошибка при исключении участника:', e);
+                    if (e.response?.data?.message?.includes('не состоит в вашей команде')) {
+                        setTeamSuccess('Участник уже вышел из команды');
+                        await loadData(false);
+                    } else {
+                        setTeamError(e.response?.data?.message || 'Ошибка при исключении участника');
+                    }
+                }
+            }
+        });
     };
 
-    const handleDeleteTeam = async () => {
-        if (!window.confirm('Вы уверены, что хотите удалить команду? Это действие необратимо!')) {
-            return;
+    const handleDeleteTeam = async (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
+        
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Удалить команду',
+            message: 'Вы уверены, что хотите удалить команду? Это действие необратимо!',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+            danger: true,
+            onConfirm: async () => {
+                setConfirmDialog({ isOpen: false });
+                setTeamError('');
+                setTeamSuccess('');
 
-        try {
-            await TeamService.deleteTeam();
-            setTeam(null);
-            setSuccess('Команда успешно удалена');
-            // Обновляем данные пользователя через checkAuth
-            if (store.isAuth) {
-                await store.checkAuth();
+                try {
+                    await TeamService.deleteTeam();
+                    setTeam(null);
+                    setTeamSuccess('Команда успешно удалена');
+                    if (store.isAuth) {
+                        await store.checkAuth();
+                    }
+                    await loadData(true);
+                } catch (e) {
+                    console.error('Ошибка при удалении команды:', e);
+                    setTeamError(e.response?.data?.message || 'Ошибка при удалении команды');
+                }
             }
-        } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при удалении команды');
-        }
+        });
     };
 
     const copyInviteLink = () => {
         navigator.clipboard.writeText(team.inviteLink);
-        setSuccess('Ссылка скопирована в буфер обмена!');
-        setTimeout(() => setSuccess(''), 3000);
+        setTeamSuccess('Ссылка скопирована в буфер обмена!');
+        setTimeout(() => setTeamSuccess(''), 3000);
     };
 
-    if (loading || store.isLoading) {
-        return <div className="loading">Загрузка...</div>;
+    if (loading) {
+        return (
+            <div className="page profile-page">
+                <div className="page-content">
+                    <div className="loading">Загрузка...</div>
+                </div>
+            </div>
+        );
     }
 
     if (!store.isAuth || !store.user || !store.user.id) {
@@ -179,7 +278,7 @@ const Profile = () => {
     const isLead = user && user.isLead;
 
     return (
-        <div className="page">
+        <div className="page profile-page">
             <div className="page-content">
                 <div className="page-header">
                     <h1 className="page-title">Профиль</h1>
@@ -191,7 +290,6 @@ const Profile = () => {
                 {error && <div className="alert alert-error">{error}</div>}
                 {success && <div className="alert alert-success">{success}</div>}
 
-                {/* Информация о пользователе */}
                 <div className="section">
                     <h2 className="section-title">Личная информация</h2>
                     <div className="profile-info-card">
@@ -206,12 +304,13 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Информация о команде */}
                 <div className="section">
                     <h2 className="section-title">Моя команда</h2>
                     
                     {!team ? (
                         <div className="team-empty">
+                            {teamError && <div className="alert alert-error">{teamError}</div>}
+                            {teamSuccess && <div className="alert alert-success">{teamSuccess}</div>}
                             <p>Вы не состоите в команде</p>
                             
                             {!showCreateForm ? (
@@ -246,7 +345,7 @@ const Profile = () => {
                                                 onClick={() => {
                                                     setShowCreateForm(false);
                                                     setTeamName('');
-                                                    setError('');
+                                                    setTeamError('');
                                                 }}
                                             >
                                                 Отмена
@@ -258,6 +357,9 @@ const Profile = () => {
                         </div>
                     ) : (
                         <div className="team-info-card">
+                            {teamError && <div className="alert alert-error">{teamError}</div>}
+                            {teamSuccess && <div className="alert alert-success">{teamSuccess}</div>}
+                            
                             <div className="team-header">
                                 <h3 className="team-name">{team.name}</h3>
                                 <span className="team-member-count">{team.memberCount}/3 участников</span>
@@ -314,6 +416,7 @@ const Profile = () => {
                             <div className="team-actions">
                                 {isLead ? (
                                     <button 
+                                        type="button"
                                         className="btn btn-danger"
                                         onClick={handleDeleteTeam}
                                     >
@@ -321,6 +424,7 @@ const Profile = () => {
                                     </button>
                                 ) : (
                                     <button 
+                                        type="button"
                                         className="btn btn-danger"
                                         onClick={handleLeaveTeam}
                                     >
@@ -332,6 +436,17 @@ const Profile = () => {
                     )}
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={confirmDialog.isOpen}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                confirmText={confirmDialog.confirmText}
+                cancelText={confirmDialog.cancelText}
+                danger={confirmDialog.danger}
+                onConfirm={confirmDialog.onConfirm}
+                onCancel={() => setConfirmDialog({ isOpen: false })}
+            />
         </div>
     );
 };

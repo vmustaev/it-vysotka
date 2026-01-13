@@ -6,7 +6,7 @@ import { makeAutoObservable } from "mobx";
 export default class Store {
     user = {};
     isAuth = false;
-    isLoading = true; // Начинаем с true, чтобы дождаться checkAuth
+    isLoading = true;
 
     constructor() {
         makeAutoObservable(this);
@@ -41,7 +41,6 @@ export default class Store {
             const response = await AuthService.login(email, password);
             console.log('Login response:', response);
             
-            // Данные теперь в response.data.data
             const responseData = response.data.data || response.data;
             
             if (responseData.accessToken) {
@@ -85,7 +84,6 @@ export default class Store {
             const response = await axios.post(`${API_URL}/refresh`, {}, { withCredentials: true })
             console.log('Check auth response:', response);
             
-            // Данные теперь в response.data.data
             const responseData = response.data.data || response.data;
             
             if (responseData.user && responseData.user.isActivated) {

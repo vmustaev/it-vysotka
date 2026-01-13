@@ -28,7 +28,6 @@ const RegisterPage = observer(() => {
     const { store } = useContext(Context);
     const navigate = useNavigate();
 
-    // States for dropdowns
     const [regions, setRegions] = useState([]);
     const [cities, setCities] = useState([]);
     const [schools, setSchools] = useState([]);
@@ -36,16 +35,13 @@ const RegisterPage = observer(() => {
     const [isLoadingCities, setIsLoadingCities] = useState(false);
     const [isLoadingSchools, setIsLoadingSchools] = useState(false);
 
-    // Load regions on mount
     useEffect(() => {
         loadRegions();
     }, []);
 
-    // Load cities when region changes
     useEffect(() => {
         if (formData.region) {
             loadCities(formData.region);
-            // Reset city and school when region changes
             setFormData(prev => ({
                 ...prev,
                 city: '',
@@ -59,11 +55,9 @@ const RegisterPage = observer(() => {
         }
     }, [formData.region]);
 
-    // Load schools when city changes
     useEffect(() => {
         if (formData.region && formData.city) {
             loadSchools(formData.region, formData.city);
-            // Reset school when city changes
             setFormData(prev => ({
                 ...prev,
                 school: ''
@@ -119,25 +113,20 @@ const RegisterPage = observer(() => {
 
 
     const formatPhoneNumber = (value) => {
-        // Удаляем все нецифровые символы
         const cleaned = value.replace(/\D/g, '');
         
         if (!cleaned) {
             return '';
         }
         
-        // Если начинается с 8, заменяем на 7
         let digits = cleaned.startsWith('8') ? '7' + cleaned.slice(1) : cleaned;
         
-        // Если начинается не с 7, добавляем 7 в начало
         if (!digits.startsWith('7')) {
             digits = '7' + digits;
         }
         
-        // Ограничиваем до 11 цифр (7 + 10)
         digits = digits.slice(0, 11);
         
-        // Форматируем: +7 (XXX) XXX-XX-XX
         if (digits.length === 1) {
             return `+${digits}`;
         } else if (digits.length <= 4) {
@@ -236,20 +225,16 @@ const RegisterPage = observer(() => {
         setErrors({});
         
         try {
-            // Очищаем телефон от форматирования перед отправкой
             const cleanedPhone = formData.phone.replace(/\D/g, '');
             let phoneToSend = cleanedPhone;
             
-            // Если начинается с 8, заменяем на 7
             if (phoneToSend.startsWith('8')) {
                 phoneToSend = '7' + phoneToSend.slice(1);
             }
-            // Если не начинается с 7, добавляем 7
             else if (phoneToSend && !phoneToSend.startsWith('7')) {
                 phoneToSend = '7' + phoneToSend;
             }
             
-            // Формируем данные для отправки с очищенным телефоном
             const dataToSend = {
                 ...formData,
                 phone: phoneToSend ? `+${phoneToSend}` : ''
@@ -267,11 +252,9 @@ const RegisterPage = observer(() => {
             const responseData = e.response?.data;
             const newErrors = {};
             
-            // Копируем fieldErrors если есть
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                // Показываем общее сообщение только если НЕТ ошибок полей
                 if (responseData?.message) {
                     newErrors._message = responseData.message;
                 } else {

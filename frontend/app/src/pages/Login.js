@@ -13,22 +13,18 @@ const LoginPage = observer(() => {
     const location = useLocation();
     
     useEffect(() => {
-        // Обработка успешной регистрации
         if (location.state?.registrationSuccess) {
             setSuccessMessage(location.state.message || 'Регистрация успешна!');
             navigate(location.pathname, { replace: true, state: {} });
         }
         
-        // Обработка активации через URL параметры
         const params = new URLSearchParams(location.search);
         if (params.get('activated') === 'true') {
             setSuccessMessage('Аккаунт успешно активирован! Теперь вы можете войти.');
-            // Очищаем URL
             navigate(location.pathname, { replace: true });
         }
         if (params.get('activation_error') === 'true') {
             setErrors({ _message: 'Ошибка активации. Ссылка недействительна или истекла.' });
-            // Очищаем URL
             navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);
@@ -40,18 +36,14 @@ const LoginPage = observer(() => {
             await store.login(email, password);
             
             if (store.isAuth) {
-                // Проверяем, есть ли teamToken в query параметрах
                 const params = new URLSearchParams(location.search);
                 const teamToken = params.get('teamToken');
                 
                 if (teamToken) {
-                    // После входа переходим на API endpoint для присоединения к команде
-                    // Используем относительный путь через nginx
                     window.location.href = `/api/team/join/${teamToken}`;
                     return;
                 }
                 
-                // Если был переход со страницы присоединения к команде, возвращаемся туда
                 const from = location.state?.from;
                 if (from && from.startsWith('/team/join/')) {
                     navigate(from);
@@ -64,11 +56,9 @@ const LoginPage = observer(() => {
             const responseData = e.response?.data;
             const newErrors = {};
 
-            // Копируем fieldErrors если есть
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
             } else {
-                // Показываем общее сообщение только если НЕТ ошибок полей
                 if (responseData?.message) {
                     newErrors._message = responseData.message;
                 } else if (responseData?.errors && responseData.errors.length > 0) {

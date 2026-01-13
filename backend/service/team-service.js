@@ -139,11 +139,10 @@ class TeamService {
     async leaveTeam(userId) {
         const user = await UserModel.findByPk(userId);
         
+        // Если пользователь уже не в команде (например, команда была удалена капитаном),
+        // возвращаем успех (идемпотентная операция)
         if (!user.teamId) {
-            throw ApiError.BadRequest(
-                'Вы не состоите в команде',
-                ['Вы не состоите в команде']
-            );
+            return { success: true, message: 'Вы не состоите в команде' };
         }
 
         // Если это лидер, запрещаем выход (он должен удалить команду)
@@ -184,11 +183,17 @@ class TeamService {
 
         // Проверяем, что пользователь состоит в той же команде
         const member = await UserModel.findByPk(memberUserId);
-        if (!member || member.teamId !== leader.teamId) {
+        if (!member) {
             throw ApiError.BadRequest(
-                'Этот пользователь не состоит в вашей команде',
-                ['Этот пользователь не состоит в вашей команде']
+                'Пользователь не найден',
+                ['Пользователь не найден']
             );
+        }
+
+        // Если пользователь уже не в команде (например, вышел самостоятельно),
+        // возвращаем успех (идемпотентная операция)
+        if (member.teamId !== leader.teamId) {
+            return { success: true, message: 'Участник уже не состоит в команде' };
         }
 
         // Удаляем участника из команды

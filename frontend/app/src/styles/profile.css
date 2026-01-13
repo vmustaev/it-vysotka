@@ -1,5 +1,10 @@
 @import './variables.css';
 
+/* Страница профиля - фиксируем минимальную высоту, чтобы избежать дергания скроллбара */
+.page.profile-page {
+  min-height: calc(100vh - var(--navbar-height) - var(--spacing-2xl) * 2);
+}
+
 /* Карточка информации о профиле */
 .profile-info-card {
     background: var(--bg-primary);

@@ -15,7 +15,6 @@ const SearchableSelect = ({
     const wrapperRef = useRef(null);
     const searchInputRef = useRef(null);
 
-    // Локальная фильтрация опций
     useEffect(() => {
         if (searchQuery) {
             const filtered = options.filter(opt => 
@@ -41,7 +40,6 @@ const SearchableSelect = ({
         };
     }, []);
 
-    // Фокус на поле поиска при открытии
     useEffect(() => {
         if (isOpen && searchInputRef.current) {
             searchInputRef.current.focus();
@@ -89,7 +87,6 @@ const SearchableSelect = ({
             </div>
             {isOpen && !disabled && (
                 <div className="searchable-select-dropdown">
-                    {/* Поле поиска внутри select */}
                     <div className="searchable-select-search">
                         <input
                             ref={searchInputRef}
@@ -102,7 +99,6 @@ const SearchableSelect = ({
                             onClick={(e) => e.stopPropagation()}
                         />
                     </div>
-                    {/* Список опций */}
                     <div className="searchable-select-options">
                         {isLoading ? (
                             <div className="searchable-select-loading">

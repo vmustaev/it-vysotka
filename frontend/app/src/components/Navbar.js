@@ -24,17 +24,18 @@ const Navbar = observer(() => {
                     <Link to="/regulations" className="navbar-link">Регламент</Link>
                     <Link to="/gallery" className="navbar-link">Галерея</Link>
                     <Link to="/results" className="navbar-link">Результаты</Link>
-                    {store.isAuth && <Link to="/profile" className="navbar-link">Профиль</Link>}
                     <Link to="/contacts" className="navbar-link">Контакты</Link>
                 </div>
                 
                 <div className="navbar-actions">
                     {store.isAuth ? (
                         <>
-                            <span className="navbar-user">{store.user.email}</span>
+                            <Link to="/profile" className="btn btn-secondary navbar-btn">
+                                Профиль
+                            </Link>
                             <button 
                                 onClick={handleLogout}
-                                className="btn btn-danger btn-sm"
+                                className="btn btn-danger navbar-btn navbar-btn-logout"
                             >
                                 Выйти
                             </button>
