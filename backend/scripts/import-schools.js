@@ -18,16 +18,11 @@ async function importSchools() {
         // Проверяем, есть ли уже школы в базе
         const schoolCount = await School.count();
         if (schoolCount > 0) {
-            console.log(`Schools already exist in database (${schoolCount} schools). Skipping import.`);
             return;
         }
 
-        console.log('Schools table is empty. Starting import...');
-
         const schools = [];
         let rowCount = 0;
-
-        console.log('Reading CSV file...');
 
         return new Promise((resolve, reject) => {
             fs.createReadStream(CSV_FILE_PATH)
@@ -49,17 +44,11 @@ async function importSchools() {
                 })
                 .on('end', async () => {
                     try {
-                        console.log(`Parsed ${rowCount} rows from CSV`);
-                        console.log('Importing to database...');
-
                         // Импортируем все школы
-                        const result = await School.bulkCreate(schools, {
-                            returning: true
+                        await School.bulkCreate(schools, {
+                            returning: false
                         });
 
-                        console.log(`Successfully imported ${result.length} schools to database`);
-                        console.log('Import completed!');
-                        
                         resolve();
                     } catch (error) {
                         console.error('Error importing schools:', error);
