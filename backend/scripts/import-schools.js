@@ -5,21 +5,24 @@ const csv = require('csv-parser');
 const sequelize = require('../db');
 const School = require('../models/school-model');
 
-const CSV_FILE_PATH = path.join(__dirname, '../../educational_orgs_russia.csv');
+const CSV_FILE_PATH = path.join(__dirname, '../educational_orgs_russia.csv');
 
 async function importSchools() {
     try {
-        // Подключаемся к БД
+        // Подключаемся к БД (если еще не подключены)
         await sequelize.authenticate();
-        console.log('Database connected...');
         
         // Синхронизируем модель (создаем таблицу если её нет)
         await sequelize.sync({ force: false });
-        console.log('Database synced...');
+        
+        // Проверяем, есть ли уже школы в базе
+        const schoolCount = await School.count();
+        if (schoolCount > 0) {
+            console.log(`Schools already exist in database (${schoolCount} schools). Skipping import.`);
+            return;
+        }
 
-        // Очищаем таблицу перед импортом
-        await School.destroy({ truncate: true, cascade: false });
-        console.log('Table cleared...');
+        console.log('Schools table is empty. Starting import...');
 
         const schools = [];
         let rowCount = 0;
@@ -57,35 +60,37 @@ async function importSchools() {
                         console.log(`Successfully imported ${result.length} schools to database`);
                         console.log('Import completed!');
                         
-                        await sequelize.close();
                         resolve();
                     } catch (error) {
                         console.error('Error importing schools:', error);
-                        await sequelize.close();
                         reject(error);
                     }
                 })
-                .on('error', async (error) => {
+                .on('error', (error) => {
                     console.error('Error reading CSV file:', error);
-                    await sequelize.close();
                     reject(error);
                 });
         });
     } catch (error) {
         console.error('Error:', error);
-        await sequelize.close();
-        process.exit(1);
+        throw error;
     }
 }
 
-// Запускаем импорт
-importSchools()
-    .then(() => {
-        console.log('Script finished successfully');
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error('Script failed:', error);
-        process.exit(1);
-    });
+// Если скрипт запущен напрямую (не как модуль)
+if (require.main === module) {
+    importSchools()
+        .then(() => {
+            console.log('Script finished successfully');
+            sequelize.close().then(() => process.exit(0));
+        })
+        .catch((error) => {
+            console.error('Script failed:', error);
+            sequelize.close().then(() => process.exit(1));
+        });
+}
+
+// Экспортируем функцию для использования в других модулях
+module.exports = importSchools;
+
 

@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import ResetPasswordRequest from "./pages/ResetPasswordRequest";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import Consent from "./pages/Consent";
 
 const App = observer(() => {
     const { store } = useContext(Context);
@@ -34,6 +35,7 @@ const App = observer(() => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/regulations" element={<Regulations />} />
+                <Route path="/consent" element={<Consent />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/results" element={<Results />} />
                 <Route path="/contacts" element={<Contacts />} />

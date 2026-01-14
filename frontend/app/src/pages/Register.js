@@ -23,6 +23,8 @@ const RegisterPage = observer(() => {
         grade: ''
     });
 
+    const [parentConsent, setParentConsent] = useState(false);
+
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const { store } = useContext(Context);
@@ -220,6 +222,13 @@ const RegisterPage = observer(() => {
         e.preventDefault();
         
         if (isLoading) return;
+        
+        if (!parentConsent) {
+            setErrors({
+                parentConsent: ['Необходимо дать согласие на обработку персональных данных']
+            });
+            return;
+        }
         
         setIsLoading(true);
         setErrors({});
@@ -520,6 +529,43 @@ const RegisterPage = observer(() => {
                     {isFieldInvalid('format') && (
                         <div className="form-error">
                             {getFieldError('format')}
+                        </div>
+                    )}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-checkbox">
+                        <input
+                            type="checkbox"
+                            checked={parentConsent}
+                            onChange={(e) => {
+                                setParentConsent(e.target.checked);
+                                if (errors.parentConsent) {
+                                    setErrors(prev => {
+                                        const newErrors = { ...prev };
+                                        delete newErrors.parentConsent;
+                                        return newErrors;
+                                    });
+                                }
+                            }}
+                            className="form-checkbox-input"
+                        />
+                        <span className="form-checkbox-label">
+                            Являюсь родителем (законным представителем) участника и согласен на{' '}
+                            <a 
+                                href="/consent" 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="form-checkbox-link"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                обработку его персональных данных
+                            </a>
+                        </span>
+                    </label>
+                    {errors.parentConsent && (
+                        <div className="form-error">
+                            {errors.parentConsent[0]}
                         </div>
                     )}
                 </div>

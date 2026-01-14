@@ -300,6 +300,39 @@
   gap: var(--spacing-md);
 }
 
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-checkbox-input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--primary-color);
+}
+
+.form-checkbox-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.form-checkbox-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.form-checkbox-link:hover {
+  color: var(--primary-dark);
+}
+
 /* Сообщения */
 .alert {
   padding: var(--spacing-md);
