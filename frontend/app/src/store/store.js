@@ -45,7 +45,6 @@ export default class Store {
             
             if (responseData.accessToken) {
                 setAccessToken(responseData.accessToken);
-                localStorage.setItem('wasAuth', 'true');
                 this.setAuth(true);
                 this.setUser(responseData.user);
             }
@@ -59,7 +58,6 @@ export default class Store {
     async logout() {
         try {
             const response = await AuthService.logout();
-            localStorage.removeItem('wasAuth');
             clearAccessToken();
             this.setAuth(false);
             this.setUser({});
@@ -71,9 +69,9 @@ export default class Store {
     async checkAuth() {
         this.setLoading(true);
 
-        const wasAuth = localStorage.getItem('wasAuth');
+        const token = getAccessToken();
 
-        if (!wasAuth) {
+        if (!token) {
             this.setLoading(false);
             this.setAuth(false);
             this.setUser({});
@@ -88,17 +86,14 @@ export default class Store {
             
             if (responseData.user && responseData.user.isActivated) {
                 setAccessToken(responseData.accessToken);
-                localStorage.setItem('wasAuth', 'true');
                 this.setAuth(true);
                 this.setUser(responseData.user);
             } else {
-                localStorage.removeItem('wasAuth');
                 clearAccessToken();
                 this.setAuth(false);
                 this.setUser({});
             }
         } catch (e) {
-            localStorage.removeItem('wasAuth');
             clearAccessToken();
             this.setAuth(false);
             this.setUser({});

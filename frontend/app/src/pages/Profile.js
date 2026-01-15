@@ -247,13 +247,23 @@ const Profile = () => {
         );
     }
 
-    if (!store.isAuth || !profile) {
+    if (!store.isAuth) {
         return (
             <div className="page">
                 <div className="page-content">
                     <div className="alert alert-error">
                         Вы не авторизованы. Пожалуйста, войдите в систему.
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!profile) {
+        return (
+            <div className="page">
+                <div className="page-content">
+                    <div className="loading">Загрузка профиля...</div>
                 </div>
             </div>
         );

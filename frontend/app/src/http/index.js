@@ -2,18 +2,16 @@ import axios from 'axios';
 
 export const API_URL = `http://localhost:80/api`;
 
-let accessToken = "";
-
 export const setAccessToken = (token) => {
-    accessToken = token;
+    localStorage.setItem('accessToken', token);
 };
 
 export const getAccessToken = () => {
-    return accessToken;
+    return localStorage.getItem('accessToken') || '';
 };
 
 export const clearAccessToken = () => {
-    accessToken = "";
+    localStorage.removeItem('accessToken');
 };
 
 const $api = axios.create({
@@ -22,8 +20,9 @@ const $api = axios.create({
 });
 
 $api.interceptors.request.use((config) => {
-    if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+    const token = getAccessToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
@@ -43,7 +42,6 @@ $api.interceptors.response.use((config) => {
             return $api.request(originalRequest);
         } catch (e) {
             console.log('НЕ АВТОРИЗОВАН');
-            localStorage.removeItem('wasAuth');
             clearAccessToken();
             if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
                 window.location.href = '/login';
