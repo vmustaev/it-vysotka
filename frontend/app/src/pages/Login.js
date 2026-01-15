@@ -48,7 +48,7 @@ const LoginPage = observer(() => {
                 if (from && from.startsWith('/team/join/')) {
                     navigate(from);
                 } else {
-                    navigate('/');
+                    navigate('/profile');
                 }
             }
         } catch (e) {

@@ -37,6 +37,27 @@
 /* Таблица результатов */
 .results-table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.results-table-container::-webkit-scrollbar {
+    height: 12px;
+}
+
+.results-table-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.results-table-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: var(--border-radius);
+}
+
+.results-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
 }
 
 .results-table {
@@ -45,8 +66,8 @@
     background: var(--bg-primary);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
-    table-layout: fixed;
 }
 
 .results-table thead {
@@ -59,22 +80,24 @@
     font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
 }
 
 .results-table th:nth-child(1) {
     width: 80px;
+    text-align: center;
 }
 
 .results-table th:nth-child(2) {
-    width: 50%;
+    min-width: 300px;
 }
 
 .results-table th:nth-child(3) {
-    width: 30%;
+    min-width: 250px;
 }
 
 .results-table th:nth-child(4) {
-    width: 20%;
+    min-width: 150px;
 }
 
 .results-table td {
@@ -82,6 +105,7 @@
     border-bottom: 1px solid var(--border-color);
     color: var(--text-secondary);
     line-height: var(--line-height-relaxed);
+    vertical-align: top;
 }
 
 .results-table tbody tr:last-child td {
@@ -93,13 +117,10 @@
 }
 
 .results-table td:first-child {
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
     color: var(--primary-color);
     text-align: center;
-}
-
-.results-table td {
-    word-wrap: break-word;
+    font-size: var(--font-size-lg);
 }
 
 /* Сетка заданий */
@@ -157,19 +178,14 @@
 /* Адаптивность */
 @media (max-width: 768px) {
     .tabs {
-        flex-direction: column;
-        border-bottom: none;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .tab-button {
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 0;
-        text-align: left;
-    }
-
-    .tab-button.active {
-        background: var(--bg-secondary);
-        border-left: 3px solid var(--primary-color);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+        white-space: nowrap;
     }
 
     .results-table {
@@ -181,14 +197,45 @@
         padding: var(--spacing-sm);
     }
 
+    .results-table th:nth-child(1) {
+        width: 60px;
+    }
+
+    .results-table th:nth-child(2) {
+        min-width: 250px;
+    }
+
+    .results-table th:nth-child(3) {
+        min-width: 200px;
+    }
+
+    .results-table th:nth-child(4) {
+        min-width: 120px;
+    }
+
     .tasks-grid {
         grid-template-columns: 1fr;
     }
-    
+}
+
+@media (max-width: 480px) {
+    .results-table {
+        font-size: 12px;
+    }
+
+    .results-table th,
+    .results-table td {
+        padding: 8px;
+    }
+
     .results-table th:nth-child(2),
+    .results-table td:nth-child(2) {
+        min-width: 220px;
+    }
+
     .results-table th:nth-child(3),
-    .results-table th:nth-child(4) {
-        width: auto;
+    .results-table td:nth-child(3) {
+        min-width: 180px;
     }
 }
 
