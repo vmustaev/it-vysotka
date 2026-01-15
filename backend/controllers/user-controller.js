@@ -10,7 +10,7 @@ class UserController {
                 email, password, password_confirmation,
                 last_name, first_name, second_name, birthday,
                 region, city, school, programming_language,
-                phone, format, grade
+                phone, grade
             } = req.body;
             
             const additionalData = {
@@ -23,7 +23,6 @@ class UserController {
                 school,
                 programming_language,
                 phone,
-                format,
                 grade: parseInt(grade)
             };
             

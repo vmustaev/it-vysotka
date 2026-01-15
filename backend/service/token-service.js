@@ -180,6 +180,17 @@ class TokenService {
         
         return tokenData;
     }
+
+    // Проверка наличия активных токенов у пользователя (для проверки активной сессии)
+    async hasUserTokens(userId, type) {
+        const count = await tokenModel.count({ 
+            where: { 
+                userId,
+                type 
+            } 
+        });
+        return count > 0;
+    }
 }
 
 module.exports = new TokenService();

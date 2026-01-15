@@ -86,13 +86,17 @@ const registrationValidation = [
         .notEmpty().withMessage(errorMessages.PHONE_REQUIRED)
         .custom(validatePhone).withMessage(errorMessages.PHONE_INVALID),
     
-    body('format')
-        .notEmpty().withMessage('Формат обязателен')
-        .isIn(['онлайн', 'очный']).withMessage('Неверный формат. Допустимо: онлайн или очный'),
-    
     body('grade')
         .notEmpty().withMessage('Класс обязателен')
-        .isInt({ min: 1, max: 11 }).withMessage(errorMessages.GRADE_INVALID)
+        .isInt({ min: 1, max: 11 }).withMessage(errorMessages.GRADE_INVALID),
+    
+    body('parentConsent')
+        .custom((value) => {
+            if (value !== true) {
+                throw new Error('Необходимо дать согласие на обработку персональных данных');
+            }
+            return true;
+        })
 ];
 
 const loginValidation = [

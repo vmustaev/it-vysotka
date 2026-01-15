@@ -42,8 +42,6 @@ module.exports = {
     SCHOOL_REQUIRED: 'Школа обязательна',
     PROGRAMMING_LANGUAGE_REQUIRED: 'Язык программирования обязателен',
     PROGRAMMING_LANGUAGE_INVALID: 'Неверный формат. Допустимо: C++ или Python или Java',
-    FORMAT_REQUIRED: 'Формат обязателен',
-    FORMAT_INVALID: 'Неверный формат. Допустимо: онлайн или очный',
     GRADE_REQUIRED: 'Класс обязателен',
     GRADE_INVALID: 'Класс должен быть от 1 до 11',
     

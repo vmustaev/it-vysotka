@@ -78,6 +78,7 @@ const Profile = () => {
             showLoading = true,
             reloadProfile = false,
             reloadTeam = false,
+            reloadOnError = false,
             onSuccess = null,
             clearForm = false
         } = options;
@@ -118,6 +119,7 @@ const Profile = () => {
         } catch (error) {
             // Автоматическая обработка ошибок
             const errorData = error.response?.data;
+            const errorMessage = errorData?.message || '';
             
             if (errorData?.errors) {
                 const errors = errorData.errors;
@@ -129,7 +131,16 @@ const Profile = () => {
                     setNotification({ type: 'error', message: errorData.message || 'Произошла ошибка' });
                 }
             } else {
-                setNotification({ type: 'error', message: errorData?.message || 'Произошла ошибка' });
+                setNotification({ type: 'error', message: errorMessage || 'Произошла ошибка' });
+            }
+
+            // Перезагрузка при ошибке - всегда полный профиль для синхронизации
+            if (reloadOnError) {
+                try {
+                    await loadProfile();
+                } catch (e) {
+                    console.error('Ошибка при перезагрузке профиля:', e);
+                }
             }
         } finally {
             if (showLoading) {
@@ -149,7 +160,11 @@ const Profile = () => {
 
         executeAction(
             () => TeamService.createTeam(teamName),
-            { reloadProfile: true, clearForm: true }
+            { 
+                reloadProfile: true, 
+                clearForm: true,
+                reloadOnError: true // Обновляем профиль даже при ошибке (если уже в команде)
+            }
         );
     };
 
@@ -165,7 +180,10 @@ const Profile = () => {
                 setConfirmDialog({ isOpen: false });
                 executeAction(
                     () => TeamService.leaveTeam(),
-                    { reloadProfile: true }
+                    { 
+                        reloadProfile: true,
+                        reloadOnError: true // Обновляем даже при ошибке
+                    }
                 );
             }
         });
@@ -183,7 +201,10 @@ const Profile = () => {
                 setConfirmDialog({ isOpen: false });
                 executeAction(
                     () => TeamService.kickMember(userId),
-                    { reloadTeam: true }
+                    { 
+                        reloadTeam: true,
+                        reloadOnError: true // Обновляем даже при ошибке
+                    }
                 );
             }
         });
@@ -201,7 +222,10 @@ const Profile = () => {
                 setConfirmDialog({ isOpen: false });
                 executeAction(
                     () => TeamService.deleteTeam(),
-                    { reloadProfile: true }
+                    { 
+                        reloadProfile: true,
+                        reloadOnError: true // Обновляем даже при ошибке
+                    }
                 );
             }
         });
@@ -266,11 +290,6 @@ const Profile = () => {
                 <div className="section">
                     <div className="section-header">
                         <h2 className="section-title">Моя команда</h2>
-                        {team && (
-                            <span className="team-status-badge">
-                                {team.memberCount}/3 участников
-                            </span>
-                        )}
                     </div>
 
                     {/* Уведомления показываем только в блоке команды */}
@@ -340,7 +359,9 @@ const Profile = () => {
                         <div className="team-info-card">
                             <div className="team-header">
                                 <h3 className="team-name">{team.name}</h3>
-                                {isLead && <span className="team-lead-badge">Вы - лидер</span>}
+                                <span className="team-status-badge">
+                                    {team.memberCount}/3 участников
+                                </span>
                             </div>
 
                             {isLead && (

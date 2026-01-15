@@ -19,7 +19,6 @@ const RegisterPage = observer(() => {
         school: '',
         programming_language: '',
         phone: '',
-        format: '',
         grade: ''
     });
 
@@ -223,13 +222,6 @@ const RegisterPage = observer(() => {
         
         if (isLoading) return;
         
-        if (!parentConsent) {
-            setErrors({
-                parentConsent: ['Необходимо дать согласие на обработку персональных данных']
-            });
-            return;
-        }
-        
         setIsLoading(true);
         setErrors({});
         
@@ -246,17 +238,18 @@ const RegisterPage = observer(() => {
             
             const dataToSend = {
                 ...formData,
-                phone: phoneToSend ? `+${phoneToSend}` : ''
+                phone: phoneToSend ? `+${phoneToSend}` : '',
+                parentConsent: parentConsent
             };
             
             await store.registration(dataToSend);
             
             navigate('/login', { 
-            state: { 
-                registrationSuccess: true,
-                message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.'
-            } 
-        });
+                state: { 
+                    registrationSuccess: true,
+                    message: 'Регистрация успешна! Пожалуйста, проверьте вашу почту для активации аккаунта.'
+                } 
+            });
         } catch (e) {
             const responseData = e.response?.data;
             const newErrors = {};
@@ -511,24 +504,6 @@ const RegisterPage = observer(() => {
                     {isFieldInvalid('programming_language') && (
                         <div className="form-error">
                             {getFieldError('programming_language')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <select
-                        name="format"
-                        value={formData.format}
-                        onChange={handleChange}
-                        className={`form-select ${isFieldInvalid('format') ? 'error' : ''}`}
-                    >
-                        <option value="">Выберите формат участия</option>
-                        <option value="онлайн">Онлайн</option>
-                        <option value="очный">Очный</option>
-                    </select>
-                    {isFieldInvalid('format') && (
-                        <div className="form-error">
-                            {getFieldError('format')}
                         </div>
                     )}
                 </div>

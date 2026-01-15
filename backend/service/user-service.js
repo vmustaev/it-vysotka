@@ -41,7 +41,6 @@ class UserService {
             school: additionalData.school,
             programming_language: additionalData.programming_language,
             phone: additionalData.phone,
-            format: additionalData.format,
             grade: additionalData.grade
         });
         

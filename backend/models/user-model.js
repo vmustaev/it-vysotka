@@ -52,10 +52,6 @@ const UserSchema = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    format: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
     grade: {
         type: DataTypes.INTEGER,
         allowNull: false

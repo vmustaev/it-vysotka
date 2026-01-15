@@ -6,20 +6,22 @@ const ApiError = require('../exceptions/api-error');
 class TeamService {
     // Создание команды
     async createTeam(name, userId) {
+        // Сначала проверяем, состоит ли пользователь в команде
+        const user = await UserModel.findByPk(userId);
+        if (user.teamId) {
+            throw ApiError.BadRequest(
+                'Вы уже состоите в команде',
+                ['Вы уже состоите в команде']
+            );
+        }
+
+        // Потом проверяем уникальность названия
         const existingTeam = await TeamModel.findOne({ where: { name } });
         if (existingTeam) {
             throw ApiError.BadRequest(
                 'Команда с таким названием уже существует',
                 ['Команда с таким названием уже существует'],
                 { name: ['Команда с таким названием уже существует'] }
-            );
-        }
-
-        const user = await UserModel.findByPk(userId);
-        if (user.teamId) {
-            throw ApiError.BadRequest(
-                'Вы уже состоите в команде',
-                ['Вы уже состоите в команде']
             );
         }
 

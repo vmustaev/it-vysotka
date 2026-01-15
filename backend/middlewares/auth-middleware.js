@@ -1,7 +1,7 @@
 const ApiError = require('../exceptions/api-error');
 const tokenService = require('../service/token-service');
 
-module.exports = function (req, res, next){
+module.exports = async function (req, res, next){
     try{
         const authorizationHeader = req.headers.authorization;
         if(!authorizationHeader){
@@ -15,6 +15,13 @@ module.exports = function (req, res, next){
 
         const userData = tokenService.validateToken(accessToken, 'access');
         if(!userData){
+            return next(ApiError.UnauthorizedError());
+        }
+
+        // Проверяем, что у пользователя есть активная сессия (refresh token в БД)
+        // Если пользователь вышел на другой вкладке, refresh token удален
+        const hasActiveSession = await tokenService.hasUserTokens(userData.id, 'refresh');
+        if(!hasActiveSession){
             return next(ApiError.UnauthorizedError());
         }
 
