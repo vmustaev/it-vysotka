@@ -35,6 +35,23 @@
     flex: 1;
 }
 
+/* Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.team-status-badge {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.1);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius);
+}
+
 /* Пустая команда */
 .team-empty {
     text-align: center;
@@ -44,10 +61,11 @@
     border: 1px dashed var(--border-color);
 }
 
-.team-empty p {
-    font-size: var(--font-size-base);
+.empty-message {
+    font-size: var(--font-size-lg);
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    font-weight: var(--font-weight-medium);
 }
 
 /* Форма создания команды */
@@ -60,11 +78,12 @@
     margin: var(--spacing-xl) auto 0;
 }
 
-.team-create-form small {
+.form-hint {
     display: block;
     color: var(--text-tertiary);
     margin-top: var(--spacing-xs);
     font-size: var(--font-size-sm);
+    line-height: 1.4;
 }
 
 .form-actions {
@@ -100,6 +119,18 @@
     font-weight: var(--font-weight-bold);
     color: var(--text-primary);
     margin: 0;
+}
+
+.team-lead-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .team-member-count {
@@ -140,10 +171,11 @@
     flex-shrink: 0;
 }
 
-.team-invite small {
+.team-invite .form-hint {
     display: block;
     color: var(--text-tertiary);
     font-size: var(--font-size-sm);
+    margin-top: var(--spacing-sm);
 }
 
 /* Список участников */
@@ -180,6 +212,20 @@
     box-shadow: var(--shadow-sm);
 }
 
+/* Подсветка текущего пользователя */
+.member-card-current {
+    background: rgba(59, 130, 246, 0.05);
+    border-color: rgba(59, 130, 246, 0.3);
+    border-width: 2px;
+}
+
+/* Подсветка лидера */
+.member-card-lead {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.3);
+    border-width: 2px;
+}
+
 .member-info {
     flex: 1;
 }
@@ -196,8 +242,19 @@
 
 .lead-badge {
     display: inline-block;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--text-inverse);
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    text-transform: uppercase;
+}
+
+.current-user-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -218,6 +275,12 @@
     border-top: 1px solid var(--border-color);
 }
 
+/* Button loading states */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .profile-row {
@@ -227,6 +290,12 @@
 
     .profile-label {
         min-width: auto;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
     }
 
     .team-header {

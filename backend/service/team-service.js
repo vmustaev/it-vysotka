@@ -110,15 +110,10 @@ class TeamService {
             attributes: ['id', 'email', 'first_name', 'last_name', 'second_name', 'isLead']
         });
 
-        // Находим лидера команды
-        const captain = members.find(m => m.isLead);
-
         return {
             id: team.id,
             name: team.name,
-            inviteToken: team.inviteToken,
             inviteLink: `${process.env.URL}/api/team/join/${team.inviteToken}`,
-            captain: captain || null,
             members: members,
             memberCount: members.length,
             createdAt: team.createdAt

@@ -18,7 +18,11 @@ class TeamController {
             }
 
             const team = await teamService.createTeam(name.trim(), userId);
-            return res.json(team);
+            return res.json({
+                success: true,
+                message: 'Команда успешно создана!',
+                data: team
+            });
         } catch (e) {
             next(e);
         }
@@ -31,7 +35,11 @@ class TeamController {
             const userId = req.user.id;
 
             const team = await teamService.joinTeam(inviteToken, userId);
-            return res.json(team);
+            return res.json({
+                success: true,
+                message: 'Вы успешно присоединились к команде!',
+                data: team
+            });
         } catch (e) {
             next(e);
         }
@@ -44,10 +52,17 @@ class TeamController {
 
             const team = await teamService.getUserTeam(userId);
             if (!team) {
-                return res.json({ team: null, message: 'Вы не состоите в команде' });
+                return res.json({ 
+                    success: true,
+                    data: null, 
+                    message: 'Вы не состоите в команде' 
+                });
             }
 
-            return res.json(team);
+            return res.json({
+                success: true,
+                data: team
+            });
         } catch (e) {
             next(e);
         }

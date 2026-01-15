@@ -115,6 +115,20 @@ class UserController {
             next(e);
         }
     }
+
+    async getProfile(req, res, next)
+    {
+        try{
+            const userId = req.user.id; // Из authMiddleware
+            const profile = await userService.getProfile(userId);
+            return res.json({
+                success: true,
+                data: profile
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new UserController();

@@ -298,6 +298,26 @@ class UserService {
         const users = await UserModel.findAll();
         return users;
     }
+
+    async getProfile(userId) {
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        // Возвращаем полную информацию о пользователе (включая teamId и isLead)
+        return {
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            second_name: user.second_name,
+            teamId: user.teamId,
+            isLead: user.isLead,
+            isActivated: user.isActivated
+        };
+    }
 }
 
 module.exports = new UserService();
