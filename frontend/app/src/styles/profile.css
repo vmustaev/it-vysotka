@@ -35,6 +35,19 @@
     flex: 1;
 }
 
+/* Бейдж администратора */
+.admin-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Section Header */
 .section-header {
     display: flex;

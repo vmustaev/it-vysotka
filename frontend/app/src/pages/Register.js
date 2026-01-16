@@ -19,7 +19,8 @@ const RegisterPage = observer(() => {
         school: '',
         programming_language: '',
         phone: '',
-        grade: ''
+        grade: '',
+        participation_format: 'individual'
     });
 
     const [parentConsent, setParentConsent] = useState(false);
@@ -504,6 +505,41 @@ const RegisterPage = observer(() => {
                     {isFieldInvalid('programming_language') && (
                         <div className="form-error">
                             {getFieldError('programming_language')}
+                        </div>
+                    )}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Формат участия</label>
+                    <div className="form-radio-group">
+                        <label className="form-radio">
+                            <input
+                                type="radio"
+                                name="participation_format"
+                                value="individual"
+                                checked={formData.participation_format === 'individual'}
+                                onChange={handleChange}
+                                className="form-radio-input"
+                            />
+                            <span className="form-radio-custom"></span>
+                            <span className="form-radio-label">Индивидуальное участие</span>
+                        </label>
+                        <label className="form-radio">
+                            <input
+                                type="radio"
+                                name="participation_format"
+                                value="team"
+                                checked={formData.participation_format === 'team'}
+                                onChange={handleChange}
+                                className="form-radio-input"
+                            />
+                            <span className="form-radio-custom"></span>
+                            <span className="form-radio-label">Командное участие</span>
+                        </label>
+                    </div>
+                    {isFieldInvalid('participation_format') && (
+                        <div className="form-error">
+                            {getFieldError('participation_format')}
                         </div>
                     )}
                 </div>

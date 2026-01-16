@@ -4,6 +4,7 @@ import { Context } from "../index";
 import TeamService from '../services/TeamService';
 import UserService from '../services/UserService';
 import ConfirmDialog from '../components/ConfirmDialog';
+import Toast from '../components/Toast';
 import '../styles/profile.css';
 
 const Profile = () => {
@@ -231,10 +232,44 @@ const Profile = () => {
         });
     };
 
+    const handleParticipationFormatChange = (newFormat) => {
+        // Если меняет на индивидуальный и состоит в команде
+        if (newFormat === 'individual' && profile.teamId) {
+            const message = profile.isLead
+                ? 'Вы являетесь лидером команды. При смене формата на индивидуальное участие команда будет удалена, а все участники выйдут из неё. Продолжить?'
+                : 'Вы состоите в команде. При смене формата на индивидуальное участие вы автоматически покинете команду. Продолжить?';
+
+            setConfirmDialog({
+                isOpen: true,
+                title: 'Изменить формат участия',
+                message: message,
+                confirmText: 'Да, изменить',
+                cancelText: 'Отмена',
+                danger: true,
+                onConfirm: () => {
+                    setConfirmDialog({ isOpen: false });
+                    updateParticipationFormat(newFormat);
+                }
+            });
+        } else {
+            // Если нет команды или меняет на командный формат - просто меняем
+            updateParticipationFormat(newFormat);
+        }
+    };
+
+    const updateParticipationFormat = (newFormat) => {
+        executeAction(
+            () => UserService.updateParticipationFormat(newFormat),
+            { 
+                reloadProfile: true,
+                reloadOnError: true
+            }
+        );
+    };
+
     const copyInviteLink = () => {
         navigator.clipboard.writeText(team.inviteLink);
         setNotification({ type: 'success', message: 'Ссылка скопирована в буфер обмена!' });
-        setTimeout(() => setNotification({ type: null, message: '' }), 3000);
     };
 
     if (loading) {
@@ -293,21 +328,56 @@ const Profile = () => {
                             <span className="profile-label">Email:</span>
                             <span className="profile-value">{profile.email}</span>
                         </div>
+                        {profile.role === 'admin' && (
+                            <div className="profile-row">
+                                <span className="profile-label">Роль:</span>
+                                <span className="profile-value">
+                                    <span className="admin-badge">Администратор</span>
+                                </span>
+                            </div>
+                        )}
+                        <div className="profile-row">
+                            <span className="profile-label">Формат участия:</span>
+                            <div className="profile-value">
+                                <div className="form-radio-group" style={{ marginTop: 0 }}>
+                                    <label className="form-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="individual"
+                                            checked={profile.participation_format === 'individual'}
+                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                            className="form-radio-input"
+                                            disabled={actionLoading}
+                                        />
+                                        <span className="form-radio-custom"></span>
+                                        <span className="form-radio-label">Индивидуальное</span>
+                                    </label>
+                                    <label className="form-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="team"
+                                            checked={profile.participation_format === 'team'}
+                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                            className="form-radio-input"
+                                            disabled={actionLoading}
+                                        />
+                                        <span className="form-radio-custom"></span>
+                                        <span className="form-radio-label">Командное</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Team Section */}
-                <div className="section">
-                    <div className="section-header">
-                        <h2 className="section-title">Моя команда</h2>
-                    </div>
-
-                    {/* Уведомления показываем только в блоке команды */}
-                    {notification.type && (
-                        <div className={`alert alert-${notification.type}`}>
-                            {notification.message}
+                {/* Team Section - показываем только для командного формата */}
+                {profile.participation_format === 'team' && (
+                    <div className="section">
+                        <div className="section-header">
+                            <h2 className="section-title">Моя команда</h2>
                         </div>
-                    )}
 
                     {!team ? (
                         <div className="team-empty">
@@ -532,7 +602,8 @@ const Profile = () => {
                             </div>
                         </div>
                     )}
-                </div>
+                    </div>
+                )}
             </div>
 
             <ConfirmDialog
@@ -545,6 +616,16 @@ const Profile = () => {
                 onConfirm={confirmDialog.onConfirm}
                 onCancel={() => setConfirmDialog({ isOpen: false })}
             />
+
+            {/* Toast уведомление */}
+            {notification.type && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                    duration={5000}
+                />
+            )}
         </div>
     );
 };

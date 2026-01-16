@@ -90,6 +90,10 @@ const registrationValidation = [
         .notEmpty().withMessage('Класс обязателен')
         .isInt({ min: 1, max: 11 }).withMessage(errorMessages.GRADE_INVALID),
     
+    body('participation_format')
+        .notEmpty().withMessage('Формат участия обязателен')
+        .isIn(['individual', 'team']).withMessage('Неверный формат участия. Допустимо: individual или team'),
+    
     body('parentConsent')
         .custom((value) => {
             if (value !== true) {

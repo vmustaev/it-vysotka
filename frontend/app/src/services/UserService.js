@@ -8,4 +8,8 @@ export default class UserService {
     static getProfile() {
         return $api.get('/user/profile')
     }
+
+    static updateParticipationFormat(format) {
+        return $api.put('/user/participation-format', { participation_format: format })
+    }
 }

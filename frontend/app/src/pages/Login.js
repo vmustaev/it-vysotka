@@ -48,7 +48,12 @@ const LoginPage = observer(() => {
                 if (from && from.startsWith('/team/join/')) {
                     navigate(from);
                 } else {
-                    navigate('/profile');
+                    // Редирект в зависимости от роли
+                    if (store.user.role === 'admin') {
+                        navigate('/admin');
+                    } else {
+                        navigate('/profile');
+                    }
                 }
             }
         } catch (e) {

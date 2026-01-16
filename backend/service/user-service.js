@@ -41,7 +41,8 @@ class UserService {
             school: additionalData.school,
             programming_language: additionalData.programming_language,
             phone: additionalData.phone,
-            grade: additionalData.grade
+            grade: additionalData.grade,
+            participation_format: additionalData.participation_format
         });
         
         const userDto = new UserDto(user);
@@ -305,7 +306,7 @@ class UserService {
             throw ApiError.BadRequest('Пользователь не найден');
         }
 
-        // Возвращаем полную информацию о пользователе (включая teamId и isLead)
+        // Возвращаем полную информацию о пользователе (включая teamId, isLead и participation_format)
         return {
             id: user.id,
             email: user.email,
@@ -314,7 +315,57 @@ class UserService {
             second_name: user.second_name,
             teamId: user.teamId,
             isLead: user.isLead,
-            isActivated: user.isActivated
+            isActivated: user.isActivated,
+            participation_format: user.participation_format,
+            role: user.role
+        };
+    }
+
+    async updateParticipationFormat(userId, newFormat) {
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        // Валидация формата
+        if (!['individual', 'team'].includes(newFormat)) {
+            throw ApiError.BadRequest('Неверный формат участия');
+        }
+
+        // Если меняет на индивидуальный и состоит в команде - выходим из команды
+        if (newFormat === 'individual' && user.teamId) {
+            const TeamModel = require('../models/team-model');
+            const team = await TeamModel.findByPk(user.teamId);
+            
+            if (team) {
+                // Если пользователь - лидер команды, удаляем команду
+                if (user.isLead) {
+                    // Удаляем всех участников из команды
+                    await UserModel.update(
+                        { teamId: null, isLead: false },
+                        { where: { teamId: team.id } }
+                    );
+                    
+                    // Удаляем команду
+                    await team.destroy();
+                } else {
+                    // Просто выходим из команды
+                    user.teamId = null;
+                    user.isLead = false;
+                }
+            }
+        }
+
+        // Обновляем формат участия
+        user.participation_format = newFormat;
+        await user.save();
+
+        return {
+            success: true,
+            message: newFormat === 'individual' 
+                ? 'Формат участия изменен на индивидуальное' 
+                : 'Формат участия изменен на командное'
         };
     }
 }

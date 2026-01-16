@@ -128,6 +128,23 @@ class UserController {
             next(e);
         }
     }
+
+    async updateParticipationFormat(req, res, next)
+    {
+        try{
+            const userId = req.user.id; // Из authMiddleware
+            const { participation_format } = req.body;
+            
+            if (!participation_format) {
+                return next(ApiError.BadRequest('Формат участия не указан'));
+            }
+            
+            const result = await userService.updateParticipationFormat(userId, participation_format);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new UserController();

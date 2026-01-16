@@ -71,6 +71,16 @@ const UserSchema = sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    role: {
+        type: DataTypes.ENUM('participant', 'admin'),
+        allowNull: false,
+        defaultValue: 'participant'
+    },
+    participation_format: {
+        type: DataTypes.ENUM('individual', 'team'),
+        allowNull: false,
+        defaultValue: 'individual'
     }
 }, {timestamps: false});
 

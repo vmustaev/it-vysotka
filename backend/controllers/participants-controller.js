@@ -1,0 +1,359 @@
+const UserModel = require('../models/user-model');
+const TeamModel = require('../models/team-model');
+const ApiError = require('../exceptions/api-error');
+const { Op } = require('sequelize');
+
+class ParticipantsController {
+    /**
+     * Получить список всех участников с фильтрами и пагинацией
+     */
+    async getAll(req, res, next) {
+        try {
+            const {
+                page = 1,
+                limit = 20,
+                search = '',
+                region = '',
+                grade = '',
+                programming_language = '',
+                hasTeam = '',
+                participation_format = '',
+                sortBy = 'id',
+                sortOrder = 'ASC'
+            } = req.query;
+
+            const offset = (page - 1) * limit;
+
+            // Строим условия фильтрации
+            const where = {
+                role: 'participant' // Показываем только участников, не админов
+            };
+
+            // Поиск по ФИО или email
+            if (search) {
+                where[Op.or] = [
+                    { first_name: { [Op.iLike]: `%${search}%` } },
+                    { last_name: { [Op.iLike]: `%${search}%` } },
+                    { second_name: { [Op.iLike]: `%${search}%` } },
+                    { email: { [Op.iLike]: `%${search}%` } }
+                ];
+            }
+
+            // Фильтр по региону
+            if (region) {
+                where.region = region;
+            }
+
+            // Фильтр по классу
+            if (grade) {
+                where.grade = parseInt(grade);
+            }
+
+            // Фильтр по языку программирования
+            if (programming_language) {
+                where.programming_language = programming_language;
+            }
+
+            // Фильтр по наличию команды
+            if (hasTeam === 'true') {
+                where.teamId = { [Op.ne]: null };
+            } else if (hasTeam === 'false') {
+                where.teamId = null;
+            }
+
+            // Фильтр по формату участия
+            if (participation_format) {
+                where.participation_format = participation_format;
+            }
+
+            // Валидация сортировки
+            const allowedSortFields = ['id', 'last_name', 'email', 'grade', 'region', 'createdAt'];
+            const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'id';
+            const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+            // Получаем участников с командами
+            const { count, rows: participants } = await UserModel.findAndCountAll({
+                where,
+                limit: parseInt(limit),
+                offset: parseInt(offset),
+                order: [[validSortBy, validSortOrder]],
+                include: [{
+                    model: TeamModel,
+                    as: 'Team',
+                    attributes: ['id', 'name']
+                }],
+                attributes: { exclude: ['password'] } // Не возвращаем пароль
+            });
+
+            return res.json({
+                success: true,
+                data: {
+                    participants,
+                    pagination: {
+                        total: count,
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        totalPages: Math.ceil(count / limit)
+                    }
+                }
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Получить статистику участников
+     */
+    async getStats(req, res, next) {
+        try {
+            const totalParticipants = await UserModel.count({
+                where: { role: 'participant' }
+            });
+
+            const activatedParticipants = await UserModel.count({
+                where: { role: 'participant', isActivated: true }
+            });
+
+            const participantsWithTeam = await UserModel.count({
+                where: { 
+                    role: 'participant',
+                    teamId: { [Op.ne]: null }
+                }
+            });
+
+            const totalTeams = await TeamModel.count();
+
+            // Статистика по регионам
+            const byRegion = await UserModel.findAll({
+                where: { role: 'participant' },
+                attributes: [
+                    'region',
+                    [UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'count']
+                ],
+                group: ['region'],
+                order: [[UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'DESC']],
+                raw: true
+            });
+
+            // Статистика по классам
+            const byGrade = await UserModel.findAll({
+                where: { role: 'participant' },
+                attributes: [
+                    'grade',
+                    [UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'count']
+                ],
+                group: ['grade'],
+                order: [['grade', 'ASC']],
+                raw: true
+            });
+
+            // Статистика по языкам программирования
+            const byLanguage = await UserModel.findAll({
+                where: { role: 'participant' },
+                attributes: [
+                    'programming_language',
+                    [UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'count']
+                ],
+                group: ['programming_language'],
+                order: [[UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'DESC']],
+                raw: true
+            });
+
+            // Статистика по формату участия
+            const byParticipationFormat = await UserModel.findAll({
+                where: { role: 'participant' },
+                attributes: [
+                    'participation_format',
+                    [UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'count']
+                ],
+                group: ['participation_format'],
+                order: [[UserModel.sequelize.fn('COUNT', UserModel.sequelize.col('id')), 'DESC']],
+                raw: true
+            });
+
+            return res.json({
+                success: true,
+                data: {
+                    total: totalParticipants,
+                    activated: activatedParticipants,
+                    withTeam: participantsWithTeam,
+                    withoutTeam: totalParticipants - participantsWithTeam,
+                    totalTeams,
+                    byRegion,
+                    byGrade,
+                    byLanguage,
+                    byParticipationFormat
+                }
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Получить детальную информацию об участнике
+     */
+    async getById(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const participant = await UserModel.findOne({
+                where: { id, role: 'participant' },
+                include: [{
+                    model: TeamModel,
+                    as: 'Team',
+                    include: [{
+                        model: UserModel,
+                        as: 'Members',
+                        attributes: ['id', 'first_name', 'last_name', 'second_name', 'email', 'isLead']
+                    }]
+                }],
+                attributes: { exclude: ['password'] }
+            });
+
+            if (!participant) {
+                return next(ApiError.BadRequest('Участник не найден'));
+            }
+
+            return res.json({
+                success: true,
+                data: participant
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Экспорт участников в Excel
+     * Требует установки: npm install exceljs
+     */
+    async exportToExcel(req, res, next) {
+        try {
+            const ExcelJS = require('exceljs');
+
+            // Получаем всех участников
+            const participants = await UserModel.findAll({
+                where: { role: 'participant' },
+                include: [{
+                    model: TeamModel,
+                    as: 'Team',
+                    attributes: ['name']
+                }],
+                order: [['last_name', 'ASC']],
+                attributes: { exclude: ['password'] }
+            });
+
+            // Создаем книгу Excel
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Участники');
+
+            // Заголовки столбцов
+            worksheet.columns = [
+                { header: '№', key: 'number', width: 5 },
+                { header: 'Фамилия', key: 'lastName', width: 20 },
+                { header: 'Имя', key: 'firstName', width: 20 },
+                { header: 'Отчество', key: 'secondName', width: 20 },
+                { header: 'Email', key: 'email', width: 30 },
+                { header: 'Телефон', key: 'phone', width: 18 },
+                { header: 'Дата рождения', key: 'birthday', width: 15 },
+                { header: 'Регион', key: 'region', width: 30 },
+                { header: 'Город', key: 'city', width: 25 },
+                { header: 'Школа', key: 'school', width: 50 },
+                { header: 'Класс', key: 'grade', width: 8 },
+                { header: 'Язык программирования', key: 'language', width: 25 },
+                { header: 'Формат участия', key: 'participationFormat', width: 20 },
+                { header: 'Команда', key: 'team', width: 30 },
+                { header: 'Лидер команды', key: 'isLead', width: 15 },
+                { header: 'Активирован', key: 'isActivated', width: 15 }
+            ];
+
+            // Стилизация заголовков
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF4472C4' }
+            };
+            worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+            // Заполняем данными
+            participants.forEach((participant, index) => {
+                worksheet.addRow({
+                    number: index + 1,
+                    lastName: participant.last_name,
+                    firstName: participant.first_name,
+                    secondName: participant.second_name || '',
+                    email: participant.email,
+                    phone: participant.phone,
+                    birthday: participant.birthday,
+                    region: participant.region,
+                    city: participant.city,
+                    school: participant.school,
+                    grade: participant.grade,
+                    language: participant.programming_language,
+                    participationFormat: participant.participation_format === 'individual' ? 'Индивидуальное' : 'Командное',
+                    team: participant.Team ? participant.Team.name : 'Без команды',
+                    isLead: participant.isLead ? 'Да' : 'Нет',
+                    isActivated: participant.isActivated ? 'Да' : 'Нет'
+                });
+            });
+
+            // Автофильтр для всех колонок
+            worksheet.autoFilter = {
+                from: 'A1',
+                to: 'P1'
+            };
+
+            // Генерируем имя файла с датой
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `Участники_IT-Высотка_${date}.xlsx`;
+
+            // Устанавливаем заголовки для скачивания
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+
+            // Отправляем файл
+            await workbook.xlsx.write(res);
+            res.end();
+        } catch (e) {
+            console.error('Ошибка экспорта в Excel:', e);
+            next(ApiError.BadRequest('Ошибка при экспорте данных'));
+        }
+    }
+
+    /**
+     * Удалить участника (только если не состоит в команде)
+     */
+    async deleteParticipant(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const participant = await UserModel.findOne({
+                where: { id, role: 'participant' }
+            });
+
+            if (!participant) {
+                return next(ApiError.BadRequest('Участник не найден'));
+            }
+
+            // Проверяем, не состоит ли в команде
+            if (participant.teamId) {
+                return next(ApiError.BadRequest('Невозможно удалить участника, состоящего в команде. Сначала удалите его из команды.'));
+            }
+
+            await participant.destroy();
+
+            return res.json({
+                success: true,
+                message: 'Участник успешно удален'
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+}
+
+module.exports = new ParticipantsController();
+

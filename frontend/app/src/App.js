@@ -17,6 +17,17 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Consent from "./pages/Consent";
 
+// Admin pages
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Participants from "./pages/admin/Participants";
+import Rooms from "./pages/admin/Rooms";
+import Seating from "./pages/admin/Seating";
+import CMS from "./pages/admin/CMS";
+import Certificates from "./pages/admin/Certificates";
+import Settings from "./pages/admin/Settings";
+import Logs from "./pages/admin/Logs";
+
 const App = observer(() => {
     const { store } = useContext(Context);
 
@@ -41,7 +52,9 @@ const App = observer(() => {
                 <Route path="/contacts" element={<Contacts />} />
 
                 <Route path="/login" element={
-                    store.isAuth ? <Navigate to="/" /> : <Login />
+                    store.isAuth ? (
+                        store.user.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/profile" />
+                    ) : <Login />
                 } />
                 <Route path="/register" element={
                     store.isAuth ? <Navigate to="/" /> : <Register />
@@ -54,10 +67,29 @@ const App = observer(() => {
                     store.isAuth ? <Navigate to="/" /> : <ResetPassword />
                 } />
 
+                {/* Profile - только для обычных участников */}
                 <Route path="/profile" element={
                     store.isLoading ? <div className="loading">Загрузка...</div> : 
-                    store.isAuth ? <Profile /> : <Navigate to="/login" />
+                    !store.isAuth ? <Navigate to="/login" /> :
+                    store.user.role === 'admin' ? <Navigate to="/admin" /> :
+                    <Profile />
                 } />
+
+                {/* Admin panel - только для администраторов */}
+                <Route path="/admin" element={
+                    !store.isAuth ? <Navigate to="/login" /> :
+                    store.user.role !== 'admin' ? <Navigate to="/profile" /> :
+                    <AdminLayout />
+                }>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="participants" element={<Participants />} />
+                    <Route path="rooms" element={<Rooms />} />
+                    <Route path="seating" element={<Seating />} />
+                    <Route path="cms" element={<CMS />} />
+                    <Route path="certificates" element={<Certificates />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="logs" element={<Logs />} />
+                </Route>
 
                 <Route path="*" element={<NotFound />} />
             </Routes>
