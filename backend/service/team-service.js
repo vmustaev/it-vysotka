@@ -338,6 +338,33 @@ class TeamService {
             throw error;
         }
     }
+
+    // Получить все команды с участниками (для админки)
+    async getAllTeams() {
+        const allTeams = await TeamModel.findAll({
+            order: [['createdAt', 'ASC']]
+        });
+
+        const teamsWithMembers = await Promise.all(
+            allTeams.map(async (team) => {
+                const members = await UserModel.findAll({
+                    where: { teamId: team.id },
+                    attributes: ['id', 'email', 'first_name', 'last_name', 'second_name', 'isLead'],
+                    order: [['isLead', 'DESC'], ['last_name', 'ASC']]
+                });
+
+                return {
+                    id: team.id,
+                    name: team.name,
+                    members: members,
+                    memberCount: members.length,
+                    createdAt: team.createdAt
+                };
+            })
+        );
+
+        return teamsWithMembers;
+    }
 }
 
 module.exports = new TeamService();

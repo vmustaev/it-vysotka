@@ -291,14 +291,14 @@ class UserService {
             throw ApiError.BadRequest('Пользователь не найден');
         }
 
+        // isLead убран - получать из team.members, чтобы избежать дублирования данных
         return {
             id: user.id,
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
             second_name: user.second_name,
-            teamId: user.teamId,
-            isLead: user.isLead,
+            teamId: user.teamId, // Оставляем для оптимизации (понять, нужно ли запрашивать команду)
             isActivated: user.isActivated,
             participation_format: user.participation_format,
             role: user.role

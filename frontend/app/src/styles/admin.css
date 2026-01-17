@@ -6,6 +6,8 @@
 
 .admin-layout {
     display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-md);
     min-height: calc(100vh - var(--navbar-height));
 }
 
@@ -16,13 +18,17 @@
 .admin-sidebar {
     width: 260px;
     background: var(--bg-primary);
-    border-right: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
     position: sticky;
-    top: var(--navbar-height);
-    height: calc(100vh - var(--navbar-height));
+    top: calc(var(--navbar-height) + var(--spacing-sm) + var(--spacing-lg));
+    height: fit-content;
+    max-height: calc(100vh - var(--navbar-height) - var(--spacing-sm) - var(--spacing-lg) * 2);
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .admin-sidebar-header {
@@ -87,14 +93,14 @@
 
 .admin-main {
     flex: 1;
-    background: var(--bg-secondary);
-    overflow-y: auto;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
 }
 
 .admin-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: var(--spacing-2xl);
+    width: 100%;
+    max-width: 75%;
 }
 
 /* ========================================
@@ -103,6 +109,11 @@
 
 .admin-page {
     width: 100%;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-2xl);
+    min-height: calc(100vh - var(--navbar-height) - var(--spacing-lg) * 2);
 }
 
 .admin-page-header {
@@ -403,6 +414,155 @@
     background: var(--bg-secondary);
 }
 
+/* ========================================
+   TEAMS GRID - Раскрывающиеся команды
+   ======================================== */
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.team-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.team-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.team-card-expanded {
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.team-card-header {
+    padding: var(--spacing-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+    transition: all var(--transition-base);
+    user-select: none;
+}
+
+.team-card-header:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+}
+
+.team-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex: 1;
+}
+
+.team-expand-icon {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    transition: transform var(--transition-base);
+    display: inline-block;
+}
+
+.team-card-expanded .team-expand-icon {
+    transform: rotate(0deg);
+}
+
+.team-name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+}
+
+.team-members-count {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.team-card-body {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+.team-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.team-member-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-base);
+}
+
+.team-member-item:hover {
+    background: var(--bg-primary);
+    transform: translateX(4px);
+}
+
+.team-member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-full);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+}
+
+.team-member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.team-member-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.team-member-details {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .participants-table td {
     padding: var(--spacing-md) var(--spacing-lg);
     color: var(--text-primary);
@@ -435,6 +595,13 @@
 .badge-team {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
+    user-select: none;
+    transition: all var(--transition-base);
+}
+
+.badge-team:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .badge-no-team {
@@ -496,14 +663,20 @@
 @media (max-width: 768px) {
     .admin-layout {
         flex-direction: column;
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
     }
 
     .admin-sidebar {
         width: 100%;
         position: relative;
         height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        max-height: none;
+        top: 0;
+    }
+    
+    .admin-page {
+        min-height: auto;
     }
 
     .admin-sidebar-nav {
@@ -560,6 +733,15 @@
 
     .participants-table {
         min-width: 800px;
+    }
+
+    .teams-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-member-details {
+        font-size: 0.75rem;
+        white-space: normal;
     }
 
     .pagination {

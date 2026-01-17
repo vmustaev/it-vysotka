@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ParticipantsService from '../../services/ParticipantsService';
+import TeamService from '../../services/TeamService';
 
 const Participants = () => {
     const [participants, setParticipants] = useState([]);
@@ -8,6 +9,8 @@ const Participants = () => {
     const [exporting, setExporting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [expandedTeams, setExpandedTeams] = useState(new Set()); // Для раскрывающихся команд
+    const [teams, setTeams] = useState([]); // Список всех команд
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -35,9 +38,10 @@ const Participants = () => {
         loadParticipants();
     }, [filters]);
 
-    // Загрузка статистики один раз при монтировании
+    // Загрузка статистики и команд один раз при монтировании
     useEffect(() => {
         loadStats();
+        loadTeams();
     }, []);
 
     const loadParticipants = async () => {
@@ -51,6 +55,28 @@ const Participants = () => {
             setError(e.response?.data?.message || 'Ошибка загрузки участников');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Загрузка всех команд отдельно (независимо от фильтров)
+    const loadTeams = async () => {
+        try {
+            const response = await TeamService.getAllTeams();
+            const teamsData = response.data.data;
+            
+            // Форматируем данные команд
+            const formattedTeams = teamsData.map(team => ({
+                id: team.id,
+                name: team.name,
+                members: team.members || [],
+                memberCount: team.memberCount || team.members?.length || 0
+            }));
+            
+            setTeams(formattedTeams);
+        } catch (e) {
+            console.error('Ошибка загрузки команд:', e);
+            // Если не получилось загрузить, не показываем ошибку пользователю
+            // Команды просто не будут отображаться
         }
     };
 
@@ -107,6 +133,19 @@ const Participants = () => {
             sortBy: field,
             sortOrder: prev.sortBy === field && prev.sortOrder === 'ASC' ? 'DESC' : 'ASC'
         }));
+    };
+
+    // Переключение раскрытия команды
+    const toggleTeamExpand = (teamId) => {
+        setExpandedTeams(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(teamId)) {
+                newSet.delete(teamId);
+            } else {
+                newSet.add(teamId);
+            }
+            return newSet;
+        });
     };
 
     return (
@@ -206,6 +245,71 @@ const Participants = () => {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Секция команд */}
+            {teams.length > 0 && (
+                <div className="admin-section" style={{ marginBottom: '2rem' }}>
+                    <div className="admin-section-header">
+                        <h2 className="admin-section-title">
+                            Команды ({teams.length})
+                        </h2>
+                        <p className="admin-section-subtitle">
+                            Нажмите на команду, чтобы увидеть участников
+                        </p>
+                    </div>
+                    
+                    <div className="teams-grid">
+                        {teams.map((team) => {
+                            const isExpanded = expandedTeams.has(team.id);
+                            return (
+                                <div key={team.id} className={`team-card ${isExpanded ? 'team-card-expanded' : ''}`}>
+                                    <div 
+                                        className="team-card-header"
+                                        onClick={() => toggleTeamExpand(team.id)}
+                                    >
+                                        <div className="team-card-title">
+                                            <span className="team-expand-icon">
+                                                {isExpanded ? '▼' : '▶'}
+                                            </span>
+                                            <span className="team-name">{team.name}</span>
+                                        </div>
+                                        <span className="team-members-count">
+                                            {team.members.length} {team.members.length === 1 ? 'участник' : team.members.length < 5 ? 'участника' : 'участников'}
+                                        </span>
+                                    </div>
+                                    
+                                    {isExpanded && (
+                                        <div className="team-card-body">
+                                            <div className="team-members-list">
+                                                {team.members.map((member, index) => (
+                                                    <div key={member.id} className="team-member-item">
+                                                        <div className="team-member-avatar">
+                                                            {index + 1}
+                                                        </div>
+                                                        <div className="team-member-info">
+                                                            <div className="team-member-name">
+                                                                {member.last_name} {member.first_name}
+                                                                {member.isLead && (
+                                                                    <span className="badge badge-lead" style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
+                                                                        Лидер
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="team-member-details">
+                                                                {member.email} • {member.grade} класс • {member.programming_language}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 

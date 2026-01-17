@@ -249,7 +249,11 @@ const Profile = () => {
     const handleParticipationFormatChange = (newFormat) => {
         // Если меняет на индивидуальный и состоит в команде
         if (newFormat === 'individual' && profile.teamId) {
-            const message = profile.isLead
+            // Определяем isLead из данных команды
+            const currentUserInTeam = team?.members?.find(m => m.id === profile.id);
+            const isLead = currentUserInTeam?.isLead || false;
+            
+            const message = isLead
                 ? 'Вы являетесь лидером команды. При смене формата на индивидуальное участие команда будет удалена, а все участники выйдут из неё. Продолжить?'
                 : 'Вы состоите в команде. При смене формата на индивидуальное участие вы автоматически покинете команду. Продолжить?';
 
@@ -318,7 +322,8 @@ const Profile = () => {
         );
     }
 
-    const isLead = profile.isLead;
+    // Определяем isLead из данных команды (убрали дублирование из profile)
+    const isLead = team?.members?.find(m => m.id === profile.id)?.isLead || false;
 
     return (
         <div className="page profile-page">

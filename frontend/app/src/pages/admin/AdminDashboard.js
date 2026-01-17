@@ -27,7 +27,7 @@ const AdminDashboard = () => {
             <div className="admin-page-header">
                 <h1 className="admin-page-title">Панель управления</h1>
                 <p className="admin-page-subtitle">
-                    Добро пожаловать, {store.user.first_name} {store.user.last_name}!
+                    Добро пожаловать в панель администратора!
                 </p>
             </div>
 

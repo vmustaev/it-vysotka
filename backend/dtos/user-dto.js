@@ -1,25 +1,15 @@
+// UserDto используется для JWT токенов - содержит только критически важные данные
+// Остальную информацию получаем через API запросы (getProfile и т.д.)
 module.exports = class UserDto {
-    email;
-    id;
-    isActivated;
-    first_name;
-    last_name;
-    second_name;
-    role;
-    participation_format;
-    teamId;
-    isLead;
+    id;              // Идентификатор пользователя (обязательно)
+    email;           // Email для удобства
+    role;            // Роль (admin/participant) - для авторизации
+    isActivated;     // Статус активации - для проверки доступа
 
     constructor(model) {
-        this.email = model.email;
         this.id = model.id;
-        this.isActivated = model.isActivated;
-        this.first_name = model.first_name;
-        this.last_name = model.last_name;
-        this.second_name = model.second_name;
+        this.email = model.email;
         this.role = model.role;
-        this.participation_format = model.participation_format;
-        this.teamId = model.teamId;
-        this.isLead = model.isLead;
+        this.isActivated = model.isActivated;
     }
 }

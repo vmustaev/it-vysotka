@@ -147,6 +147,19 @@ class TeamController {
             return res.redirect(`${process.env.URL}/?team_join_error=true`);
         }
     }
+
+    // Получить все команды (для админки)
+    async getAllTeams(req, res, next) {
+        try {
+            const teams = await teamService.getAllTeams();
+            return res.json({
+                success: true,
+                data: teams
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new TeamController();

@@ -45,4 +45,7 @@ router.get('/admin/participants/export', authMiddleware, adminMiddleware, partic
 router.get('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.getById);
 router.delete('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.deleteParticipant);
 
+// Admin routes - Teams
+router.get('/admin/teams', authMiddleware, adminMiddleware, teamController.getAllTeams);
+
 module.exports = router;
