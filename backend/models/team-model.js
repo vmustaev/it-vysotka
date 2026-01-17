@@ -23,7 +23,19 @@ const Team = sequelize.define('Team', {
     }
 }, {
     tableName: 'teams',
-    timestamps: true
+    timestamps: true,
+    hooks: {
+        beforeDestroy: async (team, options) => {
+            const UserModel = require('./user-model');
+            await UserModel.update(
+                { teamId: null, isLead: false },
+                { 
+                    where: { teamId: team.id },
+                    transaction: options.transaction 
+                }
+            );
+        }
+    }
 });
 
 module.exports = Team;

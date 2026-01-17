@@ -38,4 +38,3 @@ class SchoolController {
 }
 
 module.exports = new SchoolController();
-

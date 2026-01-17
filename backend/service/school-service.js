@@ -17,9 +17,7 @@ class SchoolService {
         }
         const cities = await School.findAll({
             attributes: ['city'],
-            where: {
-                region: region
-            },
+            where: { region },
             group: ['city'],
             order: [['city', 'ASC']],
             raw: true
@@ -33,10 +31,7 @@ class SchoolService {
         }
         const schools = await School.findAll({
             attributes: ['name'],
-            where: {
-                region: region,
-                city: city
-            },
+            where: { region, city },
             group: ['name'],
             order: [['name', 'ASC']],
             raw: true
@@ -46,4 +41,3 @@ class SchoolService {
 }
 
 module.exports = new SchoolService();
-

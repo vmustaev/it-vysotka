@@ -1,11 +1,9 @@
 const userService = require('../service/user-service');
-const {validationResult} = require('express-validator');
 const ApiError = require('../exceptions/api-error');
 
 class UserController {
-    async registration(req, res, next)
-    {
-        try{
+    async registration(req, res, next) {
+        try {
             const {
                 email, password, password_confirmation,
                 last_name, first_name, second_name, birthday,
@@ -36,9 +34,8 @@ class UserController {
         }
     }
 
-    async login(req, res, next)
-    {
-        try{
+    async login(req, res, next) {
+        try {
             const {email, password} = req.body;
             const userData = await userService.login(email, password);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
@@ -52,9 +49,8 @@ class UserController {
         }
     }
 
-    async logout(req, res, next)
-    {
-        try{
+    async logout(req, res, next) {
+        try {
             const {refreshToken} = req.cookies;
             await userService.logout(refreshToken || null);
             res.clearCookie("refreshToken");
@@ -68,9 +64,8 @@ class UserController {
         }
     }
 
-    async activate(req, res, next)
-    {
-        try{
+    async activate(req, res, next) {
+        try {
             const activationToken = req.params.link;
             await userService.activate(activationToken);
             // Редирект на фронтенд с успешным сообщением
@@ -81,9 +76,8 @@ class UserController {
         }
     }
 
-    async refresh(req, res, next)
-    {
-        try{
+    async refresh(req, res, next) {
+        try {
             const {refreshToken} = req.cookies;
             
             if (!refreshToken) {
@@ -102,9 +96,8 @@ class UserController {
         }
     }
 
-    async getUsers(req, res, next)
-    {
-        try{
+    async getUsers(req, res, next) {
+        try {
             const users = await userService.getAllUsers();
             return res.json({
                 success: true,
@@ -115,9 +108,8 @@ class UserController {
         }
     }
 
-    async getProfile(req, res, next)
-    {
-        try{
+    async getProfile(req, res, next) {
+        try {
             const userId = req.user.id; // Из authMiddleware
             const profile = await userService.getProfile(userId);
             return res.json({
@@ -129,9 +121,8 @@ class UserController {
         }
     }
 
-    async updateParticipationFormat(req, res, next)
-    {
-        try{
+    async updateParticipationFormat(req, res, next) {
+        try {
             const userId = req.user.id; // Из authMiddleware
             const { participation_format } = req.body;
             

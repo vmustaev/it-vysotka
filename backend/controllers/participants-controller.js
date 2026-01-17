@@ -331,7 +331,12 @@ class ParticipantsController {
             const { id } = req.params;
 
             const participant = await UserModel.findOne({
-                where: { id, role: 'participant' }
+                where: { id, role: 'participant' },
+                include: [{
+                    model: TeamModel,
+                    as: 'Team',
+                    attributes: ['name']
+                }]
             });
 
             if (!participant) {
@@ -340,7 +345,17 @@ class ParticipantsController {
 
             // Проверяем, не состоит ли в команде
             if (participant.teamId) {
-                return next(ApiError.BadRequest('Невозможно удалить участника, состоящего в команде. Сначала удалите его из команды.'));
+                const teamName = participant.Team ? participant.Team.name : 'неизвестной команде';
+                
+                if (participant.isLead) {
+                    return next(ApiError.BadRequest(
+                        `Невозможно удалить лидера команды "${teamName}". Сначала необходимо удалить команду или передать лидерство другому участнику.`
+                    ));
+                } else {
+                    return next(ApiError.BadRequest(
+                        `Невозможно удалить участника команды "${teamName}". Сначала исключите его из команды.`
+                    ));
+                }
             }
 
             await participant.destroy();
@@ -356,4 +371,3 @@ class ParticipantsController {
 }
 
 module.exports = new ParticipantsController();
-

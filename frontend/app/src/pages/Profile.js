@@ -154,13 +154,27 @@ const Profile = () => {
     const handleCreateTeam = (e) => {
         e.preventDefault();
 
-        if (!teamName.trim()) {
+        const trimmedName = teamName.trim();
+
+        if (!trimmedName) {
             setNotification({ type: 'error', message: 'Введите название команды' });
             return;
         }
 
+        if (trimmedName.length < 3 || trimmedName.length > 50) {
+            setNotification({ type: 'error', message: 'Название команды должно быть от 3 до 50 символов' });
+            return;
+        }
+
+        // Проверка на допустимые символы (кириллица, латиница, цифры, пробелы)
+        const nameRegex = /^[a-zA-Zа-яА-ЯёЁ0-9\s]+$/;
+        if (!nameRegex.test(trimmedName)) {
+            setNotification({ type: 'error', message: 'Название команды может содержать только буквы (русские/английские) и цифры' });
+            return;
+        }
+
         executeAction(
-            () => TeamService.createTeam(teamName),
+            () => TeamService.createTeam(trimmedName),
             { 
                 reloadProfile: true, 
                 clearForm: true,

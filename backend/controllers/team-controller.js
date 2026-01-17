@@ -9,14 +9,7 @@ class TeamController {
             const { name } = req.body;
             const userId = req.user.id;
 
-            if (!name || !name.trim()) {
-                throw ApiError.BadRequest(
-                    'Название команды обязательно',
-                    ['Название команды обязательно'],
-                    { name: ['Название команды обязательно'] }
-                );
-            }
-
+            // Валидация уже происходит в middleware и сервисе
             const team = await teamService.createTeam(name.trim(), userId);
             return res.json({
                 success: true,
@@ -86,7 +79,16 @@ class TeamController {
             const { userId: memberUserId } = req.params;
             const captainId = req.user.id;
 
-            const result = await teamService.kickMember(captainId, parseInt(memberUserId));
+            // Валидация userId
+            const parsedUserId = parseInt(memberUserId);
+            if (isNaN(parsedUserId) || parsedUserId <= 0) {
+                throw ApiError.BadRequest(
+                    'Некорректный ID пользователя',
+                    ['Некорректный ID пользователя']
+                );
+            }
+
+            const result = await teamService.kickMember(captainId, parsedUserId);
             return res.json(result);
         } catch (e) {
             next(e);

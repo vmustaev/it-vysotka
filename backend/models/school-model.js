@@ -1,4 +1,4 @@
-const {DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
 const SchoolSchema = sequelize.define('School', {
@@ -20,4 +20,3 @@ const SchoolSchema = sequelize.define('School', {
 });
 
 module.exports = SchoolSchema;
-

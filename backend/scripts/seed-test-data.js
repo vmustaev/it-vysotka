@@ -5,36 +5,36 @@ const sequelize = require('../db');
 
 // Тестовые данные
 const testParticipants = [
-    { lastName: 'Иванов', firstName: 'Иван', secondName: 'Иванович', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Петров', firstName: 'Петр', secondName: 'Петрович', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Сидоров', firstName: 'Сидор', secondName: 'Сидорович', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Козлов', firstName: 'Андрей', secondName: 'Андреевич', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Северобайкальск' },
-    { lastName: 'Смирнова', firstName: 'Анна', secondName: 'Александровна', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Кузнецов', firstName: 'Дмитрий', secondName: 'Дмитриевич', grade: 11, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Новиков', firstName: 'Николай', secondName: 'Николаевич', grade: 8, language: 'Python', region: 'Республика Бурятия', city: 'Гусиноозерск' },
-    { lastName: 'Морозова', firstName: 'Мария', secondName: 'Михайловна', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Соколов', firstName: 'Алексей', secondName: 'Алексеевич', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Лебедев', firstName: 'Сергей', secondName: 'Сергеевич', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Волкова', firstName: 'Ольга', secondName: 'Олеговна', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Закаменск' },
-    { lastName: 'Семенов', firstName: 'Семен', secondName: 'Семенович', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Егоров', firstName: 'Егор', secondName: 'Егорович', grade: 8, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Павлова', firstName: 'Екатерина', secondName: 'Павловна', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Федоров', firstName: 'Федор', secondName: 'Федорович', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Романов', firstName: 'Роман', secondName: 'Романович', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Кяхта' },
-    { lastName: 'Васильева', firstName: 'Вера', secondName: 'Васильевна', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Михайлов', firstName: 'Михаил', secondName: 'Михайлович', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Александрова', firstName: 'Александра', secondName: 'Александровна', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Никитин', firstName: 'Никита', secondName: 'Никитович', grade: 8, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Григорьев', firstName: 'Григорий', secondName: 'Григорьевич', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Борисова', firstName: 'Борислава', secondName: 'Борисовна', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Яковлев', firstName: 'Яков', secondName: 'Яковлевич', grade: 11, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Давыдова', firstName: 'Дарья', secondName: 'Давыдовна', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Герасимов', firstName: 'Геннадий', secondName: 'Геннадьевич', grade: 10, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Тихонова', firstName: 'Татьяна', secondName: 'Тихоновна', grade: 8, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Макаров', firstName: 'Максим', secondName: 'Максимович', grade: 9, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Антонова', firstName: 'Антонина', secondName: 'Антоновна', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Денисов', firstName: 'Денис', secondName: 'Денисович', grade: 10, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Степанова', firstName: 'Степанида', secondName: 'Степановна', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' }
+    { lastName: 'Иванов', firstName: 'Иван', secondName: 'Иванович', emailName: 'ivan.ivanov', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Петров', firstName: 'Петр', secondName: 'Петрович', emailName: 'petr.petrov', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Сидоров', firstName: 'Сидор', secondName: 'Сидорович', emailName: 'sidor.sidorov', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Козлов', firstName: 'Андрей', secondName: 'Андреевич', emailName: 'andrey.kozlov', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Северобайкальск' },
+    { lastName: 'Смирнова', firstName: 'Анна', secondName: 'Александровна', emailName: 'anna.smirnova', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Кузнецов', firstName: 'Дмитрий', secondName: 'Дмитриевич', emailName: 'dmitry.kuznetsov', grade: 11, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Новиков', firstName: 'Николай', secondName: 'Николаевич', emailName: 'nikolay.novikov', grade: 8, language: 'Python', region: 'Республика Бурятия', city: 'Гусиноозерск' },
+    { lastName: 'Морозова', firstName: 'Мария', secondName: 'Михайловна', emailName: 'maria.morozova', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Соколов', firstName: 'Алексей', secondName: 'Алексеевич', emailName: 'alexey.sokolov', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Лебедев', firstName: 'Сергей', secondName: 'Сергеевич', emailName: 'sergey.lebedev', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Волкова', firstName: 'Ольга', secondName: 'Олеговна', emailName: 'olga.volkova', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Закаменск' },
+    { lastName: 'Семенов', firstName: 'Семен', secondName: 'Семенович', emailName: 'semen.semenov', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Егоров', firstName: 'Егор', secondName: 'Егорович', emailName: 'egor.egorov', grade: 8, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Павлова', firstName: 'Екатерина', secondName: 'Павловна', emailName: 'ekaterina.pavlova', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Федоров', firstName: 'Федор', secondName: 'Федорович', emailName: 'fedor.fedorov', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Романов', firstName: 'Роман', secondName: 'Романович', emailName: 'roman.romanov', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Кяхта' },
+    { lastName: 'Васильева', firstName: 'Вера', secondName: 'Васильевна', emailName: 'vera.vasileva', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Михайлов', firstName: 'Михаил', secondName: 'Михайлович', emailName: 'mikhail.mikhaylov', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Александрова', firstName: 'Александра', secondName: 'Александровна', emailName: 'alexandra.alexandrova', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Никитин', firstName: 'Никита', secondName: 'Никитович', emailName: 'nikita.nikitin', grade: 8, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Григорьев', firstName: 'Григорий', secondName: 'Григорьевич', emailName: 'grigoriy.grigorev', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Борисова', firstName: 'Борислава', secondName: 'Борисовна', emailName: 'borislava.borisova', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Яковлев', firstName: 'Яков', secondName: 'Яковлевич', emailName: 'yakov.yakovlev', grade: 11, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Давыдова', firstName: 'Дарья', secondName: 'Давыдовна', emailName: 'darya.davydova', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Герасимов', firstName: 'Геннадий', secondName: 'Геннадьевич', emailName: 'gennadiy.gerasimov', grade: 10, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Тихонова', firstName: 'Татьяна', secondName: 'Тихоновна', emailName: 'tatiana.tikhonova', grade: 8, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Макаров', firstName: 'Максим', secondName: 'Максимович', emailName: 'maksim.makarov', grade: 9, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Антонова', firstName: 'Антонина', secondName: 'Антоновна', emailName: 'antonina.antonova', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Денисов', firstName: 'Денис', secondName: 'Денисович', emailName: 'denis.denisov', grade: 10, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Степанова', firstName: 'Степанида', secondName: 'Степановна', emailName: 'stepanida.stepanova', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' }
 ];
 
 const schools = [
@@ -82,14 +82,24 @@ async function seedTestData() {
         console.log('\n👥 Создание участников...');
         const createdUsers = [];
 
+        // Распределение участников:
+        // - 8 команд по 3 человека = 24 участника в командах
+        // - 4 участника с форматом "team", но без команды (могут присоединиться)
+        // - 2 участника с форматом "individual"
+        const numTeams = 8;
+        const usersInTeams = 24;
+        const teamFormatNoTeam = 4; // Участники с "team", но без команды
+
         for (let i = 0; i < testParticipants.length; i++) {
             const participant = testParticipants[i];
-            const email = `${participant.firstName.toLowerCase()}.${participant.lastName.toLowerCase()}@test.ru`;
+            const email = `${participant.emailName}@test.com`;
             const phone = `+7 (${900 + i}) ${100 + i}-${10 + i}-${20 + i}`;
             const school = schools[i % schools.length];
 
-            // Назначаем формат участия: первые 15 участников - команды, остальные - индивидуально
-            const participationFormat = i < 15 ? 'team' : 'individual';
+            // Определяем формат участия:
+            // - 0-27: формат "team" (24 будут в командах, 4 без команды)
+            // - 28-29: формат "individual"
+            const participationFormat = i < (usersInTeams + teamFormatNoTeam) ? 'team' : 'individual';
 
             const user = await UserModel.create({
                 email,
@@ -118,23 +128,24 @@ async function seedTestData() {
         // Создаем команды и распределяем участников
         console.log('\n👥 Создание команд...');
         const createdTeams = [];
+        let userIndex = 0; // Индекс для распределения участников по командам
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < numTeams; i++) {
             const team = await TeamModel.create({
                 name: teams[i],
                 inviteToken: `test-token-${i + 1}-${Date.now()}`
             });
             createdTeams.push(team);
 
-            // Добавляем 2-3 участника в команду
-            const teamSize = 2 + (i % 2); // 2 или 3 участника
-            const startIdx = i * 3;
+            // Добавляем по 3 участника в каждую команду
+            const teamSize = 3;
 
-            for (let j = 0; j < teamSize && (startIdx + j) < createdUsers.length; j++) {
-                const user = createdUsers[startIdx + j];
+            for (let j = 0; j < teamSize && userIndex < usersInTeams; j++) {
+                const user = createdUsers[userIndex];
                 user.teamId = team.id;
                 user.isLead = j === 0; // Первый участник - лидер
                 await user.save();
+                userIndex++;
             }
 
             console.log(`  ✓ ${team.name} (${teamSize} участников)`);
@@ -147,25 +158,40 @@ async function seedTestData() {
         const totalParticipants = await UserModel.count({ where: { role: 'participant' } });
         const activatedParticipants = await UserModel.count({ where: { role: 'participant', isActivated: true } });
         const withTeam = await UserModel.count({ where: { role: 'participant', teamId: { [require('sequelize').Op.ne]: null } } });
-        const withoutTeam = totalParticipants - withTeam;
         const individualFormat = await UserModel.count({ where: { role: 'participant', participation_format: 'individual' } });
         const teamFormat = await UserModel.count({ where: { role: 'participant', participation_format: 'team' } });
+        const teamFormatWithoutTeam = await UserModel.count({ 
+            where: { 
+                role: 'participant', 
+                participation_format: 'team',
+                teamId: null
+            } 
+        });
 
         console.log(`  • Всего участников: ${totalParticipants}`);
         console.log(`  • Активированных: ${activatedParticipants}`);
-        console.log(`  • В командах: ${withTeam}`);
-        console.log(`  • Без команды: ${withoutTeam}`);
         console.log(`  • Команд: ${createdTeams.length}`);
-        console.log(`  • Формат участия (индивидуальное): ${individualFormat}`);
-        console.log(`  • Формат участия (командное): ${teamFormat}`);
+        console.log(`  • Участников в командах: ${withTeam}`);
+        console.log(`  • Формат "team": ${teamFormat} (из них без команды: ${teamFormatWithoutTeam})`);
+        console.log(`  • Формат "individual": ${individualFormat}`);
 
         console.log('\n🎉 Тестовые данные успешно созданы!');
-        console.log('\n📧 Данные для входа (любой участник):');
-        console.log('   Email: ivan.ivanov@test.ru');
-        console.log('   Пароль: password123');
-        console.log('\n📧 Админ:');
-        console.log('   Email: admin@it-vysotka.ru');
-        console.log('   Пароль: admin123 (или из .env)');
+        console.log('\n📧 Данные для входа:');
+        console.log('\n  👤 Лидер команды (может управлять командой):');
+        console.log('     Email: ivan.ivanov@test.com');
+        console.log('     Пароль: password123');
+        console.log('\n  👥 Участник команды (не лидер):');
+        console.log('     Email: petr.petrov@test.com');
+        console.log('     Пароль: password123');
+        console.log('\n  🔍 Участник с форматом "team" БЕЗ команды (может присоединиться):');
+        console.log('     Email: gennadiy.gerasimov@test.com');
+        console.log('     Пароль: password123');
+        console.log('\n  ⭐ Участник с форматом "individual":');
+        console.log('     Email: denis.denisov@test.com');
+        console.log('     Пароль: password123');
+        console.log('\n  👑 Админ:');
+        console.log('     Email: admin@it-vysotka.ru');
+        console.log('     Пароль: admin123 (или из .env)');
 
     } catch (error) {
         console.error('❌ Ошибка при создании тестовых данных:', error);

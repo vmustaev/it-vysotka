@@ -21,4 +21,8 @@ module.exports = class ApiError extends Error{
     static Forbidden(message = "Недостаточно прав для выполнения действия"){
         return new ApiError(403, message);
     }
+
+    static InternalError(message, errors=[]){
+        return new ApiError(500, message, errors);
+    }
 }

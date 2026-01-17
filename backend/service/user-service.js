@@ -1,11 +1,12 @@
-const UserModel = require('../models/user-model')
-const bcrypt = require('bcrypt'); 
+const UserModel = require('../models/user-model');
+const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
 const mailService = require('./mail-service');
 const ApiError = require('../exceptions/api-error');
 const errorMessages = require('../validation/error-messages');
+const sequelize = require('../db');
 
 class UserService {
     async registration(email, password, additionalData) {
@@ -47,17 +48,15 @@ class UserService {
         
         const userDto = new UserDto(user);
 
-        // Генерируем UUID activation токен (7 дней = 10080 минут)
         const activationToken = await tokenService.generateUuidToken(user.id, 'activation');
         
-        // Отправляем письмо с активацией
+        // Отправка письма активации
         try {
             await mailService.sendActivationMail(
                 email, 
                 `${process.env.URL}/api/activate/${activationToken}`
             );
         } catch (e) {
-            // Если письмо не отправилось, удаляем созданного пользователя и токены
             await tokenService.removeToken(activationToken, 'activation');
             await user.destroy();
             throw ApiError.InternalError(
@@ -72,8 +71,7 @@ class UserService {
         }
     }
 
-    async activate(activationToken){
-        // Валидируем UUID токен (7 дней = 10080 минут)
+    async activate(activationToken) {
         const tokenData = await tokenService.validateUuidToken(activationToken, 'activation', 10080);
         
         if (!tokenData) {
@@ -83,10 +81,9 @@ class UserService {
             );
         }
         
-        // Находим пользователя
         const user = await UserModel.findByPk(tokenData.userId);
         
-        if (!user){
+        if (!user) {
             throw ApiError.BadRequest(
                 'Пользователь не найден',
                 ['Пользователь не найден']
@@ -100,17 +97,15 @@ class UserService {
             );
         }
         
-        // Активируем пользователя
         user.isActivated = true;
         await user.save();
         
-        // Удаляем токен активации
         await tokenService.removeToken(activationToken, 'activation');
     }
 
-    async login(email, password){
-        const user = await UserModel.findOne({where : {email}});
-        if(!user){
+    async login(email, password) {
+        const user = await UserModel.findOne({ where: { email } });
+        if (!user) {
             throw ApiError.BadRequest(
                 errorMessages.EMAIL_NOT_FOUND,
                 [errorMessages.EMAIL_NOT_FOUND],
@@ -126,7 +121,7 @@ class UserService {
         }
 
         const isPasswordEquals = await bcrypt.compare(password, user.password);
-        if (!isPasswordEquals){
+        if (!isPasswordEquals) {
             throw ApiError.BadRequest(
                 errorMessages.PASSWORD_INCORRECT,
                 [errorMessages.PASSWORD_INCORRECT],
@@ -157,9 +152,8 @@ class UserService {
         }
     }
 
-    async logout(refreshToken){
+    async logout(refreshToken) {
         if (!refreshToken) {
-            // Если токена нет, просто возвращаем успех
             return { success: true };
         }
         
@@ -167,8 +161,8 @@ class UserService {
         return token;
     }
 
-    async refresh(refreshToken){
-        if(!refreshToken){
+    async refresh(refreshToken) {
+        if (!refreshToken) {
             throw ApiError.UnauthorizedError();
         }
         
@@ -176,14 +170,13 @@ class UserService {
         
         const tokenFromDb = await tokenService.findToken(refreshToken, 'refresh');
         
-        if (!userData || !tokenFromDb){
+        if (!userData || !tokenFromDb) {
             throw ApiError.UnauthorizedError();
         }
         
         const user = await UserModel.findByPk(userData.id);
         
         if (!user) {
-            // Пользователь удален, удаляем токен
             await tokenService.removeToken(refreshToken, 'refresh');
             throw ApiError.UnauthorizedError();
         }
@@ -202,7 +195,6 @@ class UserService {
             '3m'
         );
         
-        // Удаляем старый refresh token перед сохранением нового (защита от replay атак)
         await tokenService.removeToken(refreshToken, 'refresh');
         await tokenService.saveToken(userDto.id, newRefreshToken, 'refresh');
         
@@ -221,7 +213,7 @@ class UserService {
                 errorMessages.EMAIL_NOT_FOUND,
                 [errorMessages.EMAIL_NOT_FOUND],
                 { email: [errorMessages.EMAIL_NOT_FOUND] }
-            )
+            );
         }
 
         if (!user.isActivated) {
@@ -231,10 +223,8 @@ class UserService {
             );
         }
 
-        // Удаляем старые reset токены пользователя перед созданием нового
         await tokenService.removeAllUserTokens(user.id, 'reset');
 
-        // Генерируем UUID reset токен (15 минут)
         const resetToken = await tokenService.generateUuidToken(user.id, 'reset');
 
         const resetLink = `${process.env.URL}/reset-password?token=${resetToken}`;
@@ -245,7 +235,6 @@ class UserService {
     }
 
     async resetPassword(token, newPassword) {
-        // Валидируем UUID токен (15 минут)
         const tokenData = await tokenService.validateUuidToken(token, 'reset', 15);
         
         if (!tokenData) {
@@ -284,17 +273,13 @@ class UserService {
         user.password = hashPassword;
         await user.save();
 
-        // Удаляем reset токен
         await tokenService.removeToken(token, 'reset');
-        
-        // Удаляем все refresh токены пользователя для безопасности
-        // (если пароль был скомпрометирован, все сессии должны быть закрыты)
         await tokenService.removeAllUserTokens(user.id, 'refresh');
 
         return { success: true };
     }
 
-    async getAllUsers(){
+    async getAllUsers() {
         const users = await UserModel.findAll();
         return users;
     }
@@ -306,7 +291,6 @@ class UserService {
             throw ApiError.BadRequest('Пользователь не найден');
         }
 
-        // Возвращаем полную информацию о пользователе (включая teamId, isLead и participation_format)
         return {
             id: user.id,
             email: user.email,
@@ -322,51 +306,58 @@ class UserService {
     }
 
     async updateParticipationFormat(userId, newFormat) {
-        const user = await UserModel.findByPk(userId);
+        const transaction = await sequelize.transaction();
         
-        if (!user) {
-            throw ApiError.BadRequest('Пользователь не найден');
-        }
-
-        // Валидация формата
-        if (!['individual', 'team'].includes(newFormat)) {
-            throw ApiError.BadRequest('Неверный формат участия');
-        }
-
-        // Если меняет на индивидуальный и состоит в команде - выходим из команды
-        if (newFormat === 'individual' && user.teamId) {
-            const TeamModel = require('../models/team-model');
-            const team = await TeamModel.findByPk(user.teamId);
+        try {
+            const user = await UserModel.findByPk(userId, { transaction });
             
-            if (team) {
-                // Если пользователь - лидер команды, удаляем команду
-                if (user.isLead) {
-                    // Удаляем всех участников из команды
-                    await UserModel.update(
-                        { teamId: null, isLead: false },
-                        { where: { teamId: team.id } }
-                    );
-                    
-                    // Удаляем команду
-                    await team.destroy();
+            if (!user) {
+                throw ApiError.BadRequest('Пользователь не найден');
+            }
+
+            // Валидация формата
+            if (!['individual', 'team'].includes(newFormat)) {
+                throw ApiError.BadRequest('Неверный формат участия');
+            }
+
+            if (newFormat === 'individual' && user.teamId) {
+                const TeamModel = require('../models/team-model');
+                const team = await TeamModel.findByPk(user.teamId, { transaction });
+                
+                if (team) {
+                    if (user.isLead) {
+                        await UserModel.update(
+                            { teamId: null, isLead: false },
+                            { where: { teamId: team.id }, transaction }
+                        );
+                        
+                        await team.destroy({ transaction });
+                    } else {
+                        user.teamId = null;
+                        user.isLead = false;
+                    }
                 } else {
-                    // Просто выходим из команды
                     user.teamId = null;
                     user.isLead = false;
                 }
             }
+
+            user.participation_format = newFormat;
+            await user.save({ transaction });
+
+            await transaction.commit();
+            
+            return {
+                success: true,
+                message: newFormat === 'individual' 
+                    ? 'Формат участия изменен на индивидуальное' 
+                    : 'Формат участия изменен на командное'
+            };
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
-        // Обновляем формат участия
-        user.participation_format = newFormat;
-        await user.save();
-
-        return {
-            success: true,
-            message: newFormat === 'individual' 
-                ? 'Формат участия изменен на индивидуальное' 
-                : 'Формат участия изменен на командное'
-        };
     }
 }
 

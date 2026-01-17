@@ -1,4 +1,4 @@
-const {DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
 const UserSchema = sequelize.define('User', {
@@ -82,6 +82,6 @@ const UserSchema = sequelize.define('User', {
         allowNull: false,
         defaultValue: 'individual'
     }
-}, {timestamps: false});
+}, { timestamps: false });
 
 module.exports = UserSchema;

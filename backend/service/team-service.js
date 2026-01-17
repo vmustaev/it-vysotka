@@ -2,131 +2,169 @@ const TeamModel = require('../models/team-model');
 const UserModel = require('../models/user-model');
 const uuid = require('uuid');
 const ApiError = require('../exceptions/api-error');
+const sequelize = require('../db');
 
 class TeamService {
-    // Создание команды
     async createTeam(name, userId) {
-        // Сначала проверяем пользователя
-        const user = await UserModel.findByPk(userId);
+        const transaction = await sequelize.transaction();
         
-        // Проверяем формат участия
-        if (user.participation_format === 'individual') {
-            throw ApiError.BadRequest(
-                'У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы создать команду.',
-                ['У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы создать команду.']
-            );
+        try {
+            const user = await UserModel.findByPk(userId, { transaction });
+            
+            if (!user) {
+                throw ApiError.BadRequest('Пользователь не найден', ['Пользователь не найден']);
+            }
+            
+            // Проверяем активацию аккаунта
+            if (!user.isActivated) {
+                throw ApiError.BadRequest(
+                    'Аккаунт не активирован. Пожалуйста, проверьте почту и активируйте аккаунт.',
+                    ['Аккаунт не активирован. Пожалуйста, проверьте почту и активируйте аккаунт.']
+                );
+            }
+            
+            // Проверяем формат участия
+            if (user.participation_format === 'individual') {
+                throw ApiError.BadRequest(
+                    'У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы создать команду.',
+                    ['У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы создать команду.']
+                );
+            }
+            
+            if (user.teamId) {
+                throw ApiError.BadRequest(
+                    'Вы уже состоите в команде',
+                    ['Вы уже состоите в команде']
+                );
+            }
+
+            const nameRegex = /^[a-zA-Zа-яА-ЯёЁ0-9\s]+$/;
+            if (!nameRegex.test(name)) {
+                throw ApiError.BadRequest(
+                    'Название команды может содержать только буквы (русские/английские) и цифры',
+                    ['Название команды может содержать только буквы (русские/английские) и цифры'],
+                    { name: ['Название команды может содержать только буквы (русские/английские) и цифры'] }
+                );
+            }
+
+            if (name.length < 3 || name.length > 50) {
+                throw ApiError.BadRequest(
+                    'Название команды должно быть от 3 до 50 символов',
+                    ['Название команды должно быть от 3 до 50 символов'],
+                    { name: ['Название команды должно быть от 3 до 50 символов'] }
+                );
+            }
+
+            const inviteToken = uuid.v4();
+
+            let team;
+            try {
+                team = await TeamModel.create({
+                    name,
+                    inviteToken
+                }, { transaction });
+            } catch (error) {
+                if (error.name === 'SequelizeUniqueConstraintError') {
+                    throw ApiError.BadRequest(
+                        'Команда с таким названием уже существует',
+                        ['Команда с таким названием уже существует'],
+                        { name: ['Команда с таким названием уже существует'] }
+                    );
+                }
+                throw error;
+            }
+
+            user.teamId = team.id;
+            user.isLead = true;
+            await user.save({ transaction });
+
+            await transaction.commit();
+            
+            return await this.getTeamInfo(team.id);
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-        
-        // Проверяем, состоит ли пользователь в команде
-        if (user.teamId) {
-            throw ApiError.BadRequest(
-                'Вы уже состоите в команде',
-                ['Вы уже состоите в команде']
-            );
-        }
-
-        // Потом проверяем уникальность названия
-        const existingTeam = await TeamModel.findOne({ where: { name } });
-        if (existingTeam) {
-            throw ApiError.BadRequest(
-                'Команда с таким названием уже существует',
-                ['Команда с таким названием уже существует'],
-                { name: ['Команда с таким названием уже существует'] }
-            );
-        }
-
-        // Валидация названия (кириллица, латиница, цифры)
-        const nameRegex = /^[a-zA-Zа-яА-ЯёЁ0-9\s]+$/;
-        if (!nameRegex.test(name)) {
-            throw ApiError.BadRequest(
-                'Название команды может содержать только буквы (русские/английские) и цифры',
-                ['Название команды может содержать только буквы (русские/английские) и цифры'],
-                { name: ['Название команды может содержать только буквы (русские/английские) и цифры'] }
-            );
-        }
-
-        if (name.length < 3 || name.length > 50) {
-            throw ApiError.BadRequest(
-                'Название команды должно быть от 3 до 50 символов',
-                ['Название команды должно быть от 3 до 50 символов'],
-                { name: ['Название команды должно быть от 3 до 50 символов'] }
-            );
-        }
-
-        // Генерируем уникальный токен приглашения
-        const inviteToken = uuid.v4();
-
-        // Создаем команду
-        const team = await TeamModel.create({
-            name,
-            inviteToken
-        });
-
-        // Устанавливаем пользователю teamId и isLead
-        user.teamId = team.id;
-        user.isLead = true;
-        await user.save();
-
-        // Получаем информацию о команде
-        return await this.getTeamInfo(team.id);
     }
 
-    // Присоединение к команде по токену
     async joinTeam(inviteToken, userId) {
-        // Находим команду по токену
-        const team = await TeamModel.findOne({ where: { inviteToken } });
-        if (!team) {
-            throw ApiError.BadRequest(
-                'Команда не найдена или ссылка недействительна',
-                ['Команда не найдена или ссылка недействительна']
-            );
-        }
-
-        // Проверяем пользователя
-        const user = await UserModel.findByPk(userId);
+        const transaction = await sequelize.transaction();
         
-        // Проверяем формат участия
-        if (user.participation_format === 'individual') {
-            throw ApiError.BadRequest(
-                'У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы присоединиться к команде.',
-                ['У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы присоединиться к команде.']
-            );
-        }
-        
-        // Проверяем, что пользователь не состоит в другой команде
-        if (user.teamId) {
-            throw ApiError.BadRequest(
-                'Вы уже состоите в команде. Сначала выйдите из текущей команды.',
-                ['Вы уже состоите в команде. Сначала выйдите из текущей команды.']
-            );
-        }
+        try {
+            const team = await TeamModel.findOne({ 
+                where: { inviteToken },
+                transaction 
+            });
+            
+            if (!team) {
+                throw ApiError.BadRequest(
+                    'Команда не найдена или ссылка недействительна',
+                    ['Команда не найдена или ссылка недействительна']
+                );
+            }
 
-        // Проверяем количество участников
-        const memberCount = await UserModel.count({ where: { teamId: team.id } });
-        if (memberCount >= 3) {
-            throw ApiError.BadRequest(
-                'В команде уже максимальное количество участников (3)',
-                ['В команде уже максимальное количество участников (3)']
-            );
+            const user = await UserModel.findByPk(userId, { transaction });
+            
+            if (!user) {
+                throw ApiError.BadRequest('Пользователь не найден', ['Пользователь не найден']);
+            }
+            
+            // Проверяем активацию аккаунта
+            if (!user.isActivated) {
+                throw ApiError.BadRequest(
+                    'Аккаунт не активирован. Пожалуйста, проверьте почту и активируйте аккаунт.',
+                    ['Аккаунт не активирован. Пожалуйста, проверьте почту и активируйте аккаунт.']
+                );
+            }
+            
+            // Проверяем формат участия
+            if (user.participation_format === 'individual') {
+                throw ApiError.BadRequest(
+                    'У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы присоединиться к команде.',
+                    ['У вас выбран индивидуальный формат участия. Измените формат на командный в профиле, чтобы присоединиться к команде.']
+                );
+            }
+            
+            if (user.teamId) {
+                throw ApiError.BadRequest(
+                    'Вы уже состоите в команде. Сначала выйдите из текущей команды.',
+                    ['Вы уже состоите в команде. Сначала выйдите из текущей команды.']
+                );
+            }
+
+            user.teamId = team.id;
+            user.isLead = false;
+            await user.save({ transaction });
+
+            const memberCount = await UserModel.count({ 
+                where: { teamId: team.id },
+                transaction 
+            });
+            
+            if (memberCount > 3) {
+                throw ApiError.BadRequest(
+                    'В команде уже максимальное количество участников (3)',
+                    ['В команде уже максимальное количество участников (3)']
+                );
+            }
+
+            await transaction.commit();
+            
+            return await this.getTeamInfo(team.id);
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
-        // Добавляем пользователя в команду
-        user.teamId = team.id;
-        user.isLead = false;
-        await user.save();
-
-        // Возвращаем информацию о команде
-        return await this.getTeamInfo(team.id);
     }
 
-    // Получение информации о команде
     async getTeamInfo(teamId) {
         const team = await TeamModel.findByPk(teamId);
         if (!team) {
             throw ApiError.BadRequest('Команда не найдена', ['Команда не найдена']);
         }
 
-        // Получаем всех участников
         const members = await UserModel.findAll({
             where: { teamId },
             attributes: ['id', 'email', 'first_name', 'last_name', 'second_name', 'isLead']
@@ -142,9 +180,16 @@ class TeamService {
         };
     }
 
-    // Получение команды пользователя
     async getUserTeam(userId) {
         const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest(
+                'Пользователь не найден',
+                ['Пользователь не найден']
+            );
+        }
+        
         if (!user.teamId) {
             return null;
         }
@@ -152,98 +197,146 @@ class TeamService {
         return await this.getTeamInfo(user.teamId);
     }
 
-    // Выход из команды
     async leaveTeam(userId) {
-        const user = await UserModel.findByPk(userId);
+        const transaction = await sequelize.transaction();
         
-        // Если пользователь уже не в команде (например, команда была удалена капитаном),
-        // возвращаем успех (идемпотентная операция)
-        if (!user.teamId) {
-            return { success: true, message: 'Вы не состоите в команде' };
+        try {
+            const user = await UserModel.findByPk(userId, { transaction });
+            
+            if (!user) {
+                throw ApiError.BadRequest(
+                    'Пользователь не найден',
+                    ['Пользователь не найден']
+                );
+            }
+            
+            if (!user.teamId) {
+                throw ApiError.BadRequest(
+                    'Вы не состоите в команде',
+                    ['Вы не состоите в команде']
+                );
+            }
+
+            if (user.isLead) {
+                throw ApiError.BadRequest(
+                    'Лидер не может выйти из команды. Удалите команду или передайте лидерство.',
+                    ['Лидер не может выйти из команды. Удалите команду или передайте лидерство.']
+                );
+            }
+
+            user.teamId = null;
+            user.isLead = false;
+            await user.save({ transaction });
+
+            await transaction.commit();
+            
+            return { success: true, message: 'Вы успешно покинули команду' };
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
-        // Если это лидер, запрещаем выход (он должен удалить команду)
-        if (user.isLead) {
-            throw ApiError.BadRequest(
-                'Лидер не может выйти из команды. Удалите команду или передайте лидерство.',
-                ['Лидер не может выйти из команды. Удалите команду или передайте лидерство.']
-            );
-        }
-
-        // Удаляем пользователя из команды
-        user.teamId = null;
-        user.isLead = false;
-        await user.save();
-
-        return { success: true, message: 'Вы успешно покинули команду' };
     }
 
-    // Исключение участника (только для лидера)
     async kickMember(leaderId, memberUserId) {
-        const leader = await UserModel.findByPk(leaderId);
+        const transaction = await sequelize.transaction();
         
-        // Проверяем, что пользователь является лидером команды
-        if (!leader.teamId || !leader.isLead) {
-            throw ApiError.BadRequest(
-                'У вас нет прав для этого действия',
-                ['У вас нет прав для этого действия']
-            );
+        try {
+            const leader = await UserModel.findByPk(leaderId, { transaction });
+            
+            if (!leader) {
+                throw ApiError.BadRequest(
+                    'Пользователь не найден',
+                    ['Пользователь не найден']
+                );
+            }
+            
+            if (!leader.teamId) {
+                throw ApiError.BadRequest(
+                    'Вы не состоите в команде',
+                    ['Вы не состоите в команде']
+                );
+            }
+            
+            if (!leader.isLead) {
+                throw ApiError.BadRequest(
+                    'Только лидер команды может исключать участников',
+                    ['Только лидер команды может исключать участников']
+                );
+            }
+
+            if (leaderId === memberUserId) {
+                throw ApiError.BadRequest(
+                    'Нельзя исключить себя из команды',
+                    ['Нельзя исключить себя из команды']
+                );
+            }
+
+            const member = await UserModel.findByPk(memberUserId, { transaction });
+            if (!member) {
+                throw ApiError.BadRequest(
+                    'Пользователь не найден',
+                    ['Пользователь не найден']
+                );
+            }
+
+            if (!member.teamId) {
+                throw ApiError.BadRequest(
+                    'Указанный пользователь не состоит ни в одной команде',
+                    ['Указанный пользователь не состоит ни в одной команде']
+                );
+            }
+            
+            if (member.teamId !== leader.teamId) {
+                throw ApiError.BadRequest(
+                    'Указанный пользователь не является участником вашей команды',
+                    ['Указанный пользователь не является участником вашей команды']
+                );
+            }
+
+            member.teamId = null;
+            member.isLead = false;
+            await member.save({ transaction });
+
+            await transaction.commit();
+            
+            return { success: true, message: 'Участник исключен из команды' };
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
-        // Нельзя исключить самого себя
-        if (leaderId === memberUserId) {
-            throw ApiError.BadRequest(
-                'Нельзя исключить себя из команды',
-                ['Нельзя исключить себя из команды']
-            );
-        }
-
-        // Проверяем, что пользователь состоит в той же команде
-        const member = await UserModel.findByPk(memberUserId);
-        if (!member) {
-            throw ApiError.BadRequest(
-                'Пользователь не найден',
-                ['Пользователь не найден']
-            );
-        }
-
-        // Если пользователь уже не в команде (например, вышел самостоятельно),
-        // возвращаем успех (идемпотентная операция)
-        if (member.teamId !== leader.teamId) {
-            return { success: true, message: 'Участник уже не состоит в команде' };
-        }
-
-        // Удаляем участника из команды
-        member.teamId = null;
-        member.isLead = false;
-        await member.save();
-
-        return { success: true, message: 'Участник исключен из команды' };
     }
 
-    // Удаление команды (только для лидера)
     async deleteTeam(leaderId) {
-        const leader = await UserModel.findByPk(leaderId);
+        const transaction = await sequelize.transaction();
         
-        if (!leader.teamId || !leader.isLead) {
-            throw ApiError.BadRequest(
-                'У вас нет команды или вы не являетесь лидером',
-                ['У вас нет команды или вы не являетесь лидером']
-            );
+        try {
+            const leader = await UserModel.findByPk(leaderId, { transaction });
+            
+            if (!leader) {
+                throw ApiError.BadRequest('Пользователь не найден', ['Пользователь не найден']);
+            }
+            
+            if (!leader.teamId || !leader.isLead) {
+                throw ApiError.BadRequest(
+                    'У вас нет команды или вы не являетесь лидером',
+                    ['У вас нет команды или вы не являетесь лидером']
+                );
+            }
+
+            const teamId = leader.teamId;
+
+            await TeamModel.destroy({ where: { id: teamId }, transaction });
+
+            await transaction.commit();
+            
+            return { success: true, message: 'Команда успешно удалена' };
+            
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
         }
-
-        const teamId = leader.teamId;
-
-        // Удаляем всех участников из команды (устанавливаем teamId в null)
-        await UserModel.update(
-            { teamId: null, isLead: false },
-            { where: { teamId } }
-        );
-
-        // Удаляем команду
-        await TeamModel.destroy({ where: { id: teamId } });
-
-        return { success: true, message: 'Команда успешно удалена' };
     }
 }
 
