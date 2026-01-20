@@ -4,6 +4,8 @@ const passwordResetController = require('../controllers/password-reset-controlle
 const schoolController = require('../controllers/school-controller');
 const teamController = require('../controllers/team-controller');
 const participantsController = require('../controllers/participants-controller');
+const roomController = require('../controllers/room-controller');
+const seatingController = require('../controllers/seating-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
@@ -11,6 +13,7 @@ const validationMiddleware = require('../middlewares/validation-middleware');
 const { registrationValidation, loginValidation } = require('../validation/auth-validation');
 const { passwordResetRequestValidation, passwordResetValidation } = require('../validation/password-reset-validation');
 const { createTeamValidation } = require('../validation/team-validation');
+const { createRoomValidation, updateRoomValidation } = require('../validation/room-validation');
 
 router.post('/registration', registrationValidation, validationMiddleware, userController.registration);
 router.post('/login', loginValidation, validationMiddleware, userController.login);
@@ -47,5 +50,19 @@ router.delete('/admin/participants/:id', authMiddleware, adminMiddleware, partic
 
 // Admin routes - Teams
 router.get('/admin/teams', authMiddleware, adminMiddleware, teamController.getAllTeams);
+
+// Admin routes - Rooms
+router.post('/admin/rooms', authMiddleware, adminMiddleware, createRoomValidation, validationMiddleware, roomController.create);
+router.get('/admin/rooms', authMiddleware, adminMiddleware, roomController.getAll);
+router.get('/admin/rooms/:id', authMiddleware, adminMiddleware, roomController.getById);
+router.put('/admin/rooms/:id', authMiddleware, adminMiddleware, updateRoomValidation, validationMiddleware, roomController.update);
+router.delete('/admin/rooms/:id', authMiddleware, adminMiddleware, roomController.delete);
+
+// Admin routes - Seating
+router.post('/admin/seating/auto-assign', authMiddleware, adminMiddleware, seatingController.autoAssign);
+router.get('/admin/seating', authMiddleware, adminMiddleware, seatingController.getSeating);
+router.delete('/admin/seating/clear', authMiddleware, adminMiddleware, seatingController.clearSeating);
+router.post('/admin/seating/assign', authMiddleware, adminMiddleware, seatingController.assignItem);
+router.post('/admin/seating/remove', authMiddleware, adminMiddleware, seatingController.removeAssignment);
 
 module.exports = router;

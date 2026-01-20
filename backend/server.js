@@ -12,10 +12,20 @@ const UserModel = require('./models/user-model');
 const TokenModel = require('./models/token-model');
 const SchoolModel = require('./models/school-model');
 const TeamModel = require('./models/team-model');
+const RoomModel = require('./models/room-model');
+const SeatingAssignmentModel = require('./models/seating-assignment-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });
 UserModel.belongsTo(TeamModel, { foreignKey: 'teamId', as: 'Team' });
+
+// Связи для рассадки
+SeatingAssignmentModel.belongsTo(RoomModel, { foreignKey: 'roomId', as: 'Room', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+SeatingAssignmentModel.belongsTo(TeamModel, { foreignKey: 'teamId', as: 'Team', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+SeatingAssignmentModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'User', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+RoomModel.hasMany(SeatingAssignmentModel, { foreignKey: 'roomId', as: 'Assignments' });
+TeamModel.hasOne(SeatingAssignmentModel, { foreignKey: 'teamId', as: 'SeatingAssignment' });
+UserModel.hasOne(SeatingAssignmentModel, { foreignKey: 'userId', as: 'SeatingAssignment' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;
