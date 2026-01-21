@@ -61,6 +61,8 @@ router.delete('/admin/rooms/:id', authMiddleware, adminMiddleware, roomControlle
 // Admin routes - Seating
 router.post('/admin/seating/auto-assign', authMiddleware, adminMiddleware, seatingController.autoAssign);
 router.get('/admin/seating', authMiddleware, adminMiddleware, seatingController.getSeating);
+router.get('/admin/seating/unassigned', authMiddleware, adminMiddleware, seatingController.getUnassigned);
+router.post('/admin/seating/add-unassigned', authMiddleware, adminMiddleware, seatingController.addUnassigned);
 router.delete('/admin/seating/clear', authMiddleware, adminMiddleware, seatingController.clearSeating);
 router.post('/admin/seating/assign', authMiddleware, adminMiddleware, seatingController.assignItem);
 router.post('/admin/seating/remove', authMiddleware, adminMiddleware, seatingController.removeAssignment);

@@ -115,11 +115,21 @@ class SeatingService {
                         return hasSpace && schoolNotPresent;
                     })
                     .sort((a, b) => {
-                        // Сортируем по занятости (сначала менее заполненные)
-                        // Если занятость одинаковая, сортируем по номеру аудитории
-                        if (a.occupancy.occupied !== b.occupancy.occupied) {
-                            return a.occupancy.occupied - b.occupancy.occupied;
+                        // Сортируем по проценту заполнения (сначала менее заполненные)
+                        // Это обеспечит приоритет большим аудиториям
+                        const fillRatioA = a.occupancy.occupied / a.room.capacity;
+                        const fillRatioB = b.occupancy.occupied / b.room.capacity;
+                        
+                        if (Math.abs(fillRatioA - fillRatioB) > 0.001) {
+                            return fillRatioA - fillRatioB;
                         }
+                        
+                        // Если процент заполнения одинаковый, приоритет большим аудиториям
+                        if (a.room.capacity !== b.room.capacity) {
+                            return b.room.capacity - a.room.capacity;
+                        }
+                        
+                        // Если вместимость одинаковая, сортируем по номеру аудитории
                         return a.room.number.localeCompare(b.room.number);
                     });
 
@@ -135,11 +145,21 @@ class SeatingService {
                             return hasSpace;
                         })
                         .sort((a, b) => {
-                            // Сортируем по занятости (сначала менее заполненные)
-                            // Если занятость одинаковая, сортируем по номеру аудитории
-                            if (a.occupancy.occupied !== b.occupancy.occupied) {
-                                return a.occupancy.occupied - b.occupancy.occupied;
+                            // Сортируем по проценту заполнения (сначала менее заполненные)
+                            // Это обеспечит приоритет большим аудиториям
+                            const fillRatioA = a.occupancy.occupied / a.room.capacity;
+                            const fillRatioB = b.occupancy.occupied / b.room.capacity;
+                            
+                            if (Math.abs(fillRatioA - fillRatioB) > 0.001) {
+                                return fillRatioA - fillRatioB;
                             }
+                            
+                            // Если процент заполнения одинаковый, приоритет большим аудиториям
+                            if (a.room.capacity !== b.room.capacity) {
+                                return b.room.capacity - a.room.capacity;
+                            }
+                            
+                            // Если вместимость одинаковая, сортируем по номеру аудитории
                             return a.room.number.localeCompare(b.room.number);
                         });
                 }
@@ -198,16 +218,17 @@ class SeatingService {
     }
 
     /**
-     * Получить текущую рассадку
+     * Получить текущую рассадку (все аудитории, включая пустые)
      */
     async getSeating() {
+        // Получаем все аудитории
+        const allRooms = await RoomModel.findAll({
+            order: [['number', 'ASC']]
+        });
+
+        // Получаем все назначения
         const assignments = await SeatingAssignmentModel.findAll({
             include: [
-                {
-                    model: RoomModel,
-                    as: 'Room',
-                    attributes: ['id', 'number', 'capacity']
-                },
                 {
                     model: TeamModel,
                     as: 'Team',
@@ -224,85 +245,83 @@ class SeatingService {
                     as: 'User',
                     attributes: ['id', 'school', 'first_name', 'last_name', 'second_name']
                 }
-            ],
-            order: [
-                [{ model: RoomModel, as: 'Room' }, 'number', 'ASC']
             ]
         });
 
-        // Группируем по аудиториям
-        const seatingByRoom = {};
-        const roomStats = {};
-
+        // Группируем назначения по аудиториям
+        const assignmentsByRoom = {};
         for (const assignment of assignments) {
             const roomId = assignment.roomId;
-            const room = assignment.Room;
-
-            if (!room) {
-                console.warn(`Assignment ${assignment.id} has no room`);
-                continue;
+            if (!assignmentsByRoom[roomId]) {
+                assignmentsByRoom[roomId] = [];
             }
-
-            if (!seatingByRoom[roomId]) {
-                seatingByRoom[roomId] = {
-                    room: {
-                        id: room.id,
-                        number: room.number,
-                        capacity: room.capacity
-                    },
-                    items: []
-                };
-                roomStats[roomId] = {
-                    occupied: 0,
-                    schools: new Set()
-                };
-            }
-
-            let item = null;
-            if (assignment.teamId && assignment.Team) {
-                const team = assignment.Team;
-                const members = team.Members || [];
-                const leader = members.find(m => m.isLead === true) || members[0];
-                const school = leader ? leader.school : 'Неизвестно';
-
-                item = {
-                    type: 'team',
-                    id: team.id,
-                    name: team.name,
-                    school: school,
-                    memberCount: members.length,
-                    members: members
-                };
-            } else if (assignment.userId && assignment.User) {
-                const user = assignment.User;
-                item = {
-                    type: 'individual',
-                    id: user.id,
-                    name: `${user.last_name} ${user.first_name} ${user.second_name || ''}`.trim(),
-                    school: user.school,
-                    memberCount: 1,
-                    members: [user]
-                };
-            }
-
-            if (item) {
-                seatingByRoom[roomId].items.push(item);
-                // Каждая команда или индивидуальный участник занимает 1 место
-                roomStats[roomId].occupied += 1;
-                roomStats[roomId].schools.add(item.school);
-            }
+            assignmentsByRoom[roomId].push(assignment);
         }
 
-        // Преобразуем в массив и добавляем статистику
-        const result = Object.values(seatingByRoom).map(roomData => ({
-            ...roomData,
-            stats: {
-                occupied: roomStats[roomData.room.id].occupied,
-                free: roomData.room.capacity - roomStats[roomData.room.id].occupied,
-                schoolsCount: roomStats[roomData.room.id].schools.size,
-                schools: Array.from(roomStats[roomData.room.id].schools)
+        // Формируем результат для всех аудиторий
+        const result = allRooms.map(room => {
+            const roomAssignments = assignmentsByRoom[room.id] || [];
+            const items = [];
+
+            for (const assignment of roomAssignments) {
+                let item = null;
+                if (assignment.teamId && assignment.Team) {
+                    const team = assignment.Team;
+                    const members = team.Members || [];
+                    const leader = members.find(m => m.isLead === true) || members[0];
+                    const school = leader ? leader.school : 'Неизвестно';
+
+                    // Ограничиваем поля members только необходимыми
+                    const safeMembers = members.map(m => ({
+                        id: m.id,
+                        first_name: m.first_name,
+                        last_name: m.last_name,
+                        second_name: m.second_name,
+                        school: m.school,
+                        isLead: m.isLead
+                    }));
+
+                    item = {
+                        type: 'team',
+                        id: team.id,
+                        name: team.name,
+                        school: school,
+                        memberCount: members.length,
+                        members: safeMembers
+                    };
+                } else if (assignment.userId && assignment.User) {
+                    const user = assignment.User;
+                    // Ограничиваем поля только необходимыми
+                    item = {
+                        type: 'individual',
+                        id: user.id,
+                        name: `${user.last_name} ${user.first_name} ${user.second_name || ''}`.trim(),
+                        school: user.school,
+                        memberCount: 1,
+                        members: [{
+                            id: user.id,
+                            first_name: user.first_name,
+                            last_name: user.last_name,
+                            second_name: user.second_name,
+                            school: user.school
+                        }]
+                    };
+                }
+
+                if (item) {
+                    items.push(item);
+                }
             }
-        }));
+
+            return {
+                room: {
+                    id: room.id,
+                    number: room.number,
+                    capacity: room.capacity
+                },
+                items: items
+            };
+        });
 
         return result;
     }
@@ -405,26 +424,20 @@ class SeatingService {
                 },
                 {
                     model: UserModel,
+                    as: 'User',
                     attributes: ['id', 'school']
                 }
             ]
         });
 
-        // Проверяем занятость и школы
+        // Проверяем занятость
         let currentOccupancy = 0;
-        const schoolsInRoom = new Set();
 
         for (const assignment of roomAssignments) {
-                if (assignment.teamId && assignment.Team && assignment.Team.Members) {
-                const team = assignment.Team;
-                const leader = team.Members.find(m => m.isLead === true) || team.Members[0];
-                if (leader && leader.school) {
-                    schoolsInRoom.add(leader.school);
-                }
+            if (assignment.teamId && assignment.Team && assignment.Team.Members) {
                 // Каждая команда занимает 1 место
                 currentOccupancy += 1;
             } else if (assignment.userId && assignment.User) {
-                schoolsInRoom.add(assignment.User.school);
                 // Каждый индивидуальный участник занимает 1 место
                 currentOccupancy += 1;
             }
@@ -432,13 +445,10 @@ class SeatingService {
 
         // Проверяем, есть ли место (каждая команда/участник = 1 место)
         if (currentOccupancy + 1 > room.capacity) {
-            throw ApiError.BadRequest(`В аудитории недостаточно мест. Свободно: ${room.capacity - currentOccupancy}, требуется: 1`);
+            throw ApiError.BadRequest('В аудитории недостаточно мест');
         }
 
-        // Проверяем, нет ли команды из той же школы
-        if (schoolsInRoom.has(school)) {
-            throw ApiError.BadRequest(`В этой аудитории уже есть команда/участник из школы "${school}"`);
-        }
+        // Разрешаем добавлять участников из одной школы (предупреждение показывается на фронтенде)
 
         // Создаем назначение
         await SeatingAssignmentModel.create({
@@ -448,6 +458,270 @@ class SeatingService {
         });
 
         return { message: 'Назначение успешно создано' };
+    }
+
+    /**
+     * Получить список нерассаженных команд и участников
+     */
+    async getUnassignedItems() {
+        // Получаем все назначения
+        const assignments = await SeatingAssignmentModel.findAll({
+            attributes: ['teamId', 'userId']
+        });
+
+        const assignedTeamIds = new Set();
+        const assignedUserIds = new Set();
+
+        assignments.forEach(assignment => {
+            if (assignment.teamId) {
+                assignedTeamIds.add(assignment.teamId);
+            }
+            if (assignment.userId) {
+                assignedUserIds.add(assignment.userId);
+            }
+        });
+
+        // Получаем все команды с участниками
+        const allTeams = await TeamModel.findAll({
+            include: [{
+                model: UserModel,
+                as: 'Members',
+                attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'isLead'],
+                where: { role: 'participant' }
+            }]
+        });
+
+        // Получаем всех индивидуальных участников
+        const allIndividualParticipants = await UserModel.findAll({
+            where: {
+                role: 'participant',
+                teamId: null,
+                participation_format: 'individual'
+            },
+            attributes: ['id', 'school', 'first_name', 'last_name', 'second_name']
+        });
+
+        // Фильтруем нерассаженные команды
+        const unassignedTeams = [];
+        for (const team of allTeams) {
+            if (team.Members && team.Members.length > 0 && !assignedTeamIds.has(team.id)) {
+                const leader = team.Members.find(m => m.isLead === true) || team.Members[0];
+                const school = leader ? leader.school : 'Неизвестно';
+
+                unassignedTeams.push({
+                    type: 'team',
+                    id: team.id,
+                    name: team.name,
+                    school: school,
+                    memberCount: team.Members.length,
+                    members: team.Members
+                });
+            }
+        }
+
+        // Фильтруем нерассаженных индивидуальных участников
+        const unassignedIndividuals = allIndividualParticipants
+            .filter(user => !assignedUserIds.has(user.id))
+            .map(user => ({
+                type: 'individual',
+                id: user.id,
+                name: `${user.last_name} ${user.first_name} ${user.second_name || ''}`.trim(),
+                school: user.school,
+                memberCount: 1,
+                members: [user]
+            }));
+
+        return {
+            teams: unassignedTeams,
+            individuals: unassignedIndividuals,
+            total: unassignedTeams.length + unassignedIndividuals.length
+        };
+    }
+
+    /**
+     * Добавить нерассаженных участников в существующую рассадку
+     */
+    async addUnassignedToSeating() {
+        const transaction = await require('../db').transaction();
+
+        try {
+            // Получаем все аудитории
+            const rooms = await RoomModel.findAll({
+                order: [['number', 'ASC']],
+                transaction
+            });
+
+            if (rooms.length === 0) {
+                throw ApiError.BadRequest('Нет доступных аудиторий. Сначала добавьте аудитории.');
+            }
+
+            // Получаем нерассаженных
+            const unassigned = await this.getUnassignedItems();
+            
+            if (unassigned.total === 0) {
+                return {
+                    success: true,
+                    message: 'Все участники уже рассажены',
+                    assignedItems: 0,
+                    totalItems: 0
+                };
+            }
+
+            // Загружаем текущие назначения для расчета занятости
+            const existingAssignments = await SeatingAssignmentModel.findAll({
+                include: [
+                    {
+                        model: TeamModel,
+                        as: 'Team',
+                        include: [{
+                            model: UserModel,
+                            as: 'Members',
+                            attributes: ['id', 'school', 'isLead'],
+                            where: { role: 'participant' },
+                            required: false
+                        }]
+                    },
+                    {
+                        model: UserModel,
+                        as: 'User',
+                        attributes: ['id', 'school']
+                    },
+                    {
+                        model: RoomModel,
+                        as: 'Room',
+                        attributes: ['id', 'number', 'capacity']
+                    }
+                ],
+                transaction
+            });
+
+            // Инициализируем структуры для каждой аудитории
+            const roomOccupancy = {};
+            for (const room of rooms) {
+                roomOccupancy[room.id] = { occupied: 0, schools: new Set() };
+            }
+
+            // Подсчитываем текущую занятость
+            for (const assignment of existingAssignments) {
+                if (assignment.Room) {
+                    const roomId = assignment.Room.id;
+                    const occupancy = roomOccupancy[roomId];
+
+                    if (assignment.teamId && assignment.Team && assignment.Team.Members) {
+                        const team = assignment.Team;
+                        const leader = team.Members.find(m => m.isLead === true) || team.Members[0];
+                        if (leader && leader.school) {
+                            occupancy.schools.add(leader.school);
+                        }
+                        occupancy.occupied += 1;
+                    } else if (assignment.userId && assignment.User) {
+                        occupancy.schools.add(assignment.User.school);
+                        occupancy.occupied += 1;
+                    }
+                }
+            }
+
+            // Формируем список для рассадки
+            const itemsToAssign = [...unassigned.teams, ...unassigned.individuals];
+            
+            // Сортируем по количеству участников (сначала большие команды)
+            itemsToAssign.sort((a, b) => b.memberCount - a.memberCount);
+
+            const assignments = [];
+            const roomAssignments = {};
+
+            // Распределяем каждый элемент с равномерным заполнением
+            for (const item of itemsToAssign) {
+                let assigned = false;
+
+                // Сначала ищем аудитории без команды из той же школы
+                let suitableRooms = rooms
+                    .map(room => ({
+                        room,
+                        occupancy: roomOccupancy[room.id]
+                    }))
+                    .filter(({ room, occupancy }) => {
+                        const hasSpace = (occupancy.occupied + 1) <= room.capacity;
+                        const schoolNotPresent = !occupancy.schools.has(item.school);
+                        return hasSpace && schoolNotPresent;
+                    })
+                    .sort((a, b) => {
+                        if (a.occupancy.occupied !== b.occupancy.occupied) {
+                            return a.occupancy.occupied - b.occupancy.occupied;
+                        }
+                        return a.room.number.localeCompare(b.room.number);
+                    });
+
+                // Если не нашли аудиторию без команды из той же школы, ищем любую с местом
+                if (suitableRooms.length === 0) {
+                    suitableRooms = rooms
+                        .map(room => ({
+                            room,
+                            occupancy: roomOccupancy[room.id]
+                        }))
+                        .filter(({ room, occupancy }) => {
+                            const hasSpace = (occupancy.occupied + 1) <= room.capacity;
+                            return hasSpace;
+                        })
+                        .sort((a, b) => {
+                            if (a.occupancy.occupied !== b.occupancy.occupied) {
+                                return a.occupancy.occupied - b.occupancy.occupied;
+                            }
+                            return a.room.number.localeCompare(b.room.number);
+                        });
+                }
+
+                if (suitableRooms.length > 0) {
+                    const { room, occupancy } = suitableRooms[0];
+
+                    if (item.type === 'team') {
+                        await SeatingAssignmentModel.create({
+                            teamId: item.id,
+                            roomId: room.id,
+                            userId: null
+                        }, { transaction });
+                    } else {
+                        await SeatingAssignmentModel.create({
+                            teamId: null,
+                            roomId: room.id,
+                            userId: item.id
+                        }, { transaction });
+                    }
+
+                    occupancy.occupied += 1;
+                    occupancy.schools.add(item.school);
+                    if (!roomAssignments[room.id]) {
+                        roomAssignments[room.id] = [];
+                    }
+                    roomAssignments[room.id].push(item);
+
+                    assignments.push({
+                        ...item,
+                        roomId: room.id,
+                        roomNumber: room.number
+                    });
+
+                    assigned = true;
+                }
+
+                if (!assigned) {
+                    console.warn(`Не удалось разместить: ${item.name} (${item.school}) - нет свободных мест`);
+                }
+            }
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                totalItems: itemsToAssign.length,
+                assignedItems: assignments.length,
+                assignments: assignments,
+                message: `Добавлено в рассадку: ${assignments.length} из ${itemsToAssign.length}`
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     /**

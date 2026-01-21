@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import SeatingService from '../../services/SeatingService';
+import TeamService from '../../services/TeamService';
+import ParticipantsService from '../../services/ParticipantsService';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import Toast from '../../components/Toast';
 
 const Seating = () => {
     const [seating, setSeating] = useState([]);
+    const [unassignedItems, setUnassignedItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [loadingUnassigned, setLoadingUnassigned] = useState(true);
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const [autoAssigning, setAutoAssigning] = useState(false);
-    const [showClearDialog, setShowClearDialog] = useState(false);
+    const [clearing, setClearing] = useState(false);
     const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+    const [showClearDialog, setShowClearDialog] = useState(false);
     const [itemToRemove, setItemToRemove] = useState(null);
+    const [draggedItem, setDraggedItem] = useState(null);
+    const [dragOverRoom, setDragOverRoom] = useState(null);
 
     useEffect(() => {
         loadSeating();
@@ -19,27 +26,102 @@ const Seating = () => {
     const loadSeating = async () => {
         try {
             setLoading(true);
-            setError('');
+            setNotification({ type: null, message: '' });
             const response = await SeatingService.getSeating();
-            setSeating(response.data.data);
+            const seatingData = response.data.data;
+            setSeating(seatingData);
+            // Загружаем нерассаженных после успешной загрузки рассадки
+            await loadUnassigned(seatingData);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка загрузки рассадки');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка загрузки рассадки' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadUnassigned = async (currentSeating = seating) => {
+        try {
+            setLoadingUnassigned(true);
+            
+            // Получаем все команды
+            const teamsResponse = await TeamService.getAllTeams();
+            const allTeams = teamsResponse.data.data || [];
+            
+            // Получаем всех индивидуальных участников
+            const participantsResponse = await ParticipantsService.getAll({ 
+                limit: 1000,
+                participation_format: 'individual',
+                hasTeam: 'false'
+            });
+            const allParticipants = participantsResponse.data.data.participants || [];
+            
+            // Используем переданную рассадку или текущее состояние
+            // Собираем ID уже размещенных команд и участников
+            const assignedTeamIds = new Set();
+            const assignedUserIds = new Set();
+            
+            currentSeating.forEach(roomData => {
+                roomData.items.forEach(item => {
+                    if (item.type === 'team') {
+                        assignedTeamIds.add(item.id);
+                    } else {
+                        assignedUserIds.add(item.id);
+                    }
+                });
+            });
+            
+            // Фильтруем нерассаженные команды
+            const unassignedTeams = allTeams
+                .filter(team => !assignedTeamIds.has(team.id))
+                .map(team => {
+                    const members = team.members || [];
+                    const leader = members.find(m => m.isLead === true) || members[0];
+                    const school = leader?.school || 'Неизвестно';
+                    
+                    return {
+                        type: 'team',
+                        id: team.id,
+                        name: team.name,
+                        memberCount: team.memberCount || members.length || 0,
+                        school: school,
+                        members: members
+                    };
+                });
+            
+            // Фильтруем нерассаженных индивидуальных участников
+            const unassignedIndividuals = allParticipants
+                .filter(p => !assignedUserIds.has(p.id))
+                .map(p => ({
+                    type: 'individual',
+                    id: p.id,
+                    name: `${p.last_name} ${p.first_name} ${p.second_name || ''}`.trim(),
+                    school: p.school,
+                    memberCount: 1,
+                    members: [p]
+                }));
+            
+            // Объединяем в один список и сортируем по имени
+            const combined = [...unassignedTeams, ...unassignedIndividuals].sort((a, b) => 
+                a.name.localeCompare(b.name)
+            );
+            
+            setUnassignedItems(combined);
+        } catch (e) {
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка загрузки нерассаженных' });
+        } finally {
+            setLoadingUnassigned(false);
         }
     };
 
     const handleAutoAssign = async () => {
         try {
             setAutoAssigning(true);
-            setError('');
-            setSuccess('');
+            setNotification({ type: null, message: '' });
             const response = await SeatingService.autoAssign();
-            setSuccess(response.data.message || 'Рассадка выполнена успешно');
+            setNotification({ type: 'success', message: response.data.message || 'Рассадка выполнена успешно' });
             await loadSeating();
-            setTimeout(() => setSuccess(''), 5000);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при автоматической рассадке');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при автоматической рассадке' });
         } finally {
             setAutoAssigning(false);
         }
@@ -47,16 +129,62 @@ const Seating = () => {
 
     const handleClearSeating = async () => {
         try {
-            setError('');
-            setSuccess('');
+            setClearing(true);
+            setNotification({ type: null, message: '' });
             await SeatingService.clearSeating();
-            setSuccess('Рассадка успешно очищена');
+            setNotification({ type: 'success', message: 'Рассадка успешно очищена' });
             setShowClearDialog(false);
             await loadSeating();
-            setTimeout(() => setSuccess(''), 3000);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при очистке рассадки');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при очистке рассадки' });
             setShowClearDialog(false);
+        } finally {
+            setClearing(false);
+        }
+    };
+
+    const handleDragStart = (e, item) => {
+        setDraggedItem(item);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', '');
+        e.target.style.opacity = '0.5';
+    };
+
+    const handleDragEnd = (e) => {
+        e.target.style.opacity = '1';
+        setDraggedItem(null);
+        setDragOverRoom(null);
+    };
+
+    const handleDragOver = (e, roomId) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverRoom(roomId);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverRoom(null);
+    };
+
+    const handleDrop = async (e, roomData) => {
+        e.preventDefault();
+        setDragOverRoom(null);
+
+        if (!draggedItem) return;
+
+        try {
+            setNotification({ type: null, message: '' });
+            
+            await SeatingService.assignItem(
+                draggedItem.type === 'team' ? draggedItem.id : null,
+                draggedItem.type === 'individual' ? draggedItem.id : null,
+                roomData.room.id
+            );
+            
+            setNotification({ type: 'success', message: 'Успешно добавлено в аудиторию' });
+            await loadSeating();
+        } catch (e) {
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при добавлении' });
         }
     };
 
@@ -67,63 +195,40 @@ const Seating = () => {
 
     const handleRemoveConfirm = async () => {
         try {
-            setError('');
-            setSuccess('');
+            setNotification({ type: null, message: '' });
             const { type, id } = itemToRemove;
             await SeatingService.removeAssignment(
                 type === 'team' ? id : null,
                 type === 'individual' ? id : null
             );
-            setSuccess('Назначение успешно удалено');
+            setNotification({ type: 'success', message: 'Назначение успешно удалено' });
             setShowRemoveDialog(false);
             setItemToRemove(null);
             await loadSeating();
-            setTimeout(() => setSuccess(''), 3000);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при удалении назначения');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при удалении назначения' });
             setShowRemoveDialog(false);
             setItemToRemove(null);
         }
     };
 
-    const getTotalStats = () => {
-        let totalRooms = seating.length;
-        let totalCapacity = 0;
-        let totalOccupied = 0;
-        let totalFree = 0;
-        let totalItems = 0;
-
-        seating.forEach(roomData => {
-            totalCapacity += roomData.room.capacity;
-            totalOccupied += roomData.stats.occupied;
-            totalFree += roomData.stats.free;
-            totalItems += roomData.items.length;
-        });
-
-        return { totalRooms, totalCapacity, totalOccupied, totalFree, totalItems };
+    const getRoomStats = (roomData) => {
+        const occupied = roomData.items.length;
+        const free = roomData.room.capacity - occupied;
+        const schools = new Set(roomData.items.map(item => item.school));
+        const schoolsCount = schools.size;
+        
+        return { occupied, free, schoolsCount };
     };
-
-    const stats = getTotalStats();
 
     return (
         <div className="admin-page">
             <div className="admin-page-header">
                 <div>
-                    <h1 className="admin-page-title">Рассадка</h1>
+                <h1 className="admin-page-title">Рассадка</h1>
                     <p className="admin-page-subtitle">Распределение команд и участников по аудиториям</p>
                 </div>
-                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                    <button
-                        className="btn btn-secondary btn-with-icon"
-                        onClick={() => setShowClearDialog(true)}
-                        disabled={loading || seating.length === 0}
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                        Очистить
-                    </button>
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
                     <button
                         className="btn btn-primary btn-with-icon"
                         onClick={handleAutoAssign}
@@ -134,232 +239,316 @@ const Seating = () => {
                         </svg>
                         {autoAssigning ? 'Рассадка...' : 'Автоматическая рассадка'}
                     </button>
+                    <button
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={() => setShowClearDialog(true)}
+                        disabled={loading || clearing || autoAssigning}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        {clearing ? 'Очистка...' : 'Очистить рассадку'}
+                    </button>
                 </div>
             </div>
 
-            {/* Уведомления */}
-            {error && (
-                <div className="alert alert-error">{error}</div>
-            )}
-            {success && (
-                <div className="alert alert-success">{success}</div>
-            )}
-
-            {/* Общая статистика */}
-            {seating.length > 0 && (
-                <div className="admin-stats-grid" style={{ marginBottom: '2rem' }}>
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
+            {/* Основной контент: аудитории слева, нерассаженные справа */}
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 350px', 
+                gap: 'var(--spacing-xl)',
+                alignItems: 'start'
+            }}>
+                {/* Список аудиторий */}
+                <div>
+                    {loading ? (
+                        <div className="admin-loading">
+                            <div className="admin-loading-spinner"></div>
+                            <p>Загрузка рассадки...</p>
                         </div>
-                        <div className="admin-stat-content">
-                            <div className="admin-stat-label">Аудиторий</div>
-                            <div className="admin-stat-value">{stats.totalRooms}</div>
-                            <div className="admin-stat-description">Всего аудиторий</div>
-                        </div>
-                    </div>
-
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
-                        </div>
-                        <div className="admin-stat-content">
-                            <div className="admin-stat-label">Занято мест</div>
-                            <div className="admin-stat-value">{stats.totalOccupied} / {stats.totalCapacity}</div>
-                            <div className="admin-stat-description">Свободно: {stats.totalFree}</div>
-                        </div>
-                    </div>
-
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="2" y="7" width="20" height="15" rx="2"/>
-                                <polyline points="17 2 12 7 7 2"/>
-                            </svg>
-                        </div>
-                        <div className="admin-stat-content">
-                            <div className="admin-stat-label">Размещено</div>
-                            <div className="admin-stat-value">{stats.totalItems}</div>
-                            <div className="admin-stat-description">Команд и участников</div>
-                        </div>
-                    </div>
+                    ) : seating.length === 0 ? (
+            <div className="admin-placeholder">
+                <div className="admin-placeholder-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="7" width="20" height="15" rx="2"/>
+                        <polyline points="17 2 12 7 7 2"/>
+                    </svg>
                 </div>
-            )}
+                            <h2>Нет аудиторий</h2>
+                            <p>Сначала добавьте аудитории в разделе "Аудитории"</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
+                            {seating.map((roomData) => {
+                                const isDragOver = dragOverRoom === roomData.room.id;
+                                const roomStats = getRoomStats(roomData);
+                                
+                                // Проверяем, есть ли в аудитории участники из одной школы
+                                const schoolCounts = {};
+                                roomData.items.forEach(item => {
+                                    if (!schoolCounts[item.school]) {
+                                        schoolCounts[item.school] = 0;
+                                    }
+                                    schoolCounts[item.school]++;
+                                });
+                                const hasDuplicateSchools = Object.values(schoolCounts).some(count => count > 1);
+                                
+                                // Находим школы с дубликатами
+                                const duplicateSchools = Object.entries(schoolCounts)
+                                    .filter(([school, count]) => count > 1)
+                                    .map(([school]) => school);
 
-            {/* Список аудиторий */}
-            {loading ? (
-                <div className="admin-loading">
-                    <div className="admin-loading-spinner"></div>
-                    <p>Загрузка рассадки...</p>
-                </div>
-            ) : seating.length === 0 ? (
-                <div className="admin-placeholder">
-                    <div className="admin-placeholder-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="2" y="7" width="20" height="15" rx="2"/>
-                            <polyline points="17 2 12 7 7 2"/>
-                        </svg>
-                    </div>
-                    <h2>Рассадка не выполнена</h2>
-                    <p>Нажмите "Автоматическая рассадка" для распределения команд и участников по аудиториям</p>
-                </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
-                    {seating.map((roomData) => (
-                        <div key={roomData.room.id} className="admin-card">
-                            <div className="admin-card-header">
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="admin-card-title">
-                                        Аудитория {roomData.room.number}
-                                    </h2>
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        gap: 'var(--spacing-lg)', 
-                                        marginTop: 'var(--spacing-sm)',
-                                        flexWrap: 'wrap'
-                                    }}>
-                                        <span style={{ 
-                                            fontSize: 'var(--font-size-sm)', 
-                                            color: 'var(--text-secondary)' 
-                                        }}>
-                                            Мест: <strong>{roomData.stats.occupied}</strong> / {roomData.room.capacity}
-                                            {roomData.stats.free > 0 && (
-                                                <span style={{ color: 'var(--primary-color)' }}>
-                                                    {' '}(свободно: {roomData.stats.free})
-                                                </span>
-                                            )}
-                                        </span>
-                                        <span style={{ 
-                                            fontSize: 'var(--font-size-sm)', 
-                                            color: 'var(--text-secondary)' 
-                                        }}>
-                                            Школ: <strong>{roomData.stats.schoolsCount}</strong>
-                                        </span>
-                                        <span style={{ 
-                                            fontSize: 'var(--font-size-sm)', 
-                                            color: 'var(--text-secondary)' 
-                                        }}>
-                                            Команд/участников: <strong>{roomData.items.length}</strong>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: '50%',
-                                    backgroundColor: roomData.stats.free > 0 
-                                        ? (roomData.stats.free < 5 ? '#f59e0b' : '#10b981')
-                                        : '#ef4444',
-                                    flexShrink: 0
-                                }} title={
-                                    roomData.stats.free === 0 ? 'Аудитория заполнена' :
-                                    roomData.stats.free < 5 ? 'Мало свободных мест' :
-                                    'Есть свободные места'
-                                }></div>
-                            </div>
-
-                            {roomData.items.length === 0 ? (
-                                <div style={{ 
-                                    padding: 'var(--spacing-xl)', 
-                                    textAlign: 'center',
-                                    color: 'var(--text-tertiary)'
-                                }}>
-                                    Аудитория пуста
-                                </div>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                                    {roomData.items.map((item, index) => (
-                                        <div 
-                                            key={`${item.type}-${item.id}`}
-                                            style={{
-                                                padding: 'var(--spacing-md)',
-                                                background: 'var(--bg-secondary)',
-                                                borderRadius: 'var(--border-radius-md)',
-                                                border: '1px solid var(--border-color)',
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'flex-start',
-                                                gap: 'var(--spacing-md)'
-                                            }}
-                                        >
+                                return (
+                                    <div 
+                                        key={roomData.room.id} 
+                                        className="admin-card"
+                                        onDragOver={(e) => handleDragOver(e, roomData.room.id)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, roomData)}
+                                        style={{
+                                            border: isDragOver 
+                                                ? '2px dashed var(--primary-color)' 
+                                                : hasDuplicateSchools 
+                                                    ? '2px solid rgba(245, 158, 11, 0.5)' 
+                                                    : undefined,
+                                            backgroundColor: isDragOver 
+                                                ? 'rgba(99, 102, 241, 0.05)' 
+                                                : hasDuplicateSchools 
+                                                    ? 'rgba(245, 158, 11, 0.05)' 
+                                                    : undefined,
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <div className="admin-card-header">
                                             <div style={{ flex: 1 }}>
-                                                <div style={{ 
-                                                    display: 'flex', 
-                                                    alignItems: 'center', 
-                                                    gap: 'var(--spacing-sm)',
-                                                    marginBottom: 'var(--spacing-xs)'
-                                                }}>
-                                                    {item.type === 'team' ? (
-                                                        <span className="badge badge-team">Команда</span>
-                                                    ) : (
-                                                        <span className="badge" style={{
-                                                            background: 'var(--bg-tertiary)',
-                                                            color: 'var(--text-secondary)'
-                                                        }}>Участник</span>
-                                                    )}
-                                                    <strong style={{ color: 'var(--text-primary)' }}>
-                                                        {item.name}
-                                                    </strong>
-                                                </div>
-                                                <div style={{ 
-                                                    fontSize: 'var(--font-size-sm)', 
-                                                    color: 'var(--text-secondary)',
-                                                    marginBottom: 'var(--spacing-xs)'
-                                                }}>
-                                                    Школа: <strong>{item.school}</strong>
-                                                </div>
-                                                <div style={{ 
-                                                    fontSize: 'var(--font-size-sm)', 
-                                                    color: 'var(--text-secondary)'
-                                                }}>
-                                                    Участников: <strong>{item.memberCount}</strong>
-                                                    {item.members && item.members.length > 0 && (
-                                                        <span style={{ marginLeft: 'var(--spacing-sm)' }}>
-                                                            ({item.members.map(m => 
-                                                                `${m.last_name} ${m.first_name.charAt(0)}.`
-                                                            ).join(', ')})
-                                                        </span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                                                    <h2 className="admin-card-title">
+                                                        Аудитория {roomData.room.number}
+                                                    </h2>
+                                                    {hasDuplicateSchools && (
+                                                        <svg 
+                                                            width="20" 
+                                                            height="20" 
+                                                            viewBox="0 0 24 24" 
+                                                            fill="none" 
+                                                            stroke="#f59e0b" 
+                                                            strokeWidth="2"
+                                                            style={{ flexShrink: 0 }}
+                                                            title={`В этой аудитории есть участники из одной школы: ${duplicateSchools.join(', ')}`}
+                                                        >
+                                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                                            <line x1="12" y1="9" x2="12" y2="13"/>
+                                                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                                        </svg>
                                                     )}
                                                 </div>
                                             </div>
-                                            <button
-                                                className="btn-icon btn-icon-delete"
-                                                onClick={() => handleRemoveClick(item)}
-                                                title="Удалить из аудитории"
-                                            >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
+                                            <div style={{
+                                                fontSize: 'var(--font-size-lg)',
+                                                fontWeight: 'var(--font-weight-semibold)',
+                                                color: (() => {
+                                                    const occupied = roomStats.occupied;
+                                                    const capacity = roomData.room.capacity;
+                                                    const half = capacity / 2;
+                                                    
+                                                    if (occupied === 0) {
+                                                        return 'var(--text-tertiary)';
+                                                    } else if (occupied <= half) {
+                                                        return '#10b981'; // зеленый
+                                                    } else if (occupied < capacity) {
+                                                        return '#f59e0b'; // оранжевый
+                                                    } else {
+                                                        return '#ef4444'; // красный
+                                                    }
+                                                })(),
+                                                flexShrink: 0
+                                            }}>
+                                                {roomStats.occupied}/{roomData.room.capacity}
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
 
-            {/* Диалог подтверждения очистки */}
-            <ConfirmDialog
-                isOpen={showClearDialog}
-                title="Очистить рассадку?"
-                message="Вы уверены, что хотите очистить всю рассадку? Это действие нельзя отменить."
-                onConfirm={handleClearSeating}
-                onCancel={() => setShowClearDialog(false)}
-                confirmText="Очистить"
-                cancelText="Отмена"
-                danger={true}
-            />
+                                        {roomData.items.length === 0 ? (
+                                            <div style={{ 
+                                                padding: 'var(--spacing-xl)', 
+                                                textAlign: 'center',
+                                                color: 'var(--text-tertiary)',
+                                                border: '2px dashed var(--border-color)',
+                                                borderRadius: 'var(--border-radius-md)',
+                                                minHeight: '100px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                Перетащите участников сюда
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                                                {roomData.items.map((item) => {
+                                                    return (
+                                                        <div 
+                                                            key={`${item.type}-${item.id}`}
+                                                            style={{
+                                                                padding: 'var(--spacing-md)',
+                                                                background: 'var(--bg-secondary)',
+                                                                borderRadius: 'var(--border-radius-md)',
+                                                                border: '1px solid var(--border-color)',
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'flex-start',
+                                                                gap: 'var(--spacing-md)'
+                                                            }}
+                                                        >
+                                                            <div style={{ flex: 1 }}>
+                                                                <div style={{ 
+                                                                    display: 'flex', 
+                                                                    alignItems: 'center', 
+                                                                    gap: 'var(--spacing-sm)',
+                                                                    marginBottom: 'var(--spacing-xs)'
+                                                                }}>
+                                                                    {item.type === 'team' ? (
+                                                                        <span className="badge badge-team">Команда</span>
+                                                                    ) : (
+                                                                        <span className="badge" style={{
+                                                                            background: 'var(--bg-tertiary)',
+                                                                            color: 'var(--text-secondary)'
+                                                                        }}>Участник</span>
+                                                                    )}
+                                                                    <strong style={{ color: 'var(--text-primary)' }}>
+                                                                        {item.name}
+                                                                    </strong>
+                                                                </div>
+                                                                <div style={{ 
+                                                                    fontSize: 'var(--font-size-sm)', 
+                                                                    color: 'var(--text-secondary)',
+                                                                    marginBottom: 'var(--spacing-xs)'
+                                                                }}>
+                                                                    Школа: <strong>{item.school}</strong>
+                                                                </div>
+                                                                <div style={{ 
+                                                                    fontSize: 'var(--font-size-sm)', 
+                                                                    color: 'var(--text-secondary)'
+                                                                }}>
+                                                                    Участников: <strong>{item.memberCount}</strong>
+                                                                    {item.members && item.members.length > 0 && (
+                                                                        <span style={{ marginLeft: 'var(--spacing-sm)' }}>
+                                                                            ({item.members.map(m => 
+                                                                                `${m.last_name} ${m.first_name.charAt(0)}.`
+                                                                            ).join(', ')})
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                className="btn-icon btn-icon-delete"
+                                                                onClick={() => handleRemoveClick(item)}
+                                                                title="Удалить из аудитории"
+                                                            >
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                    <polyline points="3 6 5 6 21 6"/>
+                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* Панель нерассаженных участников */}
+                <div className="admin-card" style={{ position: 'sticky', top: '100px', maxHeight: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
+                    <div className="admin-card-header">
+                        <h2 className="admin-card-title">Нерассаженные</h2>
+                        <span className="badge" style={{ background: 'var(--bg-tertiary)' }}>
+                            {unassignedItems.length}
+                        </span>
+                    </div>
+                    {loadingUnassigned ? (
+                        <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
+                            <div className="admin-loading-spinner" style={{ margin: '0 auto' }}></div>
+                            <p style={{ marginTop: 'var(--spacing-md)', color: 'var(--text-secondary)' }}>
+                                Загрузка...
+                            </p>
+                        </div>
+                    ) : unassignedItems.length === 0 ? (
+                        <div style={{ 
+                            padding: 'var(--spacing-xl)', 
+                            textAlign: 'center',
+                            color: 'var(--text-tertiary)'
+                        }}>
+                            Все участники размещены
+                        </div>
+                    ) : (
+                        <div style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: 'var(--spacing-sm)',
+                            flex: 1,
+                            overflowY: 'auto',
+                            minHeight: 0
+                        }}>
+                            {unassignedItems.map((item) => (
+                                <div
+                                    key={`${item.type}-${item.id}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, item)}
+                                    onDragEnd={handleDragEnd}
+                                    style={{
+                                        padding: 'var(--spacing-md)',
+                                        background: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--border-radius-md)',
+                                        border: '1px solid var(--border-color)',
+                                        cursor: 'grab',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (draggedItem?.id !== item.id) {
+                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = '';
+                                        e.currentTarget.style.boxShadow = '';
+                                    }}
+                                >
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: 'var(--spacing-sm)',
+                                        marginBottom: 'var(--spacing-xs)'
+                                    }}>
+                                        {item.type === 'team' ? (
+                                            <span className="badge badge-team">Команда</span>
+                                        ) : (
+                                            <span className="badge" style={{
+                                                background: 'var(--bg-tertiary)',
+                                                color: 'var(--text-secondary)'
+                                            }}>Участник</span>
+                                        )}
+                                        <strong style={{ color: 'var(--text-primary)', fontSize: 'var(--font-size-sm)' }}>
+                                            {item.name}
+                                        </strong>
+                                    </div>
+                                    <div style={{ 
+                                        fontSize: 'var(--font-size-xs)', 
+                                        color: 'var(--text-secondary)'
+                                    }}>
+                                        Школа: {item.school}
+                                        {item.type === 'team' && ` • ${item.memberCount} участников`}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Диалог подтверждения удаления */}
             <ConfirmDialog
@@ -375,6 +564,30 @@ const Seating = () => {
                 cancelText="Отмена"
                 danger={true}
             />
+
+            {/* Диалог подтверждения очистки */}
+            <ConfirmDialog
+                isOpen={showClearDialog}
+                title="Очистить рассадку?"
+                message="Вы уверены, что хотите очистить всю рассадку? Все назначения будут удалены."
+                onConfirm={handleClearSeating}
+                onCancel={() => {
+                    setShowClearDialog(false);
+                }}
+                confirmText="Очистить"
+                cancelText="Отмена"
+                danger={true}
+            />
+
+            {/* Toast уведомление */}
+            {notification.type && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                    duration={5000}
+                />
+            )}
         </div>
     );
 };

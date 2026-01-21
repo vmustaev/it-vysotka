@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import RoomService from '../../services/RoomService';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import Toast from '../../components/Toast';
 
 const Rooms = () => {
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const [showForm, setShowForm] = useState(false);
     const [editingRoom, setEditingRoom] = useState(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -24,11 +24,11 @@ const Rooms = () => {
     const loadRooms = async () => {
         try {
             setLoading(true);
-            setError('');
+            setNotification({ type: null, message: '' });
             const response = await RoomService.getAll();
             setRooms(response.data.data);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка загрузки аудиторий');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка загрузки аудиторий' });
         } finally {
             setLoading(false);
         }
@@ -78,15 +78,14 @@ const Rooms = () => {
         }
 
         try {
-            setError('');
-            setSuccess('');
+            setNotification({ type: null, message: '' });
 
             if (editingRoom) {
                 await RoomService.update(editingRoom.id, formData.number.trim(), formData.capacity);
-                setSuccess('Аудитория успешно обновлена');
+                setNotification({ type: 'success', message: 'Аудитория успешно обновлена' });
             } else {
                 await RoomService.create(formData.number.trim(), formData.capacity);
-                setSuccess('Аудитория успешно создана');
+                setNotification({ type: 'success', message: 'Аудитория успешно создана' });
             }
 
             // Очищаем форму и закрываем
@@ -97,11 +96,9 @@ const Rooms = () => {
 
             // Перезагружаем список
             await loadRooms();
-
-            setTimeout(() => setSuccess(''), 3000);
         } catch (e) {
             const errorMessage = e.response?.data?.message || 'Ошибка при сохранении аудитории';
-            setError(errorMessage);
+            setNotification({ type: 'error', message: errorMessage });
             
             // Если ошибка связана с конкретным полем, показываем её
             if (e.response?.data?.errors) {
@@ -118,8 +115,7 @@ const Rooms = () => {
         });
         setFormErrors({});
         setShowForm(true);
-        setError('');
-        setSuccess('');
+        setNotification({ type: null, message: '' });
     };
 
     const handleDeleteClick = (room) => {
@@ -129,16 +125,14 @@ const Rooms = () => {
 
     const handleDeleteConfirm = async () => {
         try {
-            setError('');
-            setSuccess('');
+            setNotification({ type: null, message: '' });
             await RoomService.delete(roomToDelete.id);
-            setSuccess('Аудитория успешно удалена');
+            setNotification({ type: 'success', message: 'Аудитория успешно удалена' });
             setShowDeleteDialog(false);
             setRoomToDelete(null);
             await loadRooms();
-            setTimeout(() => setSuccess(''), 3000);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка при удалении аудитории');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при удалении аудитории' });
             setShowDeleteDialog(false);
             setRoomToDelete(null);
         }
@@ -149,8 +143,7 @@ const Rooms = () => {
         setEditingRoom(null);
         setShowForm(false);
         setFormErrors({});
-        setError('');
-        setSuccess('');
+        setNotification({ type: null, message: '' });
     };
 
     const handleAddNew = () => {
@@ -158,8 +151,7 @@ const Rooms = () => {
         setFormData({ number: '', capacity: '' });
         setFormErrors({});
         setShowForm(true);
-        setError('');
-        setSuccess('');
+        setNotification({ type: null, message: '' });
     };
 
     return (
@@ -183,13 +175,6 @@ const Rooms = () => {
                 )}
             </div>
 
-            {/* Уведомления */}
-            {error && (
-                <div className="alert alert-error">{error}</div>
-            )}
-            {success && (
-                <div className="alert alert-success">{success}</div>
-            )}
 
             {/* Форма добавления/редактирования */}
             {showForm && (
@@ -330,6 +315,16 @@ const Rooms = () => {
                 cancelText="Отмена"
                 danger={true}
             />
+
+            {/* Toast уведомление */}
+            {notification.type && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                    duration={5000}
+                />
+            )}
         </div>
     );
 };

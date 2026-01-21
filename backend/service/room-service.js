@@ -1,4 +1,5 @@
 const RoomModel = require('../models/room-model');
+const SeatingAssignmentModel = require('../models/seating-assignment-model');
 const ApiError = require('../exceptions/api-error');
 
 class RoomService {
@@ -53,6 +54,19 @@ class RoomService {
 
             if (existingRoom) {
                 throw ApiError.BadRequest('Аудитория с таким номером уже существует');
+            }
+        }
+
+        // Проверяем, что новое количество мест не меньше текущего количества занятых мест
+        if (capacity < room.capacity) {
+            const occupiedCount = await SeatingAssignmentModel.count({
+                where: { roomId: id }
+            });
+
+            if (occupiedCount > capacity) {
+                throw ApiError.BadRequest(
+                    `Невозможно уменьшить количество мест до ${capacity}. В аудитории уже размещено ${occupiedCount} команд/участников.`
+                );
             }
         }
 

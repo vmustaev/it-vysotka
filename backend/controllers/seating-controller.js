@@ -69,6 +69,39 @@ class SeatingController {
     }
 
     /**
+     * Получить список нерассаженных команд и участников
+     */
+    async getUnassigned(req, res, next) {
+        try {
+            const unassigned = await seatingService.getUnassignedItems();
+
+            return res.json({
+                success: true,
+                data: unassigned
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Добавить нерассаженных участников в существующую рассадку
+     */
+    async addUnassigned(req, res, next) {
+        try {
+            const result = await seatingService.addUnassignedToSeating();
+
+            return res.json({
+                success: true,
+                data: result,
+                message: result.message
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
      * Удалить назначение
      */
     async removeAssignment(req, res, next) {

@@ -349,7 +349,7 @@ class TeamService {
             allTeams.map(async (team) => {
                 const members = await UserModel.findAll({
                     where: { teamId: team.id },
-                    attributes: ['id', 'email', 'first_name', 'last_name', 'second_name', 'isLead'],
+                    attributes: ['id', 'first_name', 'last_name', 'second_name', 'isLead', 'school'],
                     order: [['isLead', 'DESC'], ['last_name', 'ASC']]
                 });
 

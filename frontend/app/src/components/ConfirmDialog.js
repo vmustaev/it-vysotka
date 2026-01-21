@@ -17,7 +17,11 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
                     <h3 className="confirm-dialog-title">{title}</h3>
                 </div>
                 <div className="confirm-dialog-body">
-                    <p className="confirm-dialog-message">{message}</p>
+                    {typeof message === 'string' ? (
+                        <p className="confirm-dialog-message">{message}</p>
+                    ) : (
+                        <div className="confirm-dialog-message">{message}</div>
+                    )}
                 </div>
                 <div className="confirm-dialog-actions">
                     <button 

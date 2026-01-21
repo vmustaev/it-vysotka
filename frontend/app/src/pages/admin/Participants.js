@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ParticipantsService from '../../services/ParticipantsService';
 import TeamService from '../../services/TeamService';
+import Toast from '../../components/Toast';
 
 const Participants = () => {
     const [participants, setParticipants] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [exporting, setExporting] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const [expandedTeams, setExpandedTeams] = useState(new Set()); // Для раскрывающихся команд
     const [teams, setTeams] = useState([]); // Список всех команд
 
@@ -47,12 +47,12 @@ const Participants = () => {
     const loadParticipants = async () => {
         try {
             setLoading(true);
-            setError('');
+            setNotification({ type: null, message: '' });
             const response = await ParticipantsService.getAll(filters);
             setParticipants(response.data.data.participants);
             setPagination(response.data.data.pagination);
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка загрузки участников');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка загрузки участников' });
         } finally {
             setLoading(false);
         }
@@ -92,7 +92,7 @@ const Participants = () => {
     const handleExport = async () => {
         try {
             setExporting(true);
-            setError('');
+            setNotification({ type: null, message: '' });
             const response = await ParticipantsService.exportToExcel();
             
             // Создаем ссылку для скачивания файла
@@ -106,10 +106,9 @@ const Participants = () => {
             link.remove();
             window.URL.revokeObjectURL(url);
             
-            setSuccess('Файл успешно скачан!');
-            setTimeout(() => setSuccess(''), 3000);
+            setNotification({ type: 'success', message: 'Файл успешно скачан!' });
         } catch (e) {
-            setError(e.response?.data?.message || 'Ошибка экспорта');
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка экспорта' });
         } finally {
             setExporting(false);
         }
@@ -169,13 +168,6 @@ const Participants = () => {
                 </button>
             </div>
 
-            {/* Уведомления */}
-            {error && (
-                <div className="alert alert-error">{error}</div>
-            )}
-            {success && (
-                <div className="alert alert-success">{success}</div>
-            )}
 
             {/* Статистика */}
             {stats && (
@@ -492,6 +484,16 @@ const Participants = () => {
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Toast уведомление */}
+            {notification.type && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                    duration={5000}
+                />
             )}
         </div>
     );

@@ -30,6 +30,20 @@ export default class SeatingService {
     }
 
     /**
+     * Получить список нерассаженных команд и участников
+     */
+    static async getUnassigned() {
+        return $api.get('/admin/seating/unassigned');
+    }
+
+    /**
+     * Добавить нерассаженных участников в существующую рассадку
+     */
+    static async addUnassigned() {
+        return $api.post('/admin/seating/add-unassigned');
+    }
+
+    /**
      * Удалить назначение
      */
     static async removeAssignment(teamId, userId) {

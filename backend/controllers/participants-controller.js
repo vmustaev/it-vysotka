@@ -72,6 +72,7 @@ class ParticipantsController {
             const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
 
             // Получаем участников с командами
+            // Ограничиваем только необходимыми полями для безопасности
             const { count, rows: participants } = await UserModel.findAndCountAll({
                 where,
                 limit: parseInt(limit),
@@ -82,7 +83,25 @@ class ParticipantsController {
                     as: 'Team',
                     attributes: ['id', 'name']
                 }],
-                attributes: { exclude: ['password'] } // Не возвращаем пароль
+                attributes: [
+                    'id',
+                    'first_name',
+                    'last_name',
+                    'second_name',
+                    'email',
+                    'phone',
+                    'school',
+                    'grade',
+                    'region',
+                    'city',
+                    'programming_language',
+                    'participation_format',
+                    'teamId',
+                    'isLead',
+                    'isActivated',
+                    'role'
+                    // Исключаем: password, birthday
+                ]
             });
 
             return res.json({
@@ -206,10 +225,28 @@ class ParticipantsController {
                     include: [{
                         model: UserModel,
                         as: 'Members',
-                        attributes: ['id', 'first_name', 'last_name', 'second_name', 'email', 'isLead']
+                        attributes: ['id', 'first_name', 'last_name', 'second_name', 'email', 'grade', 'programming_language', 'isLead', 'school']
                     }]
                 }],
-                attributes: { exclude: ['password'] }
+                attributes: [
+                    'id',
+                    'first_name',
+                    'last_name',
+                    'second_name',
+                    'email',
+                    'phone',
+                    'school',
+                    'grade',
+                    'region',
+                    'city',
+                    'programming_language',
+                    'participation_format',
+                    'teamId',
+                    'isLead',
+                    'isActivated',
+                    'role'
+                    // Исключаем: password, birthday
+                ]
             });
 
             if (!participant) {
