@@ -11,6 +11,7 @@ const Participants = () => {
     const [notification, setNotification] = useState({ type: null, message: '' });
     const [expandedTeams, setExpandedTeams] = useState(new Set()); // Для раскрывающихся команд
     const [teams, setTeams] = useState([]); // Список всех команд
+    const [activeTab, setActiveTab] = useState('participants'); // 'participants' или 'teams'
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -240,72 +241,27 @@ const Participants = () => {
                 </div>
             )}
 
-            {/* Секция команд */}
-            {teams.length > 0 && (
-                <div className="admin-section" style={{ marginBottom: '2rem' }}>
-                    <div className="admin-section-header">
-                        <h2 className="admin-section-title">
-                            Команды ({teams.length})
-                        </h2>
-                        <p className="admin-section-subtitle">
-                            Нажмите на команду, чтобы увидеть участников
-                        </p>
-                    </div>
-                    
-                    <div className="teams-grid">
-                        {teams.map((team) => {
-                            const isExpanded = expandedTeams.has(team.id);
-                            return (
-                                <div key={team.id} className={`team-card ${isExpanded ? 'team-card-expanded' : ''}`}>
-                                    <div 
-                                        className="team-card-header"
-                                        onClick={() => toggleTeamExpand(team.id)}
-                                    >
-                                        <div className="team-card-title">
-                                            <span className="team-expand-icon">
-                                                {isExpanded ? '▼' : '▶'}
-                                            </span>
-                                            <span className="team-name">{team.name}</span>
-                                        </div>
-                                        <span className="team-members-count">
-                                            {team.members.length} {team.members.length === 1 ? 'участник' : team.members.length < 5 ? 'участника' : 'участников'}
-                                        </span>
-                                    </div>
-                                    
-                                    {isExpanded && (
-                                        <div className="team-card-body">
-                                            <div className="team-members-list">
-                                                {team.members.map((member, index) => (
-                                                    <div key={member.id} className="team-member-item">
-                                                        <div className="team-member-avatar">
-                                                            {index + 1}
-                                                        </div>
-                                                        <div className="team-member-info">
-                                                            <div className="team-member-name">
-                                                                {member.last_name} {member.first_name}
-                                                                {member.isLead && (
-                                                                    <span className="badge badge-lead" style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
-                                                                        Лидер
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div className="team-member-details">
-                                                                {member.email} • {member.grade} класс • {member.programming_language}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+            {/* Вкладки */}
+            <div className="tabs" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                <button 
+                    className={`tab-button ${activeTab === 'participants' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('participants')}
+                >
+                    Участники
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'teams' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('teams')}
+                >
+                    Команды ({teams.length})
+                </button>
+            </div>
 
-            {/* Фильтры */}
+            {/* Контент вкладок */}
+            <div className="tab-content">
+                {activeTab === 'participants' && (
+                    <>
+                        {/* Фильтры */}
             <div className="participants-filters">
                 <input
                     type="text"
@@ -485,6 +441,152 @@ const Participants = () => {
                     )}
                 </>
             )}
+                    </>
+                )}
+
+                {activeTab === 'teams' && (
+                    <>
+                        {teams.length === 0 ? (
+                            <div className="admin-placeholder">
+                                <div className="admin-placeholder-icon">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="12" cy="8" r="7"/>
+                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                                    </svg>
+                                </div>
+                                <h2>Команды не найдены</h2>
+                                <p>Пока нет созданных команд</p>
+                            </div>
+                        ) : (
+                            <div className="admin-section">
+                                <div className="teams-table-container">
+                                    <table className="teams-table">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: '40px' }}></th>
+                                                <th>Название команды</th>
+                                                <th style={{ width: '120px' }}>Участников</th>
+                                                <th style={{ width: '150px' }}>Школа</th>
+                                                <th style={{ width: '100px' }}>Язык</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {teams.map((team) => {
+                                                const isExpanded = expandedTeams.has(team.id);
+                                                const leader = team.members.find(m => m.isLead) || team.members[0];
+                                                const school = leader?.school || 'Неизвестно';
+                                                const languages = [...new Set(team.members.map(m => m.programming_language).filter(Boolean))];
+                                                
+                                                return (
+                                                    <React.Fragment key={team.id}>
+                                                        <tr 
+                                                            className={`team-row ${isExpanded ? 'expanded' : ''}`}
+                                                            onClick={() => toggleTeamExpand(team.id)}
+                                                            style={{ cursor: 'pointer' }}
+                                                        >
+                                                            <td>
+                                                                <span className="team-expand-icon" style={{ 
+                                                                    display: 'inline-block',
+                                                                    transition: 'transform 0.2s',
+                                                                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
+                                                                }}>
+                                                                    ▶
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <strong>{team.name}</strong>
+                                                            </td>
+                                                            <td>
+                                                                <span className="badge badge-team">
+                                                                    {team.members.length} {team.members.length === 1 ? 'участник' : team.members.length < 5 ? 'участника' : 'участников'}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                                {school}
+                                                            </td>
+                                                            <td>
+                                                                {languages.length > 0 ? (
+                                                                    <span className="badge" style={{ 
+                                                                        background: 'var(--bg-secondary)', 
+                                                                        color: 'var(--text-primary)',
+                                                                        border: '1px solid var(--border-color)'
+                                                                    }}>
+                                                                        {languages.join(', ')}
+                                                                    </span>
+                                                                ) : '-'}
+                                                            </td>
+                                                        </tr>
+                                                        {isExpanded && (
+                                                            <tr className="team-members-row">
+                                                                <td colSpan="5">
+                                                                    <div className="team-members-expanded">
+                                                                        <div className="team-members-header">
+                                                                            <h4>Участники команды</h4>
+                                                                        </div>
+                                                                        <div className="team-members-grid">
+                                                                            {team.members.map((member, index) => (
+                                                                                <div key={member.id} className={`team-member-card ${member.isLead ? 'team-member-lead' : ''}`}>
+                                                                                    <div className="team-member-card-header">
+                                                                                        <div className="team-member-number">
+                                                                                            {index + 1}
+                                                                                        </div>
+                                                                                        {member.isLead && (
+                                                                                            <span className="badge badge-lead">Лидер</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="team-member-card-body">
+                                                                                        <div className="team-member-card-name">
+                                                                                            {member.last_name} {member.first_name} {member.second_name || ''}
+                                                                                        </div>
+                                                                                        <div className="team-member-card-info">
+                                                                                            <div className="team-member-card-detail">
+                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                                                                                    <polyline points="22,6 12,13 2,6"/>
+                                                                                                </svg>
+                                                                                                {member.email || '-'}
+                                                                                            </div>
+                                                                                            <div className="team-member-card-detail">
+                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                                                                                    <circle cx="12" cy="7" r="4"/>
+                                                                                                </svg>
+                                                                                                {member.grade ? `${member.grade} класс` : '-'}
+                                                                                            </div>
+                                                                                            <div className="team-member-card-detail">
+                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                                    <polyline points="16 18 22 12 16 6"/>
+                                                                                                    <polyline points="8 6 2 12 8 18"/>
+                                                                                                </svg>
+                                                                                                {member.programming_language || '-'}
+                                                                                            </div>
+                                                                                            <div className="team-member-card-detail">
+                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                                                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                                                                                </svg>
+                                                                                                {member.school || '-'}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
 
             {/* Toast уведомление */}
             {notification.type && (

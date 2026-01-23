@@ -235,7 +235,7 @@ class SeatingService {
                     include: [{
                         model: UserModel,
                         as: 'Members',
-                        attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'isLead'],
+                        attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'isLead', 'birthday'],
                         where: { role: 'participant' },
                         required: false
                     }]
@@ -243,7 +243,7 @@ class SeatingService {
                 {
                     model: UserModel,
                     as: 'User',
-                    attributes: ['id', 'school', 'first_name', 'last_name', 'second_name']
+                    attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'birthday']
                 }
             ]
         });
@@ -278,7 +278,8 @@ class SeatingService {
                         last_name: m.last_name,
                         second_name: m.second_name,
                         school: m.school,
-                        isLead: m.isLead
+                        isLead: m.isLead,
+                        birthday: m.birthday
                     }));
 
                     item = {
@@ -303,7 +304,8 @@ class SeatingService {
                             first_name: user.first_name,
                             last_name: user.last_name,
                             second_name: user.second_name,
-                            school: user.school
+                            school: user.school,
+                            birthday: user.birthday
                         }]
                     };
                 }

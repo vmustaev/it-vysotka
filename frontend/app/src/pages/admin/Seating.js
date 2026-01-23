@@ -13,6 +13,7 @@ const Seating = () => {
     const [notification, setNotification] = useState({ type: null, message: '' });
     const [autoAssigning, setAutoAssigning] = useState(false);
     const [clearing, setClearing] = useState(false);
+    const [exporting, setExporting] = useState(false);
     const [showRemoveDialog, setShowRemoveDialog] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
     const [itemToRemove, setItemToRemove] = useState(null);
@@ -221,6 +222,31 @@ const Seating = () => {
         return { occupied, free, schoolsCount };
     };
 
+    const handleExport = async () => {
+        try {
+            setExporting(true);
+            setNotification({ type: null, message: '' });
+            const response = await SeatingService.exportToExcel();
+            
+            // Создаем ссылку для скачивания файла
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().split('T')[0];
+            link.setAttribute('download', `Рассадка_IT-Высотка_${date}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            
+            setNotification({ type: 'success', message: 'Файл успешно скачан!' });
+        } catch (e) {
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка экспорта' });
+        } finally {
+            setExporting(false);
+        }
+    };
+
     return (
         <div className="admin-page">
             <div className="admin-page-header">
@@ -238,6 +264,19 @@ const Seating = () => {
                             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                         </svg>
                         {autoAssigning ? 'Рассадка...' : 'Автоматическая рассадка'}
+                    </button>
+                    <button
+                        className="btn btn-primary btn-with-icon"
+                        onClick={handleExport}
+                        disabled={loading || exporting}
+                        style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        {exporting ? 'Экспорт...' : 'Экспорт в Excel'}
                     </button>
                     <button
                         className="btn btn-secondary btn-with-icon"

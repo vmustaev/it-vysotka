@@ -49,4 +49,14 @@ export default class SeatingService {
     static async removeAssignment(teamId, userId) {
         return $api.post('/admin/seating/remove', { teamId, userId });
     }
+
+    /**
+     * Экспорт рассадки в Excel
+     * Возвращает blob для скачивания файла
+     */
+    static async exportToExcel() {
+        return $api.get('/admin/seating/export', {
+            responseType: 'blob' // Важно для получения файла
+        });
+    }
 }

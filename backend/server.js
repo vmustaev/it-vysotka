@@ -14,6 +14,7 @@ const SchoolModel = require('./models/school-model');
 const TeamModel = require('./models/team-model');
 const RoomModel = require('./models/room-model');
 const SeatingAssignmentModel = require('./models/seating-assignment-model');
+const SettingsModel = require('./models/settings-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });

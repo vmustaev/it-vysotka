@@ -1,9 +1,16 @@
 const userService = require('../service/user-service');
+const settingsService = require('../service/settings-service');
 const ApiError = require('../exceptions/api-error');
 
 class UserController {
     async registration(req, res, next) {
         try {
+            // Проверяем, открыта ли регистрация
+            const isRegistrationOpen = await settingsService.isRegistrationOpen();
+            if (!isRegistrationOpen) {
+                throw ApiError.BadRequest('Регистрация закрыта');
+            }
+
             const {
                 email, password, password_confirmation,
                 last_name, first_name, second_name, birthday,

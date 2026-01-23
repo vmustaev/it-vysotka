@@ -6,6 +6,7 @@ const teamController = require('../controllers/team-controller');
 const participantsController = require('../controllers/participants-controller');
 const roomController = require('../controllers/room-controller');
 const seatingController = require('../controllers/seating-controller');
+const settingsController = require('../controllers/settings-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
@@ -61,10 +62,18 @@ router.delete('/admin/rooms/:id', authMiddleware, adminMiddleware, roomControlle
 // Admin routes - Seating
 router.post('/admin/seating/auto-assign', authMiddleware, adminMiddleware, seatingController.autoAssign);
 router.get('/admin/seating', authMiddleware, adminMiddleware, seatingController.getSeating);
+router.get('/admin/seating/export', authMiddleware, adminMiddleware, seatingController.exportToExcel);
 router.get('/admin/seating/unassigned', authMiddleware, adminMiddleware, seatingController.getUnassigned);
 router.post('/admin/seating/add-unassigned', authMiddleware, adminMiddleware, seatingController.addUnassigned);
 router.delete('/admin/seating/clear', authMiddleware, adminMiddleware, seatingController.clearSeating);
 router.post('/admin/seating/assign', authMiddleware, adminMiddleware, seatingController.assignItem);
 router.post('/admin/seating/remove', authMiddleware, adminMiddleware, seatingController.removeAssignment);
+
+// Admin routes - Settings
+router.get('/admin/settings', authMiddleware, adminMiddleware, settingsController.getSettings);
+router.put('/admin/settings', authMiddleware, adminMiddleware, settingsController.updateSettings);
+
+// Public routes - Settings
+router.get('/settings/registration-status', settingsController.getRegistrationStatus);
 
 module.exports = router;

@@ -34,7 +34,25 @@ const testParticipants = [
     { lastName: 'Макаров', firstName: 'Максим', secondName: 'Максимович', emailName: 'maksim.makarov', grade: 9, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
     { lastName: 'Антонова', firstName: 'Антонина', secondName: 'Антоновна', emailName: 'antonina.antonova', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
     { lastName: 'Денисов', firstName: 'Денис', secondName: 'Денисович', emailName: 'denis.denisov', grade: 10, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
-    { lastName: 'Степанова', firstName: 'Степанида', secondName: 'Степановна', emailName: 'stepanida.stepanova', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' }
+    { lastName: 'Степанова', firstName: 'Степанида', secondName: 'Степановна', emailName: 'stepanida.stepanova', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Орлов', firstName: 'Олег', secondName: 'Олегович', emailName: 'oleg.orlov', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Зайцева', firstName: 'Зоя', secondName: 'Зоевна', emailName: 'zoya.zaytseva', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Белов', firstName: 'Борис', secondName: 'Борисович', emailName: 'boris.belov', grade: 9, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Краснова', firstName: 'Кристина', secondName: 'Кристиновна', emailName: 'kristina.krasnova', grade: 10, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Чернов', firstName: 'Чарльз', secondName: 'Чарльзович', emailName: 'charles.chernov', grade: 8, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Белая', firstName: 'Белла', secondName: 'Белловна', emailName: 'bella.belaya', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Зеленов', firstName: 'Зенон', secondName: 'Зенонович', emailName: 'zenon.zelenov', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Синяя', firstName: 'Сильвия', secondName: 'Сильвиевна', emailName: 'sylvia.sinyaya', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Жуков', firstName: 'Жан', secondName: 'Жанович', emailName: 'zhan.zhukov', grade: 11, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Воробьева', firstName: 'Виктория', secondName: 'Викторовна', emailName: 'victoria.vorobyeva', grade: 8, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Соловьев', firstName: 'Соломон', secondName: 'Соломонович', emailName: 'solomon.solovev', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Ласточкина', firstName: 'Лариса', secondName: 'Ларисовна', emailName: 'larisa.lastochkina', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Щукин', firstName: 'Щука', secondName: 'Щукович', emailName: 'shchuka.shchukin', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Рыбкина', firstName: 'Рыбка', secondName: 'Рыбковна', emailName: 'rybka.rybkina', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Медведев', firstName: 'Медведь', secondName: 'Медведевич', emailName: 'medved.medvedev', grade: 10, language: 'C++', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Лисова', firstName: 'Лисица', secondName: 'Лисична', emailName: 'lisitsa.lisova', grade: 8, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Волков', firstName: 'Волк', secondName: 'Волкович', emailName: 'volk.volkov', grade: 11, language: 'Java', region: 'Республика Бурятия', city: 'Улан-Удэ' },
+    { lastName: 'Зайцева', firstName: 'Зайчиха', secondName: 'Зайчишна', emailName: 'zaychikha.zaytseva2', grade: 9, language: 'Python', region: 'Республика Бурятия', city: 'Улан-Удэ' }
 ];
 
 const schools = [
@@ -42,7 +60,14 @@ const schools = [
     'МБОУ "СОШ №9 г. Улан-Удэ"',
     'МБОУ "СОШ №19 г. Улан-Удэ"',
     'МБОУ "Лицей №27 г. Улан-Удэ"',
-    'МАОУ "СОШ №65 г. Улан-Удэ"'
+    'МАОУ "СОШ №65 г. Улан-Удэ"',
+    'МБОУ "СОШ №1 г. Улан-Удэ"',
+    'МАОУ "Гимназия №14 г. Улан-Удэ"',
+    'МБОУ "СОШ №32 г. Улан-Удэ"',
+    'МБОУ "Лицей №1 г. Улан-Удэ"',
+    'МАОУ "СОШ №49 г. Улан-Удэ"',
+    'МБОУ "СОШ №18 г. Улан-Удэ"',
+    'МАОУ "Гимназия №59 г. Улан-Удэ"'
 ];
 
 const teams = [
@@ -55,7 +80,9 @@ const teams = [
     'Tech Titans',
     'Digital Wizards',
     'Cyber Knights',
-    'Algorithm Heroes'
+    'Algorithm Heroes',
+    'Byte Masters',
+    'Code Legends'
 ];
 
 async function seedTestData() {
@@ -83,12 +110,12 @@ async function seedTestData() {
         const createdUsers = [];
 
         // Распределение участников:
-        // - 8 команд по 3 человека = 24 участника в командах
-        // - 4 участника с форматом "team", но без команды (могут присоединиться)
-        // - 2 участника с форматом "individual"
-        const numTeams = 8;
-        const usersInTeams = 24;
-        const teamFormatNoTeam = 4; // Участники с "team", но без команды
+        // - 12 команд по 3 человека = 36 участников в командах
+        // - 8 участников с форматом "team", но без команды (могут присоединиться)
+        // - 6 участников с форматом "individual"
+        const numTeams = 12;
+        const usersInTeams = 36;
+        const teamFormatNoTeam = 8; // Участники с "team", но без команды
 
         for (let i = 0; i < testParticipants.length; i++) {
             const participant = testParticipants[i];
@@ -97,8 +124,8 @@ async function seedTestData() {
             const school = schools[i % schools.length];
 
             // Определяем формат участия:
-            // - 0-27: формат "team" (24 будут в командах, 4 без команды)
-            // - 28-29: формат "individual"
+            // - 0-43: формат "team" (36 будут в командах, 8 без команды)
+            // - 44-49: формат "individual"
             const participationFormat = i < (usersInTeams + teamFormatNoTeam) ? 'team' : 'individual';
 
             const user = await UserModel.create({

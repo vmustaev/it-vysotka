@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 import SearchableSelect from '../components/SearchableSelect';
+import SettingsService from '../services/SettingsService';
 import $api from '../http';
 
 const RegisterPage = observer(() => {
@@ -36,10 +37,33 @@ const RegisterPage = observer(() => {
     const [isLoadingRegions, setIsLoadingRegions] = useState(false);
     const [isLoadingCities, setIsLoadingCities] = useState(false);
     const [isLoadingSchools, setIsLoadingSchools] = useState(false);
+    const [registrationStatus, setRegistrationStatus] = useState({ isOpen: null });
 
     useEffect(() => {
-        loadRegions();
+        checkRegistrationStatus();
+        // Загружаем регионы только если регистрация открыта
     }, []);
+
+    useEffect(() => {
+        if (registrationStatus.isOpen === true) {
+            loadRegions();
+        }
+    }, [registrationStatus.isOpen]);
+
+    const checkRegistrationStatus = async () => {
+        try {
+            const response = await SettingsService.getRegistrationStatus();
+            setRegistrationStatus({
+                isOpen: response.data.data.isOpen,
+                registration_start: response.data.data.registration_start,
+                registration_end: response.data.data.registration_end
+            });
+        } catch (e) {
+            console.error('Error checking registration status:', e);
+            // В случае ошибки считаем регистрацию открытой
+            setRegistrationStatus({ isOpen: true });
+        }
+    };
 
     useEffect(() => {
         if (formData.region) {
@@ -279,6 +303,83 @@ const RegisterPage = observer(() => {
         return errors[fieldName] && errors[fieldName].length > 0;
     };
 
+    // Если статус еще не проверен, не показываем ничего
+    if (registrationStatus.isOpen === null) {
+        return null;
+    }
+
+    // Если регистрация закрыта, показываем отдельную страницу
+    if (!registrationStatus.isOpen) {
+        return (
+            <div className="page" style={{ 
+                minHeight: 'calc(100vh - 120px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 'var(--spacing-2xl) var(--spacing-lg)'
+            }}>
+                <div style={{ 
+                    width: '100%',
+                    maxWidth: '500px',
+                    textAlign: 'center'
+                }}>
+                    <h1 style={{ 
+                        fontSize: '2rem',
+                        marginBottom: 'var(--spacing-lg)',
+                        color: 'var(--text-primary)',
+                        fontWeight: '600',
+                        lineHeight: '1.2'
+                    }}>
+                        Регистрация закрыта
+                    </h1>
+                    
+                    <p style={{ 
+                        fontSize: '1.1rem',
+                        color: 'var(--text-secondary)',
+                        marginBottom: 'var(--spacing-xl)',
+                        lineHeight: '1.6'
+                    }}>
+                        Ждем вас в следующем году!
+                    </p>
+                    
+                    {registrationStatus.registration_end && (
+                        <div style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)',
+                            background: 'var(--bg-secondary)',
+                            borderRadius: 'var(--border-radius)',
+                            marginBottom: 'var(--spacing-xl)',
+                            display: 'inline-block',
+                            fontSize: '0.9rem',
+                            color: 'var(--text-secondary)'
+                        }}>
+                            Регистрация завершилась {new Date(registrationStatus.registration_end).toLocaleString('ru-RU', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </div>
+                    )}
+                    
+                    <div style={{ marginTop: 'var(--spacing-xl)' }}>
+                        <a 
+                            href="/login" 
+                            className="btn btn-primary"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/login');
+                            }}
+                        >
+                            Войти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Если регистрация открыта, показываем форму
     return (
         <div className="page">
             <div className="form-container">
