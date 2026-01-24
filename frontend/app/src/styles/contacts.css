@@ -1,81 +1,131 @@
 @import './variables.css';
 
-/* Сетка контактов */
+.page {
+    min-height: 100vh;
+    padding: 60px 40px;
+}
+
+.page-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.page-title {
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.page-subtitle {
+    font-size: 20px;
+    color: #475569;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.section {
+    margin-bottom: 80px;
+}
+
 .contacts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-    max-width: 1200px;
-    margin: 0 auto;
+    gap: 32px;
+    margin-bottom: 60px;
 }
 
-/* Карточка контакта */
 .contact-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    transition: all var(--transition-base);
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 40px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .contact-card:hover {
-    border-color: var(--primary-color);
-}
-
-.contact-header {
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
+    border-color: #0f172a;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.12);
 }
 
 .contact-header h3 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
 }
 
 .contact-body {
-    font-size: var(--font-size-base);
+    font-size: 18px;
+    line-height: 1.6;
 }
 
 .contact-body a {
-    color: var(--primary-color);
+    color: #0f172a;
     text-decoration: none;
-    line-height: var(--line-height-relaxed);
+    font-weight: 600;
+    transition: color 0.2s ease;
 }
 
 .contact-body a:hover {
-    text-decoration: underline;
+    color: #2563eb;
 }
 
-/* Карта */
 .map-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    border-radius: var(--border-radius-lg);
+    border-radius: 20px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e2e8f0;
 }
 
 .map-container iframe {
     display: block;
+    width: 100%;
+    height: 500px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
+    .page {
+        padding: 40px 24px;
+    }
+
+    .page-header {
+        margin-bottom: 60px;
+    }
+
+    .page-title {
+        font-size: 36px;
+    }
+
+    .page-subtitle {
+        font-size: 18px;
+    }
+
+    .section {
+        margin-bottom: 60px;
+    }
+
     .contacts-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .contact-card {
-        padding: var(--spacing-lg);
+        padding: 32px 24px;
     }
 
-    .map-container {
-        border-radius: var(--border-radius);
+    .map-container iframe {
+        height: 400px;
     }
 }
-

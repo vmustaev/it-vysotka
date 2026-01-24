@@ -143,6 +143,38 @@ class UserController {
             next(e);
         }
     }
+
+    async updateEssayUrl(req, res, next) {
+        try {
+            const userId = req.user.id; // Из authMiddleware
+            const { essayUrl } = req.body;
+            
+            if (essayUrl === undefined || essayUrl === null) {
+                return next(ApiError.BadRequest('Ссылка на эссе не указана'));
+            }
+            
+            const result = await userService.updateEssayUrl(userId, essayUrl);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async setUserResult(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const { place, certificateUrl } = req.body;
+            
+            if (!userId) {
+                return next(ApiError.BadRequest('ID пользователя не указан'));
+            }
+            
+            const result = await userService.setUserResult(parseInt(userId), place, certificateUrl);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new UserController();

@@ -1,23 +1,25 @@
 @import './variables.css';
 
-/* Страница профиля - фиксируем минимальную высоту, чтобы избежать дергания скроллбара */
+/* Страница профиля */
 .page.profile-page {
-  min-height: calc(100vh - var(--navbar-height) - var(--spacing-2xl) * 2);
+  min-height: 100vh;
+  padding: 60px 40px;
 }
 
 /* Карточка информации о профиле */
 .profile-info-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: var(--shadow);
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.08);
 }
 
 .profile-row {
     display: flex;
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid var(--border-color);
+    padding: 20px 0;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 20px;
 }
 
 .profile-row:last-child {
@@ -25,14 +27,17 @@
 }
 
 .profile-label {
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-secondary);
-    min-width: 150px;
+    font-weight: 600;
+    color: #64748b;
+    min-width: 160px;
+    font-size: 15px;
 }
 
 .profile-value {
-    color: var(--text-primary);
+    color: #0f172a;
     flex: 1;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 /* Бейдж администратора */
@@ -40,12 +45,12 @@
     display: inline-block;
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--border-radius);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.05em;
 }
 
 /* Section Header */
@@ -292,6 +297,89 @@
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* Results Section - Бейдж места */
+.place-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Пустое состояние результатов */
+.results-empty {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.results-empty-icon {
+    color: var(--text-tertiary);
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.5;
+}
+
+.results-empty-text {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Ссылка на сертификат */
+.certificate-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-base);
+}
+
+.certificate-link:hover {
+    color: var(--primary-hover);
+    gap: 12px;
+}
+
+.certificate-link svg {
+    flex-shrink: 0;
+}
+
+/* Ссылка на эссе */
+.essay-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    word-break: break-all;
+    transition: color var(--transition-base);
+}
+
+.essay-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Пустое значение */
+.empty-value {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+/* Форма редактирования эссе */
+.essay-edit-form {
+    padding: var(--spacing-md) 0;
+}
+
+.essay-edit-form .form-group {
+    margin-bottom: 0;
 }
 
 /* Адаптивность */

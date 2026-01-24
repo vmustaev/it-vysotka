@@ -17,6 +17,8 @@ const Profile = () => {
     const [teamName, setTeamName] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
+    const [essayUrl, setEssayUrl] = useState('');
+    const [isEditingEssay, setIsEditingEssay] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -53,6 +55,13 @@ const Profile = () => {
             loadProfile();
         }
     }, [store.isAuth]);
+
+    // Инициализация essayUrl при загрузке профиля
+    useEffect(() => {
+        if (profile && profile.essayUrl) {
+            setEssayUrl(profile.essayUrl);
+        }
+    }, [profile]);
 
     const loadProfile = async () => {
         try {
@@ -290,6 +299,49 @@ const Profile = () => {
         setNotification({ type: 'success', message: 'Ссылка скопирована в буфер обмена!' });
     };
 
+    const handleSaveEssay = () => {
+        const trimmedUrl = essayUrl.trim();
+        
+        // Если поле пустое, разрешаем сохранить (удалить ссылку)
+        if (!trimmedUrl) {
+            executeAction(
+                () => UserService.updateEssayUrl(''),
+                { 
+                    reloadProfile: true,
+                    onSuccess: () => {
+                        setIsEditingEssay(false);
+                        setEssayUrl('');
+                    }
+                }
+            );
+            return;
+        }
+
+        // Проверка на валидный URL
+        try {
+            new URL(trimmedUrl);
+        } catch (e) {
+            setNotification({ type: 'error', message: 'Введите корректную ссылку' });
+            return;
+        }
+
+        executeAction(
+            () => UserService.updateEssayUrl(trimmedUrl),
+            { 
+                reloadProfile: true,
+                onSuccess: () => {
+                    setIsEditingEssay(false);
+                }
+            }
+        );
+    };
+
+    const handleCancelEssay = () => {
+        setEssayUrl(profile.essayUrl || '');
+        setIsEditingEssay(false);
+        setNotification({ type: null, message: '' });
+    };
+
     if (loading) {
         return (
             <div className="page profile-page">
@@ -390,6 +442,152 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Results Section - всегда показываем */}
+                <div className="section">
+                    <h2 className="section-title">Результаты</h2>
+                    <div className="profile-info-card">
+                        {profile.place || profile.certificateUrl ? (
+                            <>
+                                {profile.place && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Место:</span>
+                                        <span className="profile-value">
+                                            <span className="place-badge">{profile.place}</span>
+                                        </span>
+                                    </div>
+                                )}
+                                {profile.certificateUrl && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Сертификат:</span>
+                                        <span className="profile-value">
+                                            <a 
+                                                href={profile.certificateUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="certificate-link"
+                                            >
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                                    <polyline points="10 9 9 9 8 9"/>
+                                                </svg>
+                                                Скачать сертификат
+                                            </a>
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="results-empty">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="results-empty-icon">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                </svg>
+                                <p className="results-empty-text">Результаты будут доступны после завершения чемпионата</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
+                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
+                    <div className="section">
+                        <div className="section-header">
+                            <h2 className="section-title">Эссе</h2>
+                            {!isEditingEssay && (
+                                <button
+                                    className="btn btn-secondary btn-sm btn-with-icon"
+                                    onClick={() => setIsEditingEssay(true)}
+                                    disabled={actionLoading}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    {profile.essayUrl ? 'Изменить' : 'Добавить'}
+                                </button>
+                            )}
+                        </div>
+                        
+                        <div className="profile-info-card">
+                            {!isEditingEssay ? (
+                                <div className="profile-row">
+                                    <span className="profile-label">Ссылка на эссе:</span>
+                                    <span className="profile-value">
+                                        {profile.essayUrl ? (
+                                            <a 
+                                                href={profile.essayUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="essay-link"
+                                            >
+                                                {profile.essayUrl}
+                                            </a>
+                                        ) : (
+                                            <span className="empty-value">Не указано</span>
+                                        )}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="essay-edit-form">
+                                    <div className="form-group">
+                                        <label className="form-label">Ссылка на эссе</label>
+                                        <input
+                                            type="url"
+                                            className="form-input"
+                                            value={essayUrl}
+                                            onChange={(e) => setEssayUrl(e.target.value)}
+                                            placeholder="https://..."
+                                            disabled={actionLoading}
+                                            autoFocus
+                                        />
+                                        <small className="form-hint">
+                                            Вставьте ссылку на ваше эссе. Убедитесь, что доступ открыт для просмотра.
+                                        </small>
+                                    </div>
+                                    <div className="form-actions">
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary btn-with-icon"
+                                            onClick={handleSaveEssay}
+                                            disabled={actionLoading}
+                                        >
+                                            {actionLoading ? (
+                                                <>
+                                                    <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                                    </svg>
+                                                    Сохранение...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <polyline points="20 6 9 17 4 12"/>
+                                                    </svg>
+                                                    Сохранить
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline btn-with-icon"
+                                            onClick={handleCancelEssay}
+                                            disabled={actionLoading}
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                            Отмена
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Team Section - показываем только для командного формата */}
                 {profile.participation_format === 'team' && (

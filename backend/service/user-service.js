@@ -301,7 +301,10 @@ class UserService {
             teamId: user.teamId, // Оставляем для оптимизации (понять, нужно ли запрашивать команду)
             isActivated: user.isActivated,
             participation_format: user.participation_format,
-            role: user.role
+            role: user.role,
+            place: user.place,
+            certificateUrl: user.certificateUrl,
+            essayUrl: user.essayUrl
         };
     }
 
@@ -358,6 +361,64 @@ class UserService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    async updateEssayUrl(userId, essayUrl) {
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        // Проверка: только для индивидуальных участников или лидеров команды
+        if (user.participation_format === 'individual') {
+            // Индивидуальный участник - разрешено
+            user.essayUrl = essayUrl;
+            await user.save();
+            
+            return {
+                success: true,
+                message: 'Ссылка на эссе успешно обновлена'
+            };
+        } else if (user.participation_format === 'team') {
+            // Командный формат - проверяем, является ли лидером
+            if (!user.isLead) {
+                throw ApiError.BadRequest('Только лидер команды может загружать эссе');
+            }
+            
+            user.essayUrl = essayUrl;
+            await user.save();
+            
+            return {
+                success: true,
+                message: 'Ссылка на эссе успешно обновлена'
+            };
+        }
+
+        throw ApiError.BadRequest('Не удалось обновить ссылку на эссе');
+    }
+
+    async setUserResult(userId, place, certificateUrl) {
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        if (place !== null && place !== undefined) {
+            user.place = place;
+        }
+
+        if (certificateUrl !== null && certificateUrl !== undefined) {
+            user.certificateUrl = certificateUrl;
+        }
+
+        await user.save();
+
+        return {
+            success: true,
+            message: 'Результаты успешно обновлены'
+        };
     }
 }
 

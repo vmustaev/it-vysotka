@@ -24,6 +24,7 @@ router.post('/refresh', userController.refresh);
 router.get('/users', authMiddleware, userController.getUsers);
 router.get('/user/profile', authMiddleware, userController.getProfile);
 router.put('/user/participation-format', authMiddleware, userController.updateParticipationFormat);
+router.put('/user/essay-url', authMiddleware, userController.updateEssayUrl);
 
 router.post('/password/reset/request', passwordResetRequestValidation, validationMiddleware, passwordResetController.requestReset);
 router.post('/password/reset', passwordResetValidation, validationMiddleware, passwordResetController.resetPassword);
@@ -72,6 +73,9 @@ router.post('/admin/seating/remove', authMiddleware, adminMiddleware, seatingCon
 // Admin routes - Settings
 router.get('/admin/settings', authMiddleware, adminMiddleware, settingsController.getSettings);
 router.put('/admin/settings', authMiddleware, adminMiddleware, settingsController.updateSettings);
+
+// Admin routes - User results
+router.put('/admin/users/:userId/result', authMiddleware, adminMiddleware, userController.setUserResult);
 
 // Public routes - Settings
 router.get('/settings/registration-status', settingsController.getRegistrationStatus);

@@ -12,4 +12,8 @@ export default class UserService {
     static updateParticipationFormat(format) {
         return $api.put('/user/participation-format', { participation_format: format })
     }
+
+    static updateEssayUrl(essayUrl) {
+        return $api.put('/user/essay-url', { essayUrl })
+    }
 }

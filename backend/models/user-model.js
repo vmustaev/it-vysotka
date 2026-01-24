@@ -81,6 +81,21 @@ const UserSchema = sequelize.define('User', {
         type: DataTypes.ENUM('individual', 'team'),
         allowNull: false,
         defaultValue: 'individual'
+    },
+    place: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    },
+    certificateUrl: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: null
+    },
+    essayUrl: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: null
     }
 }, { timestamps: false });
 

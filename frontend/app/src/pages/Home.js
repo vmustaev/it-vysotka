@@ -4,7 +4,6 @@ import SettingsService from '../services/SettingsService';
 import '../styles/home.css';
 
 const Home = () => {
-    const [openInfo, setOpenInfo] = useState(null);
     const [registrationOpen, setRegistrationOpen] = useState(false);
     const [registrationData, setRegistrationData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -24,10 +23,6 @@ const Home = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const toggleInfo = (index) => {
-        setOpenInfo(openInfo === index ? null : index);
     };
 
     const infoData = [
@@ -58,124 +53,115 @@ const Home = () => {
     }
 
     return (
-        <div className="page">
-            <div className="page-content">
-                <div className="hero-section">
-                    <h1 className="hero-title">Чемпионат по программированию для школьников "IT-ВыСотка"</h1>
+        <div className="home-page">
+            <div className="hero-wrapper">
+                <div className="hero-content">
+                    <div className="hero-badge">Чемпионат по программированию</div>
+                    <h1 className="hero-title">IT-ВыСотка</h1>
                     
-                    {registrationOpen ? (
-                        <>
-                            <p className="hero-subtitle">
-                                Приглашаем школьников 9-11 классов принять участие в командном чемпионате по программированию.
-                                <br />
-                                Покажите свои навыки и получите шанс выиграть ценные призы + дополнительные баллы для поступления в УГНТУ!
-                            </p>
-                            
-                            <div style={{ 
-                                marginTop: 'var(--spacing-xl)', 
-                                marginBottom: 'var(--spacing-xl)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 'var(--spacing-sm)',
-                                fontSize: 'var(--font-size-lg)',
-                                color: 'var(--text-secondary)'
-                            }}>
-                                {registrationData?.championship_datetime && (
-                                    <>
-                                        <div><strong>Дата:</strong> {new Date(registrationData.championship_datetime).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                                        <div><strong>Время начала соревнований:</strong> {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div>
-                                    </>
-                                )}
-                                <div><strong>Место:</strong> г. Уфа, ул. Космонавтов, 1</div>
-                                {registrationData?.registration_start && registrationData?.registration_end && (
-                                    <div>
-                                        <strong>Период регистрации:</strong> с{' '}
-                                        {new Date(registrationData.registration_start).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
-                                        по{' '}
-                                        {new Date(registrationData.registration_end).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                    </div>
-                                )}
+                    {registrationOpen && registrationData?.championship_datetime && (
+                        <div className="hero-event-info">
+                            <div className="event-info-item">
+                                <span className="event-info-label">Дата и время</span>
+                                <span className="event-info-value">
+                                    {new Date(registrationData.championship_datetime).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })} 
+                                    {' в '} 
+                                    {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                             </div>
+                            <div className="event-info-item">
+                                <span className="event-info-label">Место проведения</span>
+                                <span className="event-info-value">г. Уфа, ул. Космонавтов, 1 (УГНТУ)</span>
+                            </div>
+                        </div>
+                    )}
 
-                            <div className="hero-actions">
-                                <Link to="/register" className="btn btn-primary btn-lg">
-                                    Зарегистрироваться
-                                </Link>
-                            </div>
-                        </>
+                    <p className="hero-description">
+                        Командный чемпионат по программированию для школьников 9-11 классов. 
+                        Проверьте свои навыки в решении алгоритмических задач и получите дополнительные баллы при поступлении в УГНТУ.
+                    </p>
+
+                    {registrationOpen ? (
+                        <Link to="/register" className="hero-cta">
+                            Зарегистрироваться на чемпионат
+                            <span className="cta-arrow">→</span>
+                        </Link>
                     ) : (
                         <>
-                            <p className="hero-subtitle">Чемпионат завершился! Ознакомьтесь с результатами и поздравьте победителей!</p>
-                            <div className="hero-actions">
-                                <Link to="/results" className="btn btn-primary btn-lg">
-                                    Посмотреть результаты
-                                </Link>
-                            </div>
+                            <p className="hero-closed">Чемпионат завершён. Ознакомьтесь с результатами!</p>
+                            <Link to="/results" className="hero-cta">
+                                Посмотреть результаты
+                                <span className="cta-arrow">→</span>
+                            </Link>
                         </>
                     )}
                 </div>
+            </div>
 
-                <div className="section">
-                    <h2 className="section-title">Информация о чемпионате</h2>
-                    <div className="info-accordion">
+            <div className="content-wrapper">
+                <section className="info-section">
+                    <div className="info-grid">
                         {infoData.map((item, index) => (
-                            <div key={index} className="info-card">
-                                <div 
-                                    className="info-header" 
-                                    onClick={() => toggleInfo(index)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyPress={(e) => e.key === 'Enter' && toggleInfo(index)}
-                                >
-                                    <h3>{item.title}</h3>
-                                    <span className={`info-icon ${openInfo === index ? 'open' : ''}`}>
-                                        {openInfo === index ? '−' : '+'}
-                                    </span>
-                                </div>
-                                {openInfo === index && (
-                                    <div className="info-body">
-                                        <p>{item.content}</p>
-                                    </div>
-                                )}
+                            <div key={index} className="info-item">
+                                <div className="info-label">{item.title}</div>
+                                <div className="info-value">{item.content}</div>
                             </div>
                         ))}
+                        {registrationData?.championship_datetime && (
+                            <>
+                                <div className="info-item">
+                                    <div className="info-label">Время начала</div>
+                                    <div className="info-value">
+                                        {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                                <div className="info-item">
+                                    <div className="info-label">Место проведения</div>
+                                    <div className="info-value">г. Уфа, ул. Космонавтов, 1</div>
+                                </div>
+                            </>
+                        )}
                     </div>
-                </div>
+                </section>
 
-                <div className="section">
-                    <h2 className="section-title">Преимущества участия</h2>
-                    <div className="benefits-grid">
-                        <div className="benefit-card">
-                            <h3>Победители</h3>
-                            <p>+10 баллов к сумме ЕГЭ</p>
+                <section className="benefits-section">
+                    <h2 className="section-heading">Что вы получите</h2>
+                    <div className="benefits-container">
+                        <div className="benefit-item">
+                            <div className="benefit-icon benefit-icon-gold">+10</div>
+                            <h3 className="benefit-title">Победители</h3>
+                            <p className="benefit-text">Дополнительные 10 баллов к сумме ЕГЭ при поступлении в УГНТУ</p>
                         </div>
-                        <div className="benefit-card">
-                            <h3>Призёры</h3>
-                            <p>+7 баллов к сумме ЕГЭ</p>
+                        <div className="benefit-item">
+                            <div className="benefit-icon benefit-icon-silver">+7</div>
+                            <h3 className="benefit-title">Призёры</h3>
+                            <p className="benefit-text">Дополнительные 7 баллов к сумме ЕГЭ при поступлении в УГНТУ</p>
                         </div>
-                        <div className="benefit-card">
-                            <h3>Сертификаты</h3>
-                            <p>Все участники получат сертификаты</p>
+                        <div className="benefit-item">
+                            <div className="benefit-icon benefit-icon-cert">✓</div>
+                            <h3 className="benefit-title">Сертификаты</h3>
+                            <p className="benefit-text">Все участники получают именные сертификаты об участии</p>
                         </div>
-                        <div className="benefit-card">
-                            <h3>Призы</h3>
-                            <p>Ценные призы от спонсоров</p>
+                        <div className="benefit-item">
+                            <div className="benefit-icon benefit-icon-prize">★</div>
+                            <h3 className="benefit-title">Призы</h3>
+                            <p className="benefit-text">Ценные призы и подарки от партнёров чемпионата</p>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div className="section">
-                    <h2 className="section-title">Партнёры</h2>
-                    <div className="sponsors-grid">
-                        <img src="/files/redsoft.png" alt="Редсофт" />
-                        <img src="/files/burintech.jpg" alt="Буринтех" />
-                        <img src="/files/банер гк бит ПНг.png" alt="ГК Бит" />
-                        <img src="/files/роснефть.jpg" alt="Роснефть" />
-                        <img src="/files/транснефть.png" alt="Транснефть" />
-                        <img src="/files/petrotest.png" alt="Башнефть" />
-                        <img src="/files/kuraisoft.jpg" alt="Курайсофт" />
+                <section className="sponsors-section">
+                    <h2 className="section-heading">Партнёры чемпионата</h2>
+                    <div className="sponsors-container">
+                        <div className="sponsor-item"><img src="/files/redsoft.png" alt="Редсофт" /></div>
+                        <div className="sponsor-item"><img src="/files/burintech.jpg" alt="Буринтех" /></div>
+                        <div className="sponsor-item"><img src="/files/банер гк бит ПНг.png" alt="ГК Бит" /></div>
+                        <div className="sponsor-item"><img src="/files/роснефть.jpg" alt="Роснефть" /></div>
+                        <div className="sponsor-item"><img src="/files/транснефть.png" alt="Транснефть" /></div>
+                        <div className="sponsor-item"><img src="/files/petrotest.png" alt="Башнефть" /></div>
+                        <div className="sponsor-item"><img src="/files/kuraisoft.jpg" alt="Курайсофт" /></div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
     );
