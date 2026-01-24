@@ -4,6 +4,7 @@ import Toast from '../../components/Toast';
 
 const Settings = () => {
     const [settings, setSettings] = useState({
+        registration_enabled: true,
         registration_start: '',
         registration_end: ''
     });
@@ -38,6 +39,7 @@ const Settings = () => {
             };
             
             setSettings({
+                registration_enabled: data.registration_enabled !== 'false',
                 registration_start: formatDateForInput(data.registration_start),
                 registration_end: formatDateForInput(data.registration_end)
             });
@@ -51,12 +53,40 @@ const Settings = () => {
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = async (e) => {
+        const { name, value, type, checked } = e.target;
+        const newValue = type === 'checkbox' ? checked : value;
+        
         setSettings(prev => ({
             ...prev,
-            [name]: value
+            [name]: newValue
         }));
+
+        // Если изменили переключатель регистрации, сохраняем сразу
+        if (name === 'registration_enabled') {
+            try {
+                await SettingsService.updateSettings({
+                    registration_enabled: newValue,
+                    registration_start: settings.registration_start ? (() => {
+                        const date = new Date(settings.registration_start);
+                        return date.toISOString();
+                    })() : null,
+                    registration_end: settings.registration_end ? (() => {
+                        const date = new Date(settings.registration_end);
+                        return date.toISOString();
+                    })() : null
+                });
+                setNotification({ 
+                    type: 'success', 
+                    message: 'Настройки успешно сохранены' 
+                });
+            } catch (e) {
+                setNotification({ 
+                    type: 'error', 
+                    message: e.response?.data?.message || 'Ошибка сохранения настроек' 
+                });
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -97,6 +127,7 @@ const Settings = () => {
             };
 
             const dataToSend = {
+                registration_enabled: settings.registration_enabled,
                 registration_start: convertToISO(settings.registration_start),
                 registration_end: convertToISO(settings.registration_end)
             };
@@ -118,13 +149,19 @@ const Settings = () => {
     };
 
     const handleClear = () => {
-        setSettings({
+        setSettings(prev => ({
+            ...prev,
             registration_start: '',
             registration_end: ''
-        });
+        }));
     };
 
     const getRegistrationStatus = () => {
+        // Если регистрация отключена вручную
+        if (!settings.registration_enabled) {
+            return { status: 'closed', text: 'Регистрация отключена вручную' };
+        }
+
         if (!settings.registration_start && !settings.registration_end) {
             return { status: 'open', text: 'Регистрация открыта (даты не установлены)' };
         }
@@ -211,6 +248,36 @@ const Settings = () => {
                             </div>
 
                             <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label className="form-checkbox" style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: 'var(--spacing-md)',
+                                        padding: 'var(--spacing-md)',
+                                        background: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--border-radius-lg)',
+                                        marginBottom: 'var(--spacing-lg)'
+                                    }}>
+                                        <input
+                                            type="checkbox"
+                                            name="registration_enabled"
+                                            checked={settings.registration_enabled}
+                                            onChange={handleChange}
+                                            className="form-checkbox-input"
+                                        />
+                                        <span className="form-checkbox-label" style={{ 
+                                            fontSize: 'var(--font-size-base)',
+                                            fontWeight: 'var(--font-weight-medium)',
+                                            color: 'var(--text-primary)'
+                                        }}>
+                                            Регистрация включена
+                                        </span>
+                                    </label>
+                                    <p className="form-hint" style={{ marginTop: 'var(--spacing-xs)' }}>
+                                        Выключите, чтобы закрыть регистрацию независимо от дат
+                                    </p>
+                                </div>
+
                                 <div className="form-group">
                                     <label className="form-label">
                                         Дата и время начала регистрации

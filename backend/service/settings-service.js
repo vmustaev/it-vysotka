@@ -20,6 +20,9 @@ class SettingsService {
         if (!settingsObj.registration_end) {
             settingsObj.registration_end = null;
         }
+        if (!settingsObj.registration_enabled) {
+            settingsObj.registration_enabled = 'true'; // По умолчанию включена
+        }
 
         return settingsObj;
     }
@@ -28,7 +31,7 @@ class SettingsService {
      * Обновить настройки
      */
     async updateSettings(settingsData) {
-        const { registration_start, registration_end } = settingsData;
+        const { registration_start, registration_end, registration_enabled } = settingsData;
 
         // Валидация дат
         if (registration_start && registration_end) {
@@ -41,6 +44,13 @@ class SettingsService {
         }
 
         // Обновляем или создаем настройки
+        if (registration_enabled !== undefined) {
+            await SettingsModel.upsert({
+                key: 'registration_enabled',
+                value: registration_enabled ? 'true' : 'false'
+            });
+        }
+
         if (registration_start !== undefined) {
             await SettingsModel.upsert({
                 key: 'registration_start',
@@ -63,9 +73,15 @@ class SettingsService {
      */
     async isRegistrationOpen() {
         const settings = await this.getSettings();
+        
+        // Если регистрация отключена вручную, она закрыта
+        if (settings.registration_enabled === 'false') {
+            return false;
+        }
+        
         const now = new Date();
         
-        // Если даты не установлены, регистрация открыта
+        // Если даты не установлены, регистрация открыта (если включена)
         if (!settings.registration_start && !settings.registration_end) {
             return true;
         }

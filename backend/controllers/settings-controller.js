@@ -22,11 +22,12 @@ class SettingsController {
      */
     async updateSettings(req, res, next) {
         try {
-            const { registration_start, registration_end } = req.body;
+            const { registration_start, registration_end, registration_enabled } = req.body;
 
             const settings = await settingsService.updateSettings({
                 registration_start,
-                registration_end
+                registration_end,
+                registration_enabled
             });
 
             return res.json({
