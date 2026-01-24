@@ -215,7 +215,6 @@ const Participants = () => {
                         <div className="admin-stat-content">
                             <div className="admin-stat-label">Команды</div>
                             <div className="admin-stat-value">{stats.totalTeams}</div>
-                            <div className="admin-stat-description">Создано команд</div>
                         </div>
                     </div>
 
@@ -253,7 +252,7 @@ const Participants = () => {
                     className={`tab-button ${activeTab === 'teams' ? 'active' : ''}`}
                     onClick={() => setActiveTab('teams')}
                 >
-                    Команды ({teams.length})
+                    Команды
                 </button>
             </div>
 
@@ -280,17 +279,6 @@ const Participants = () => {
                     {[...Array(11)].map((_, i) => (
                         <option key={i} value={i + 1}>{i + 1} класс</option>
                     ))}
-                </select>
-
-                <select
-                    value={filters.programming_language}
-                    onChange={(e) => handleFilterChange('programming_language', e.target.value)}
-                    className="form-select"
-                >
-                    <option value="">Все языки</option>
-                    <option value="C++">C++</option>
-                    <option value="Python">Python</option>
-                    <option value="Java">Java</option>
                 </select>
 
                 <select
@@ -353,9 +341,6 @@ const Participants = () => {
                         <table className="participants-table">
                             <thead>
                                 <tr>
-                                    <th onClick={() => handleSort('id')}>
-                                        № {filters.sortBy === 'id' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
-                                    </th>
                                     <th onClick={() => handleSort('last_name')}>
                                         ФИО {filters.sortBy === 'last_name' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
@@ -375,7 +360,6 @@ const Participants = () => {
                             <tbody>
                                 {participants.map((participant) => (
                                     <tr key={participant.id}>
-                                        <td>{participant.id}</td>
                                         <td>
                                             <div className="participant-name">
                                                 {participant.last_name} {participant.first_name}
@@ -520,23 +504,17 @@ const Participants = () => {
                                                             <tr className="team-members-row">
                                                                 <td colSpan="5">
                                                                     <div className="team-members-expanded">
-                                                                        <div className="team-members-header">
-                                                                            <h4>Участники команды</h4>
-                                                                        </div>
                                                                         <div className="team-members-grid">
-                                                                            {team.members.map((member, index) => (
+                                                                            {team.members.map((member) => (
                                                                                 <div key={member.id} className={`team-member-card ${member.isLead ? 'team-member-lead' : ''}`}>
-                                                                                    <div className="team-member-card-header">
-                                                                                        <div className="team-member-number">
-                                                                                            {index + 1}
-                                                                                        </div>
-                                                                                        {member.isLead && (
-                                                                                            <span className="badge badge-lead">Лидер</span>
-                                                                                        )}
-                                                                                    </div>
                                                                                     <div className="team-member-card-body">
                                                                                         <div className="team-member-card-name">
-                                                                                            {member.last_name} {member.first_name} {member.second_name || ''}
+                                                                                            <span>
+                                                                                                {member.last_name} {member.first_name}
+                                                                                            </span>
+                                                                                            {member.isLead && (
+                                                                                                <span className="badge badge-lead" style={{ marginLeft: 'var(--spacing-sm)' }}>Лидер</span>
+                                                                                            )}
                                                                                         </div>
                                                                                         <div className="team-member-card-info">
                                                                                             <div className="team-member-card-detail">

@@ -342,26 +342,6 @@ const RegisterPage = observer(() => {
                         Ждем вас в следующем году!
                     </p>
                     
-                    {registrationStatus.registration_end && (
-                        <div style={{ 
-                            padding: 'var(--spacing-sm) var(--spacing-md)',
-                            background: 'var(--bg-secondary)',
-                            borderRadius: 'var(--border-radius)',
-                            marginBottom: 'var(--spacing-xl)',
-                            display: 'inline-block',
-                            fontSize: '0.9rem',
-                            color: 'var(--text-secondary)'
-                        }}>
-                            Регистрация завершилась {new Date(registrationStatus.registration_end).toLocaleString('ru-RU', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
-                        </div>
-                    )}
-                    
                     <div style={{ marginTop: 'var(--spacing-xl)' }}>
                         <a 
                             href="/login" 

@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/api', router);
 app.use(errorMiddleware);
 

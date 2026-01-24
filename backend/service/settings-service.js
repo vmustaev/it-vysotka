@@ -20,8 +20,8 @@ class SettingsService {
         if (!settingsObj.registration_end) {
             settingsObj.registration_end = null;
         }
-        if (!settingsObj.registration_enabled) {
-            settingsObj.registration_enabled = 'true'; // По умолчанию включена
+        if (!settingsObj.championship_datetime) {
+            settingsObj.championship_datetime = null;
         }
 
         return settingsObj;
@@ -31,26 +31,16 @@ class SettingsService {
      * Обновить настройки
      */
     async updateSettings(settingsData) {
-        const { registration_start, registration_end, registration_enabled } = settingsData;
+        const { registration_start, registration_end, championship_datetime } = settingsData;
 
-        // Валидация дат
+        // Валидация дат регистрации
         if (registration_start && registration_end) {
-            const startDate = new Date(registration_start);
-            const endDate = new Date(registration_end);
-            
-            if (startDate >= endDate) {
+            if (registration_start >= registration_end) {
                 throw ApiError.BadRequest('Дата начала регистрации должна быть раньше даты окончания');
             }
         }
 
         // Обновляем или создаем настройки
-        if (registration_enabled !== undefined) {
-            await SettingsModel.upsert({
-                key: 'registration_enabled',
-                value: registration_enabled ? 'true' : 'false'
-            });
-        }
-
         if (registration_start !== undefined) {
             await SettingsModel.upsert({
                 key: 'registration_start',
@@ -65,6 +55,13 @@ class SettingsService {
             });
         }
 
+        if (championship_datetime !== undefined) {
+            await SettingsModel.upsert({
+                key: 'championship_datetime',
+                value: championship_datetime || null
+            });
+        }
+
         return await this.getSettings();
     }
 
@@ -74,41 +71,27 @@ class SettingsService {
     async isRegistrationOpen() {
         const settings = await this.getSettings();
         
-        // Если регистрация отключена вручную, она закрыта
-        if (settings.registration_enabled === 'false') {
-            return false;
-        }
-        
         const now = new Date();
         
-        // Если даты не установлены, регистрация открыта (если включена)
-        if (!settings.registration_start && !settings.registration_end) {
-            return true;
+        // Если даты не установлены, регистрация закрыта
+        if (!settings.registration_start || !settings.registration_end) {
+            return false;
         }
 
         // Проверяем дату начала
-        if (settings.registration_start) {
-            const startDate = new Date(settings.registration_start);
-            // Сравниваем в UTC, чтобы избежать проблем с часовыми поясами
-            const nowUTC = Date.now();
-            const startUTC = startDate.getTime();
-            if (nowUTC < startUTC) {
-                return false; // Регистрация еще не началась
-            }
+        const startDate = new Date(settings.registration_start);
+        const nowUTC = Date.now();
+        const startUTC = startDate.getTime();
+        if (nowUTC < startUTC) {
+            return false; // Регистрация еще не началась
         }
 
         // Проверяем дату окончания
-        if (settings.registration_end) {
-            const endDate = new Date(settings.registration_end);
-            // endDate уже в UTC (из ISO строки)
-            // Используем именно то время, которое ввел пользователь
-            // Не устанавливаем конец дня, так как пользователь указал конкретное время
-            const nowUTC = Date.now();
-            const endUTC = endDate.getTime();
-            
-            if (nowUTC > endUTC) {
-                return false; // Регистрация уже закончилась
-            }
+        const endDate = new Date(settings.registration_end);
+        const endUTC = endDate.getTime();
+        
+        if (nowUTC > endUTC) {
+            return false; // Регистрация уже закончилась
         }
 
         return true;

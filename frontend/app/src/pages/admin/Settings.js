@@ -4,9 +4,9 @@ import Toast from '../../components/Toast';
 
 const Settings = () => {
     const [settings, setSettings] = useState({
-        registration_enabled: true,
         registration_start: '',
-        registration_end: ''
+        registration_end: '',
+        championship_datetime: ''
     });
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -22,14 +22,18 @@ const Settings = () => {
             const response = await SettingsService.getSettings();
             const data = response.data.data;
             
-            // Преобразуем даты из ISO формата (UTC) в формат для input[type="datetime-local"]
-            // datetime-local работает с локальным временем браузера
             const formatDateForInput = (dateString) => {
                 if (!dateString) return '';
-                // dateString приходит в UTC (ISO формат)
                 const date = new Date(dateString);
-                // getFullYear, getMonth и т.д. возвращают значения в локальном времени браузера
-                // Это правильно, так как datetime-local работает с локальным временем
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const formatDateTimeForInput = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -39,9 +43,9 @@ const Settings = () => {
             };
             
             setSettings({
-                registration_enabled: data.registration_enabled !== 'false',
                 registration_start: formatDateForInput(data.registration_start),
-                registration_end: formatDateForInput(data.registration_end)
+                registration_end: formatDateForInput(data.registration_end),
+                championship_datetime: formatDateTimeForInput(data.championship_datetime)
             });
         } catch (e) {
             setNotification({ 
@@ -53,40 +57,13 @@ const Settings = () => {
         }
     };
 
-    const handleChange = async (e) => {
-        const { name, value, type, checked } = e.target;
-        const newValue = type === 'checkbox' ? checked : value;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
         
         setSettings(prev => ({
             ...prev,
-            [name]: newValue
+            [name]: value
         }));
-
-        // Если изменили переключатель регистрации, сохраняем сразу
-        if (name === 'registration_enabled') {
-            try {
-                await SettingsService.updateSettings({
-                    registration_enabled: newValue,
-                    registration_start: settings.registration_start ? (() => {
-                        const date = new Date(settings.registration_start);
-                        return date.toISOString();
-                    })() : null,
-                    registration_end: settings.registration_end ? (() => {
-                        const date = new Date(settings.registration_end);
-                        return date.toISOString();
-                    })() : null
-                });
-                setNotification({ 
-                    type: 'success', 
-                    message: 'Настройки успешно сохранены' 
-                });
-            } catch (e) {
-                setNotification({ 
-                    type: 'error', 
-                    message: e.response?.data?.message || 'Ошибка сохранения настроек' 
-                });
-            }
-        }
     };
 
     const handleSubmit = async (e) => {
@@ -127,9 +104,9 @@ const Settings = () => {
             };
 
             const dataToSend = {
-                registration_enabled: settings.registration_enabled,
-                registration_start: convertToISO(settings.registration_start),
-                registration_end: convertToISO(settings.registration_end)
+                registration_start: settings.registration_start || null,
+                registration_end: settings.registration_end || null,
+                championship_datetime: convertToISO(settings.championship_datetime)
             };
 
             await SettingsService.updateSettings(dataToSend);
@@ -152,39 +129,32 @@ const Settings = () => {
         setSettings(prev => ({
             ...prev,
             registration_start: '',
-            registration_end: ''
+            registration_end: '',
+            championship_datetime: ''
         }));
     };
 
     const getRegistrationStatus = () => {
-        // Если регистрация отключена вручную
-        if (!settings.registration_enabled) {
-            return { status: 'closed', text: 'Регистрация отключена вручную' };
-        }
-
-        if (!settings.registration_start && !settings.registration_end) {
-            return { status: 'open', text: 'Регистрация открыта (даты не установлены)' };
+        if (!settings.registration_start || !settings.registration_end) {
+            return { status: 'closed', text: 'Регистрация закрыта (даты не установлены)' };
         }
 
         const now = new Date();
-        const startDate = settings.registration_start ? new Date(settings.registration_start) : null;
-        const endDate = settings.registration_end ? new Date(settings.registration_end) : null;
+        const startDate = new Date(settings.registration_start);
+        const endDate = new Date(settings.registration_end);
 
-        if (startDate && now < startDate) {
+        if (now < startDate) {
             return { 
                 status: 'not_started', 
                 text: `Регистрация начнется ${startDate.toLocaleString('ru-RU')}` 
             };
         }
 
-        if (endDate) {
-            // Используем именно то время, которое ввел пользователь
-            if (now > endDate) {
-                return { 
-                    status: 'closed', 
-                    text: `Регистрация закрыта (закончилась ${endDate.toLocaleString('ru-RU')})` 
-                };
-            }
+        if (now > endDate) {
+            return { 
+                status: 'closed', 
+                text: `Регистрация закрыта (закончилась ${endDate.toLocaleString('ru-RU')})` 
+            };
         }
 
         return { status: 'open', text: 'Регистрация открыта' };
@@ -249,67 +219,47 @@ const Settings = () => {
 
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group">
-                                    <label className="form-checkbox" style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: 'var(--spacing-md)',
-                                        padding: 'var(--spacing-md)',
-                                        background: 'var(--bg-secondary)',
-                                        borderRadius: 'var(--border-radius-lg)',
-                                        marginBottom: 'var(--spacing-lg)'
-                                    }}>
-                                        <input
-                                            type="checkbox"
-                                            name="registration_enabled"
-                                            checked={settings.registration_enabled}
-                                            onChange={handleChange}
-                                            className="form-checkbox-input"
-                                        />
-                                        <span className="form-checkbox-label" style={{ 
-                                            fontSize: 'var(--font-size-base)',
-                                            fontWeight: 'var(--font-weight-medium)',
-                                            color: 'var(--text-primary)'
-                                        }}>
-                                            Регистрация включена
-                                        </span>
-                                    </label>
-                                    <p className="form-hint" style={{ marginTop: 'var(--spacing-xs)' }}>
-                                        Выключите, чтобы закрыть регистрацию независимо от дат
-                                    </p>
-                                </div>
-
-                                <div className="form-group">
                                     <label className="form-label">
-                                        Дата и время начала регистрации
+                                        Дата начала регистрации <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         name="registration_start"
                                         value={settings.registration_start}
                                         onChange={handleChange}
                                         className="form-input"
                                         placeholder="Не установлено"
+                                        required
                                     />
-                                    <p className="form-hint">
-                                        Оставьте пустым, если регистрация должна быть открыта сразу
-                                    </p>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="form-label">
-                                        Дата и время окончания регистрации
+                                        Дата окончания регистрации <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         name="registration_end"
                                         value={settings.registration_end}
                                         onChange={handleChange}
                                         className="form-input"
                                         placeholder="Не установлено"
+                                        required
                                     />
-                                    <p className="form-hint">
-                                        Оставьте пустым, если регистрация не должна закрываться автоматически
-                                    </p>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        Дата и время проведения чемпионата
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="championship_datetime"
+                                        value={settings.championship_datetime}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="Не установлено"
+                                    />
                                 </div>
 
                                 <div className="form-actions" style={{ 
@@ -330,7 +280,7 @@ const Settings = () => {
                                         onClick={handleClear}
                                         disabled={saving}
                                     >
-                                        Очистить даты
+                                        Очистить все
                                     </button>
                                 </div>
                             </form>

@@ -14,9 +14,7 @@ const Seating = () => {
     const [autoAssigning, setAutoAssigning] = useState(false);
     const [clearing, setClearing] = useState(false);
     const [exporting, setExporting] = useState(false);
-    const [showRemoveDialog, setShowRemoveDialog] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
-    const [itemToRemove, setItemToRemove] = useState(null);
     const [draggedItem, setDraggedItem] = useState(null);
     const [dragOverRoom, setDragOverRoom] = useState(null);
 
@@ -189,27 +187,18 @@ const Seating = () => {
         }
     };
 
-    const handleRemoveClick = (item) => {
-        setItemToRemove(item);
-        setShowRemoveDialog(true);
-    };
-
-    const handleRemoveConfirm = async () => {
+    const handleRemoveClick = async (item) => {
         try {
             setNotification({ type: null, message: '' });
-            const { type, id } = itemToRemove;
+            const { type, id } = item;
             await SeatingService.removeAssignment(
                 type === 'team' ? id : null,
                 type === 'individual' ? id : null
             );
             setNotification({ type: 'success', message: 'Назначение успешно удалено' });
-            setShowRemoveDialog(false);
-            setItemToRemove(null);
             await loadSeating();
         } catch (e) {
             setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка при удалении назначения' });
-            setShowRemoveDialog(false);
-            setItemToRemove(null);
         }
     };
 
@@ -588,21 +577,6 @@ const Seating = () => {
                     )}
                 </div>
             </div>
-
-            {/* Диалог подтверждения удаления */}
-            <ConfirmDialog
-                isOpen={showRemoveDialog}
-                title="Удалить из аудитории?"
-                message={`Вы уверены, что хотите удалить "${itemToRemove?.name}" из аудитории?`}
-                onConfirm={handleRemoveConfirm}
-                onCancel={() => {
-                    setShowRemoveDialog(false);
-                    setItemToRemove(null);
-                }}
-                confirmText="Удалить"
-                cancelText="Отмена"
-                danger={true}
-            />
 
             {/* Диалог подтверждения очистки */}
             <ConfirmDialog

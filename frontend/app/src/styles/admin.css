@@ -723,7 +723,7 @@
     width: 28px;
     height: 28px;
     border-radius: var(--border-radius-full);
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: var(--primary-color);
     color: white;
     display: flex;
     align-items: center;
@@ -744,6 +744,10 @@
     color: var(--text-primary);
     font-size: var(--font-size-base);
     margin-bottom: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
 }
 
 .team-member-card-info {
@@ -806,7 +810,7 @@
 }
 
 .badge-team {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: var(--primary-color);
     color: white;
     user-select: none;
     transition: all var(--transition-base);

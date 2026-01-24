@@ -141,6 +141,15 @@ class ParticipantsController {
                 }
             });
 
+            // Участники с командным форматом, но без команды
+            const participantsWithoutTeam = await UserModel.count({
+                where: { 
+                    role: 'participant',
+                    participation_format: 'team',
+                    teamId: null
+                }
+            });
+
             const totalTeams = await TeamModel.count();
 
             // Статистика по регионам
@@ -197,7 +206,7 @@ class ParticipantsController {
                     total: totalParticipants,
                     activated: activatedParticipants,
                     withTeam: participantsWithTeam,
-                    withoutTeam: totalParticipants - participantsWithTeam,
+                    withoutTeam: participantsWithoutTeam,
                     totalTeams,
                     byRegion,
                     byGrade,

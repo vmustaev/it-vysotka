@@ -55,7 +55,7 @@ const Gallery = () => {
                                 onClick={() => openImage(image)}
                             >
                                 <img 
-                                    src={`/uploads/${image}`} 
+                                    src={`/files/${image}`} 
                                     alt={`Фото ${index + 1}`}
                                     loading="lazy"
                                 />
@@ -69,7 +69,7 @@ const Gallery = () => {
                     <div className="gallery-modal" onClick={closeImage}>
                         <div className="modal-content">
                             <img 
-                                src={`/uploads/${selectedImage}`} 
+                                src={`/files/${selectedImage}`} 
                                 alt="Увеличенное фото"
                                 onClick={closeImage}
                             />

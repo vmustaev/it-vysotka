@@ -178,35 +178,35 @@ const Results = () => {
                                 <div className="task-card">
                                     <h3>Задание 1: Контакт</h3>
                                     <p>Найти минимальную степень двойки, первые цифры которой совпадают с заданным числом</p>
-                                    <a href="/uploads/task1_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task1_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 2: Языки программирования</h3>
                                     <p>Определить, может ли слово из словаря быть подпоследовательностью введенной команды</p>
-                                    <a href="/uploads/task2_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task2_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 3: Грузоподъем</h3>
                                     <p>Найти минимальную стоимость подъема сейфа на заданный этаж с учетом лифтов и лестниц</p>
-                                    <a href="/uploads/task3_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task3_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 4: Заклинание</h3>
                                     <p>Вычислить магическую силу заклинания, равную количеству вхождений магического сочетания символов</p>
-                                    <a href="/uploads/task4_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task4_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 5: Садовод</h3>
                                     <p>Определить максимальное количество кустов, которые можно спасти</p>
-                                    <a href="/uploads/task5_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task5_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
@@ -218,28 +218,28 @@ const Results = () => {
                                 <div className="task-card">
                                     <h3>Задание 1</h3>
                                     <p>Постройте маршрут доставки пиццы от пиццерии до отеля</p>
-                                    <a href="/uploads/task1.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task1.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 2</h3>
                                     <p>Определите стартовую станцию для машинки на гоночной трассе</p>
-                                    <a href="/uploads/task2.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task2.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 3</h3>
                                     <p>Переформатируйте лицензионный ключ</p>
-                                    <a href="/uploads/task3.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task3.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>
                                 <div className="task-card">
                                     <h3>Задание 4</h3>
                                     <p>Найдите вулкан, название которого начинается и заканчивается на согласную</p>
-                                    <a href="/uploads/task4.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <a href="/files/task4.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
                                         Скачать задание
                                     </a>
                                 </div>

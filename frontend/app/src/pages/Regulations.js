@@ -27,7 +27,7 @@ const Regulations = () => {
                                 </div>
                                 <div className="card-body">
                                     <p>Если участник младше 18 лет, необходимо предоставить <strong>согласие родителя или законного представителя</strong>.</p>
-                                    <a href="/uploads/roditeli.pdf" 
+                                    <a href="/files/roditeli.pdf" 
                                        target="_blank" 
                                        rel="noopener noreferrer" 
                                        className="btn btn-primary">
@@ -42,7 +42,7 @@ const Regulations = () => {
                                 </div>
                                 <div className="card-body">
                                     <p>Если участник старше 18 лет, необходимо предоставить <strong>согласие на обработку персональных данных</strong>.</p>
-                                    <a href="/uploads/uchastniki.pdf" 
+                                    <a href="/files/uchastniki.pdf" 
                                        target="_blank" 
                                        rel="noopener noreferrer" 
                                        className="btn btn-primary">
@@ -87,11 +87,11 @@ const Regulations = () => {
                         <h3>Важно</h3>
                         <p>
                             Настоятельно рекомендуем ознакомиться с{' '}
-                            <a href="/uploads/polozhenie.pdf" target="_blank" rel="noopener noreferrer">
+                            <a href="/files/polozhenie.pdf" target="_blank" rel="noopener noreferrer">
                                 Положением о Чемпионате
                             </a>
                             {' '}и с{' '}
-                            <a href="/uploads/booklet.docx" target="_blank" rel="noopener noreferrer">
+                            <a href="/files/booklet.docx" target="_blank" rel="noopener noreferrer">
                                 Памяткой участникам соревнований
                             </a>
                             {' '}для полного понимания правил и требований проведения чемпионата.
