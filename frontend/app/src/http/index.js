@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-export const API_URL = `http://localhost:80/api`;
+// Use environment variable if available, fallback to current origin + /api, or localhost for development
+export const API_URL = process.env.REACT_APP_API_URL || 
+    (typeof window !== 'undefined' && window.location.origin !== 'http://localhost:3000' 
+        ? `${window.location.origin}/api` 
+        : 'http://localhost:80/api');
 
 export const setAccessToken = (token) => {
     localStorage.setItem('accessToken', token);

@@ -10,6 +10,20 @@ const Home = () => {
 
     useEffect(() => {
         checkRegistrationStatus();
+        
+        // Применяем фон к body
+        document.body.style.backgroundImage = `linear-gradient(180deg, rgba(67, 119, 230, 0.70) 0%, rgba(37, 99, 235, 0.75) 50%, rgba(30, 58, 138, 0.80) 100%), url(${process.env.PUBLIC_URL}/assets/img/sert_3.png)`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        
+        // Очистка при размонтировании
+        return () => {
+            document.body.style.backgroundImage = '';
+            document.body.style.backgroundSize = '';
+            document.body.style.backgroundPosition = '';
+            document.body.style.backgroundAttachment = '';
+        };
     }, []);
 
     const checkRegistrationStatus = async () => {
