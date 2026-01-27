@@ -1,61 +1,79 @@
 import React, { useState } from 'react';
+import '../styles/results.css';
 
 const Results = () => {
     const [activeResultsTab, setActiveResultsTab] = useState('2025');
     const [activeTasksTab, setActiveTasksTab] = useState('2025');
 
     return (
-        <div className="content-page">
-            <div className="page-content">
-                <div className="content-page-header">
-                    <h1 className="content-page-title">Результаты чемпионата по программированию "IT-ВыСотка"</h1>
-                    <p className="content-page-subtitle">
-                        Ознакомьтесь с результатами чемпионата и поздравьте победителей
+        <div className="results-page">
+            <div className="results-content">
+                {/* Hero секция */}
+                <div className="results-hero">
+                    <h1 className="results-title">
+                        Результаты IT-ВыСотка
+                    </h1>
+                    <p className="results-subtitle">
+                        Поздравляем победителей и участников чемпионата
                     </p>
                 </div>
 
-                <div className="content-section">
-                    <div className="tabs">
+                {/* Секция результатов */}
+                <div className="results-section">
+                    <h2 className="section-title-main">Победители чемпионата</h2>
+                    
+                    <div className="year-tabs">
                         <button 
-                            className={`tab-button ${activeResultsTab === '2025' ? 'active' : ''}`}
+                            className={`year-tab ${activeResultsTab === '2025' ? 'active' : ''}`}
                             onClick={() => setActiveResultsTab('2025')}
                         >
-                            Результаты 2025 года
+                            2025
                         </button>
                         <button 
-                            className={`tab-button ${activeResultsTab === '2024' ? 'active' : ''}`}
+                            className={`year-tab ${activeResultsTab === '2024' ? 'active' : ''}`}
                             onClick={() => setActiveResultsTab('2024')}
                         >
-                            Результаты 2024 года
+                            2024
                         </button>
                     </div>
 
-                    <div className="tab-content">
+                    <div className="winners-content">
                         {activeResultsTab === '2025' && (
-                            <div className="results-table-container">
-                                <table className="results-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Место</th>
-                                            <th>Участники</th>
-                                            <th>Учебное заведение</th>
-                                            <th>Город</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>
+                            <div className="winners-grid">
+                                <div className="winner-card winner-gold">
+                                    <div className="medal-badge medal-gold">
+                                        <span className="medal-icon">1</span>
+                                    </div>
+                                    <h3 className="winner-place">Первое место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Камалетдинов Карим Тимурович, Лещенко Даниил Анатольевич, 
                                                 Шагалиев Дамир Зинурович, Габитов Шамиль, Фазлетдинов Галим, 
                                                 Галимов Эдгар Ильдарович, Кидрасов Данияр Рашитович
-                                            </td>
-                                            <td>МБОУ Гимназия № 64, ГБОУ РИЛИ</td>
-                                            <td>г. Уфа</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">МБОУ Гимназия № 64, ГБОУ РИЛИ</p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="winner-card winner-silver">
+                                    <div className="medal-badge medal-silver">
+                                        <span className="medal-icon">2</span>
+                                    </div>
+                                    <h3 className="winner-place">Второе место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Валиуллин Альберт Рустемович, Зиганшин Джалиль Ильгамович, 
                                                 Юмаев Гайсар Ильгизович, Калимуллин Булат Равилевич, 
                                                 Касимцев Елисей Игоревич, Рахматуллин Тимур Романович, 
@@ -65,13 +83,28 @@ const Results = () => {
                                                 Рахимкулов Азамат Ратмирович, Васюткин Артём Вениаминович, 
                                                 Габбасов Ранис Русланович, Лукманов Артём Русланович, 
                                                 Назаров Алексей Николаевич, Спирин Ярослав Александрович
-                                            </td>
-                                            <td>ГБОУ РИЛИ, Лицей №83 им. Пинского М. С. УГНТУ, МАОУ Лицей №153, МБОУ Школа № 157</td>
-                                            <td>г. Уфа</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">ГБОУ РИЛИ, Лицей №83 им. Пинского М. С. УГНТУ, МАОУ Лицей №153, МБОУ Школа № 157</p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="winner-card winner-bronze">
+                                    <div className="medal-badge medal-bronze">
+                                        <span className="medal-icon">3</span>
+                                    </div>
+                                    <h3 className="winner-place">Третье место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Гарифуллина Ильнара Маратовна, Лутфурахманов Тимур Артурович, 
                                                 Сагутдинов Артемий Владимирович, Архипов Илья Юрьевич, 
                                                 Зайнетдинов Артур Айратович, Трофимов Кирилл Максимович, 
@@ -83,39 +116,56 @@ const Results = () => {
                                                 Зинатуллин Арсен Ирекович, Якупов Арсен Эдуардович, 
                                                 Назарова Полина Олеговна, Сулейманов Дамир Азатович, 
                                                 Файрушин Данияр Айратович
-                                            </td>
-                                            <td>МАОУ Лицей №153, МАОУ школа №110, МАОУ Гимназия №82 УГНТУ, МБОУ Школа №109, МАОУ Школа № 130, МАОУ Лицей № 123, МАОУ Гимназия №16, МАОУ Гимназия №115, Лицей №83 им. Пинского М. С. УГНТУ</td>
-                                            <td>г. Уфа</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">МАОУ Лицей №153, МАОУ школа №110, МАОУ Гимназия №82 УГНТУ, МБОУ Школа №109, МАОУ Школа № 130, МАОУ Лицей № 123, МАОУ Гимназия №16, МАОУ Гимназия №115, Лицей №83 им. Пинского М. С. УГНТУ</p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
                         {activeResultsTab === '2024' && (
-                            <div className="results-table-container">
-                                <table className="results-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Место</th>
-                                            <th>Участники</th>
-                                            <th>Учебное заведение</th>
-                                            <th>Город</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>
+                            <div className="winners-grid">
+                                <div className="winner-card winner-gold">
+                                    <div className="medal-badge medal-gold">
+                                        <span className="medal-icon">1</span>
+                                    </div>
+                                    <h3 className="winner-place">Первое место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Равиль Хуснутдинов, Артур Нуртдинов, Максим Лапшин, Карам Сулейманов, 
                                                 Азат Низамутдинов, Флюр Акбалин, Самат Нуртдинов, Вадим Ахундов
-                                            </td>
-                                            <td>Республиканский инженерный лицей-интернат</td>
-                                            <td>г. Уфа</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">Республиканский инженерный лицей-интернат</p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="winner-card winner-silver">
+                                    <div className="medal-badge medal-silver">
+                                        <span className="medal-icon">2</span>
+                                    </div>
+                                    <h3 className="winner-place">Второе место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Марсель Истяков, Данияр Кидрасов, Гайсар Юмаев, 
                                                 Джалиль Зиганшин, Альберт Валиуллин, Дмитрий Чековинский, 
                                                 Дамир Бадретдинов, Линар Каримов, Азат Абдулганиев, 
@@ -123,13 +173,28 @@ const Results = () => {
                                                 Данияр Файрушин, Матвей Ветошкин, Роман Коптюх, 
                                                 Тимур Кадыров, Артемий Иванов, Максим Гордиенко, 
                                                 Станислав Никитенко
-                                            </td>
-                                            <td>РИЛИ, гимназия №115, лицей №83 им. Пинского М. С. УГНТУ, лицей №123</td>
-                                            <td>г. Уфа</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">РИЛИ, гимназия №115, лицей №83 им. Пинского М. С. УГНТУ, лицей №123</p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="winner-card winner-bronze">
+                                    <div className="medal-badge medal-bronze">
+                                        <span className="medal-icon">3</span>
+                                    </div>
+                                    <h3 className="winner-place">Третье место</h3>
+                                    <div className="winner-info">
+                                        <div className="info-row">
+                                            <span className="info-label">Участники:</span>
+                                            <p className="info-text">
                                                 Ранис Габбасов, Марат Худайбердин, Михаил Копачёв, 
                                                 Даниил Морозов, Иван Майоров, Лев Шураков, 
                                                 Артём Лукманов, Ярослав Спирин, Артём Кадиков, 
@@ -139,74 +204,91 @@ const Results = () => {
                                                 Тимур Лутфурахманов, Никита Дронов, Ксения Демакова, 
                                                 Артемий Сагутдинов, Станислав Бурский, Егор Апканиев, 
                                                 Артур Ясавиев
-                                            </td>
-                                            <td>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Учебное заведение:</span>
+                                            <p className="info-text">
                                                 Гимназия №115, школа №131, школа №157, школа №110, РЖД лицей №1, 
                                                 лицей №1 (г. Салават), лицей №107, лицей №155, лицей №6 имени Сафина Н. Д., лицей №68
-                                            </td>
-                                            <td>г. Уфа, г. Котлас Архангельской области, г. Салават</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            </p>
+                                        </div>
+                                        <div className="info-row">
+                                            <span className="info-label">Город:</span>
+                                            <p className="info-text">г. Уфа, г. Котлас Архангельской области, г. Салават</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="content-section">
-                    <h2 className="content-section-title">Задания чемпионата</h2>
+                {/* Секция заданий */}
+                <div className="tasks-section">
+                    <h2 className="section-title-main">Задания чемпионата</h2>
                     
-                    <div className="tabs">
+                    <div className="year-tabs">
                         <button 
-                            className={`tab-button ${activeTasksTab === '2025' ? 'active' : ''}`}
+                            className={`year-tab ${activeTasksTab === '2025' ? 'active' : ''}`}
                             onClick={() => setActiveTasksTab('2025')}
                         >
-                            Задания 2025 года
+                            2025
                         </button>
                         <button 
-                            className={`tab-button ${activeTasksTab === '2024' ? 'active' : ''}`}
+                            className={`year-tab ${activeTasksTab === '2024' ? 'active' : ''}`}
                             onClick={() => setActiveTasksTab('2024')}
                         >
-                            Задания 2024 года
+                            2024
                         </button>
                     </div>
 
-                    <div className="tab-content">
+                    <div className="tasks-content">
                         {activeTasksTab === '2025' && (
                             <div className="tasks-grid">
                                 <div className="task-card">
-                                    <h3>Задание 1: Контакт</h3>
-                                    <p>Найти минимальную степень двойки, первые цифры которой совпадают с заданным числом</p>
-                                    <a href="/files/task1_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">01</div>
+                                    <h3 className="task-title">Контакт</h3>
+                                    <p className="task-description">Найти минимальную степень двойки, первые цифры которой совпадают с заданным числом</p>
+                                    <a href="/files/task1_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 2: Языки программирования</h3>
-                                    <p>Определить, может ли слово из словаря быть подпоследовательностью введенной команды</p>
-                                    <a href="/files/task2_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">02</div>
+                                    <h3 className="task-title">Языки программирования</h3>
+                                    <p className="task-description">Определить, может ли слово из словаря быть подпоследовательностью введенной команды</p>
+                                    <a href="/files/task2_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 3: Грузоподъем</h3>
-                                    <p>Найти минимальную стоимость подъема сейфа на заданный этаж с учетом лифтов и лестниц</p>
-                                    <a href="/files/task3_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">03</div>
+                                    <h3 className="task-title">Грузоподъем</h3>
+                                    <p className="task-description">Найти минимальную стоимость подъема сейфа на заданный этаж с учетом лифтов и лестниц</p>
+                                    <a href="/files/task3_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 4: Заклинание</h3>
-                                    <p>Вычислить магическую силу заклинания, равную количеству вхождений магического сочетания символов</p>
-                                    <a href="/files/task4_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">04</div>
+                                    <h3 className="task-title">Заклинание</h3>
+                                    <p className="task-description">Вычислить магическую силу заклинания, равную количеству вхождений магического сочетания символов</p>
+                                    <a href="/files/task4_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 5: Садовод</h3>
-                                    <p>Определить максимальное количество кустов, которые можно спасти</p>
-                                    <a href="/files/task5_2025.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">05</div>
+                                    <h3 className="task-title">Садовод</h3>
+                                    <p className="task-description">Определить максимальное количество кустов, которые можно спасти</p>
+                                    <a href="/files/task5_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                             </div>
@@ -215,31 +297,39 @@ const Results = () => {
                         {activeTasksTab === '2024' && (
                             <div className="tasks-grid">
                                 <div className="task-card">
-                                    <h3>Задание 1</h3>
-                                    <p>Постройте маршрут доставки пиццы от пиццерии до отеля</p>
-                                    <a href="/files/task1.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">01</div>
+                                    <h3 className="task-title">Маршрут доставки</h3>
+                                    <p className="task-description">Постройте маршрут доставки пиццы от пиццерии до отеля</p>
+                                    <a href="/files/task1.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 2</h3>
-                                    <p>Определите стартовую станцию для машинки на гоночной трассе</p>
-                                    <a href="/files/task2.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">02</div>
+                                    <h3 className="task-title">Гоночная трасса</h3>
+                                    <p className="task-description">Определите стартовую станцию для машинки на гоночной трассе</p>
+                                    <a href="/files/task2.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 3</h3>
-                                    <p>Переформатируйте лицензионный ключ</p>
-                                    <a href="/files/task3.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">03</div>
+                                    <h3 className="task-title">Лицензионный ключ</h3>
+                                    <p className="task-description">Переформатируйте лицензионный ключ</p>
+                                    <a href="/files/task3.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                                 <div className="task-card">
-                                    <h3>Задание 4</h3>
-                                    <p>Найдите вулкан, название которого начинается и заканчивается на согласную</p>
-                                    <a href="/files/task4.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                        Скачать задание
+                                    <div className="task-number">04</div>
+                                    <h3 className="task-title">Вулкан</h3>
+                                    <p className="task-description">Найдите вулкан, название которого начинается и заканчивается на согласную</p>
+                                    <a href="/files/task4.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
                                     </a>
                                 </div>
                             </div>

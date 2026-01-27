@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
+import '../styles/login.css';
 
 const LoginPage = observer(() => {
     const [email, setEmail] = useState('');
@@ -86,98 +87,108 @@ const LoginPage = observer(() => {
     };
 
     return (
-        <div className="page">
-            <div className="form-container">
-                <div className="form-card">
-                    <h2 className="form-title">Вход</h2>
-                    
+        <div className="login-page">
+            <div className="login-content">
+                {/* Hero Section */}
+                <div className="login-hero">
+                    <h1 className="login-title">Вход</h1>
+                    <p className="login-subtitle">Войдите в свой аккаунт для участия в чемпионате</p>
+                </div>
+
+                {/* Form Card */}
+                <div className="login-form-card">
                     {successMessage && (
-                        <div className="alert alert-success">
+                        <div className="login-alert login-alert-success">
                             {successMessage}
-                            <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                                После активации войдите в аккаунт
-                            </div>
+                            {successMessage.includes('активирован') && (
+                                <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                                    После активации войдите в аккаунт
+                                </div>
+                            )}
                         </div>
                     )}
                     
                     {errors._message && (
-                        <div className="alert alert-error">
+                        <div className="login-alert login-alert-error">
                             {errors._message}
                         </div>
                     )}
                     
-                    <form onSubmit={handleSubmit} className="form">
-                        <div className="form-group">
+                    <form onSubmit={handleSubmit} className="login-form">
+                        <div className="login-form-group">
+                            <label className="login-label">Email</label>
                             <input
                                 type="email"
-                                placeholder="Email"
+                                placeholder="Введите ваш email"
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);
                                     if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
                                 }}
-                                className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
+                                className={`login-input ${isFieldInvalid('email') ? 'error' : ''}`}
                                 required
                             />
                             {isFieldInvalid('email') && (
-                                <div className="form-error">
+                                <div className="login-error">
                                     {getFieldError('email')}
                                 </div>
                             )}
                         </div>
                         
-                        <div className="form-group">
+                        <div className="login-form-group">
+                            <label className="login-label">Пароль</label>
                             <input
                                 type="password"
-                                placeholder="Пароль"
+                                placeholder="Введите ваш пароль"
                                 value={password}
                                 onChange={(e) => {
                                     setPassword(e.target.value);
                                     if (errors.password) setErrors(prev => ({ ...prev, password: [] }));
                                 }}
-                                className={`form-input ${isFieldInvalid('password') ? 'error' : ''}`}
+                                className={`login-input ${isFieldInvalid('password') ? 'error' : ''}`}
                                 required
                             />
                             {isFieldInvalid('password') && (
-                                <div className="form-error">
+                                <div className="login-error">
                                     {getFieldError('password')}
                                 </div>
                             )}
                         </div>
+
+                        <div className="login-forgot">
+                            <a
+                                href="/reset-password-request"
+                                className="login-forgot-link"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    navigate('/reset-password-request');
+                                }}
+                            >
+                                Забыли пароль?
+                            </a>
+                        </div>
                         
-                        <button 
-                            type="submit"
-                            className="btn btn-secondary btn-lg"
-                        >
-                            Войти
-                        </button>
+                        <div className="login-actions">
+                            <button 
+                                type="submit"
+                                className="login-submit-btn"
+                            >
+                                Войти
+                            </button>
+                            
+                            <p className="login-register-link">
+                                Нет аккаунта? <a 
+                                    href="/register"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate('/register');
+                                    }}
+                                >
+                                    Зарегистрироваться
+                                </a>
+                            </p>
+                        </div>
                     </form>
-                    
-                    <div className="text-center mt-lg">
-                        <a 
-                            href="/register" 
-                            className="text-primary"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/register');
-                            }}
-                        >
-                            Нет аккаунта? Зарегистрироваться
-                        </a>
-                    </div>
-                    <div className="text-center mt-sm">
-                        <a
-                            href="/reset-password-request"
-                            className="text-secondary"
-                            style={{ fontSize: '14px' }}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/reset-password-request');
-                            }}
-                        >
-                            Забыли пароль?
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

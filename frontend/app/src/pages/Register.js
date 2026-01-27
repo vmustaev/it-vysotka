@@ -5,6 +5,8 @@ import { observer } from "mobx-react-lite";
 import SearchableSelect from '../components/SearchableSelect';
 import SettingsService from '../services/SettingsService';
 import $api from '../http';
+import '../styles/register-closed.css';
+import '../styles/register.css';
 
 const RegisterPage = observer(() => {
     const [formData, setFormData] = useState({
@@ -311,48 +313,30 @@ const RegisterPage = observer(() => {
     // Если регистрация закрыта, показываем отдельную страницу
     if (!registrationStatus.isOpen) {
         return (
-            <div className="page" style={{ 
-                minHeight: 'calc(100vh - 120px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 'var(--spacing-2xl) var(--spacing-lg)'
-            }}>
-                <div style={{ 
-                    width: '100%',
-                    maxWidth: '500px',
-                    textAlign: 'center'
-                }}>
-                    <h1 style={{ 
-                        fontSize: '2rem',
-                        marginBottom: 'var(--spacing-lg)',
-                        color: 'var(--text-primary)',
-                        fontWeight: '600',
-                        lineHeight: '1.2'
-                    }}>
-                        Регистрация закрыта
-                    </h1>
-                    
-                    <p style={{ 
-                        fontSize: '1.1rem',
-                        color: 'var(--text-secondary)',
-                        marginBottom: 'var(--spacing-xl)',
-                        lineHeight: '1.6'
-                    }}>
-                        Ждем вас в следующем году!
-                    </p>
-                    
-                    <div style={{ marginTop: 'var(--spacing-xl)' }}>
-                        <a 
-                            href="/login" 
-                            className="btn btn-primary"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/login');
-                            }}
-                        >
-                            Войти
-                        </a>
+            <div className="registration-closed-page">
+                <div className="registration-closed-content">
+                    <div className="registration-closed-card">
+                        <div className="closed-icon">✕</div>
+                        <h1 className="closed-title">
+                            Регистрация закрыта
+                        </h1>
+                        <p className="closed-text">
+                            Регистрация на чемпионат завершена. Следите за новостями о следующих мероприятиях!
+                        </p>
+                        <div className="closed-actions">
+                            <button 
+                                className="btn-closed btn-closed-primary"
+                                onClick={() => navigate('/')}
+                            >
+                                На главную
+                            </button>
+                            <button 
+                                className="btn-closed btn-closed-secondary"
+                                onClick={() => navigate('/login')}
+                            >
+                                Войти в аккаунт
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -361,328 +345,366 @@ const RegisterPage = observer(() => {
 
     // Если регистрация открыта, показываем форму
     return (
-        <div className="page">
-            <div className="form-container">
-                <div className="form-card">
-                    <h2 className="form-title">Регистрация</h2>
-                    
+        <div className="register-page">
+            <div className="register-content">
+                <div className="register-hero">
+                    <h1 className="register-title">Регистрация на чемпионат</h1>
+                    <p className="register-subtitle">
+                        Заполните форму для участия в IT-ВыСотка
+                    </p>
+                </div>
+
+                <div className="register-form-card">
                     {errors._message && (
-                        <div className="alert alert-error">
+                        <div className="register-alert register-alert-error">
                             {errors._message}
                         </div>
                     )}
                     
-                    <form onSubmit={handleSubmit} className="form">
-                <div className="form-group">
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('email') && (
-                        <div className="form-error">
-                            {getFieldError('email')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Пароль"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('password') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('password') && (
-                        <div className="form-error">
-                            {getFieldError('password')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <input
-                        type="password"
-                        name="password_confirmation"
-                        placeholder="Подтверждение пароля"
-                        value={formData.password_confirmation}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('password_confirmation') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('password_confirmation') && (
-                        <div className="form-error">
-                            {getFieldError('password_confirmation')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="last_name"
-                        placeholder="Фамилия"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('last_name') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('last_name') && (
-                        <div className="form-error">
-                            {getFieldError('last_name')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="first_name"
-                        placeholder="Имя"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('first_name') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('first_name') && (
-                        <div className="form-error">
-                            {getFieldError('first_name')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="second_name"
-                        placeholder="Отчество (необязательно)"
-                        value={formData.second_name}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('second_name') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('second_name') && (
-                        <div className="form-error">
-                            {getFieldError('second_name')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <label className="form-label">Дата рождения</label>
-                    <input
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleChange}
-                        className={`form-input ${isFieldInvalid('birthday') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('birthday') && (
-                        <div className="form-error">
-                            {getFieldError('birthday')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-row">
-                    <div className="form-group">
-                        <SearchableSelect
-                            value={formData.region}
-                            onChange={handleRegionChange}
-                            options={regions}
-                            placeholder="Регион"
-                            isLoading={isLoadingRegions}
-                            error={isFieldInvalid('region')}
-                        />
-                        {isFieldInvalid('region') && (
-                            <div className="form-error">
-                                {getFieldError('region')}
+                    <form onSubmit={handleSubmit} className="register-form">
+                        <div className="register-form-section">
+                            <h3 className="register-section-title">Учетные данные</h3>
+                            <div className="register-form-group">
+                                <label className="register-label">Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="example@mail.ru"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className={`register-input ${isFieldInvalid('email') ? 'error' : ''}`}
+                                />
+                                {isFieldInvalid('email') && (
+                                    <div className="register-error">
+                                        {getFieldError('email')}
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <SearchableSelect
-                            value={formData.city}
-                            onChange={handleCityChange}
-                            options={cities}
-                            placeholder="Населенный пункт"
-                            isLoading={isLoadingCities}
-                            disabled={!formData.region}
-                            error={isFieldInvalid('city')}
-                        />
-                        {isFieldInvalid('city') && (
-                            <div className="form-error">
-                                {getFieldError('city')}
+
+                            <div className="register-form-row">
+                                <div className="register-form-group">
+                                    <label className="register-label">Пароль</label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="Минимум 6 символов"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('password') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('password') && (
+                                        <div className="register-error">
+                                            {getFieldError('password')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="register-form-group">
+                                    <label className="register-label">Подтверждение пароля</label>
+                                    <input
+                                        type="password"
+                                        name="password_confirmation"
+                                        placeholder="Повторите пароль"
+                                        value={formData.password_confirmation}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('password_confirmation') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('password_confirmation') && (
+                                        <div className="register-error">
+                                            {getFieldError('password_confirmation')}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="form-group">
-                    <SearchableSelect
-                        value={formData.school}
-                        onChange={handleSchoolChange}
-                        options={schools}
-                        placeholder="Школа"
-                        isLoading={isLoadingSchools}
-                        disabled={!formData.region || !formData.city}
-                        error={isFieldInvalid('school')}
-                    />
-                    {isFieldInvalid('school') && (
-                        <div className="form-error">
-                            {getFieldError('school')}
                         </div>
-                    )}
-                </div>
 
-                <div className="form-group">
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Телефон"
-                        value={formData.phone}
-                        onChange={handlePhoneChange}
-                        className={`form-input ${isFieldInvalid('phone') ? 'error' : ''}`}
-                    />
-                    {isFieldInvalid('phone') && (
-                        <div className="form-error">
-                            {getFieldError('phone')}
+                        <div className="register-form-section">
+                            <h3 className="register-section-title">Личные данные</h3>
+
+                            <div className="register-form-row register-form-row-3">
+                                <div className="register-form-group">
+                                    <label className="register-label">Фамилия</label>
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        placeholder="Иванов"
+                                        value={formData.last_name}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('last_name') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('last_name') && (
+                                        <div className="register-error">
+                                            {getFieldError('last_name')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="register-form-group">
+                                    <label className="register-label">Имя</label>
+                                    <input
+                                        type="text"
+                                        name="first_name"
+                                        placeholder="Иван"
+                                        value={formData.first_name}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('first_name') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('first_name') && (
+                                        <div className="register-error">
+                                            {getFieldError('first_name')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="register-form-group">
+                                    <label className="register-label">Отчество</label>
+                                    <input
+                                        type="text"
+                                        name="second_name"
+                                        placeholder="Необязательно"
+                                        value={formData.second_name}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('second_name') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('second_name') && (
+                                        <div className="register-error">
+                                            {getFieldError('second_name')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="register-form-row">
+                                <div className="register-form-group">
+                                    <label className="register-label">Дата рождения</label>
+                                    <input
+                                        type="date"
+                                        name="birthday"
+                                        value={formData.birthday}
+                                        onChange={handleChange}
+                                        className={`register-input ${isFieldInvalid('birthday') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('birthday') && (
+                                        <div className="register-error">
+                                            {getFieldError('birthday')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="register-form-group">
+                                    <label className="register-label">Телефон</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="+7 (___) ___-__-__"
+                                        value={formData.phone}
+                                        onChange={handlePhoneChange}
+                                        className={`register-input ${isFieldInvalid('phone') ? 'error' : ''}`}
+                                    />
+                                    {isFieldInvalid('phone') && (
+                                        <div className="register-error">
+                                            {getFieldError('phone')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="form-group">
-                    <select
-                        name="grade"
-                        value={formData.grade}
-                        onChange={handleChange}
-                        className={`form-select ${isFieldInvalid('grade') ? 'error' : ''}`}
-                    >
-                        <option value="">Выберите класс</option>
-                        {[...Array(11)].map((_, i) => (
-                            <option key={i} value={i + 1}>{i + 1} класс</option>
-                        ))}
-                    </select>
-                    {isFieldInvalid('grade') && (
-                        <div className="form-error">
-                            {getFieldError('grade')}
+                        <div className="register-form-section">
+                            <h3 className="register-section-title">Место учебы</h3>
+
+                            <div className="register-form-row">
+                                <div className="register-form-group">
+                                    <label className="register-label">Регион</label>
+                                    <SearchableSelect
+                                        value={formData.region}
+                                        onChange={handleRegionChange}
+                                        options={regions}
+                                        placeholder="Выберите регион"
+                                        isLoading={isLoadingRegions}
+                                        error={isFieldInvalid('region')}
+                                    />
+                                    {isFieldInvalid('region') && (
+                                        <div className="register-error">
+                                            {getFieldError('region')}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="register-form-group">
+                                    <label className="register-label">Город</label>
+                                    <SearchableSelect
+                                        value={formData.city}
+                                        onChange={handleCityChange}
+                                        options={cities}
+                                        placeholder="Выберите город"
+                                        isLoading={isLoadingCities}
+                                        disabled={!formData.region}
+                                        error={isFieldInvalid('city')}
+                                    />
+                                    {isFieldInvalid('city') && (
+                                        <div className="register-error">
+                                            {getFieldError('city')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="register-form-group">
+                                <label className="register-label">Учебное заведение</label>
+                                <SearchableSelect
+                                    value={formData.school}
+                                    onChange={handleSchoolChange}
+                                    options={schools}
+                                    placeholder="Выберите школу"
+                                    isLoading={isLoadingSchools}
+                                    disabled={!formData.region || !formData.city}
+                                    error={isFieldInvalid('school')}
+                                />
+                                {isFieldInvalid('school') && (
+                                    <div className="register-error">
+                                        {getFieldError('school')}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="form-group">
-                    <select
-                        name="programming_language"
-                        value={formData.programming_language}
-                        onChange={handleChange}
-                        className={`form-select ${isFieldInvalid('programming_language') ? 'error' : ''}`}
-                    >
-                        <option value="">Выберите язык программирования</option>
-                        <option value="C++">C++</option>
-                        <option value="Python">Python</option>
-                        <option value="Java">Java</option>
-                    </select>
-                    {isFieldInvalid('programming_language') && (
-                        <div className="form-error">
-                            {getFieldError('programming_language')}
+                        <div className="register-form-section">
+                            <h3 className="register-section-title">Информация об участии</h3>
+                            
+                            <div className="register-form-row">
+                                <div className="register-form-group">
+                                    <label className="register-label">Класс</label>
+                                    <select
+                                        name="grade"
+                                        value={formData.grade}
+                                        onChange={handleChange}
+                                        className={`register-select ${isFieldInvalid('grade') ? 'error' : ''}`}
+                                    >
+                                        <option value="">Выберите класс</option>
+                                        {[...Array(11)].map((_, i) => (
+                                            <option key={i} value={i + 1}>{i + 1} класс</option>
+                                        ))}
+                                    </select>
+                                    {isFieldInvalid('grade') && (
+                                        <div className="register-error">
+                                            {getFieldError('grade')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="register-form-group">
+                                    <label className="register-label">Язык программирования</label>
+                                    <select
+                                        name="programming_language"
+                                        value={formData.programming_language}
+                                        onChange={handleChange}
+                                        className={`register-select ${isFieldInvalid('programming_language') ? 'error' : ''}`}
+                                    >
+                                        <option value="">Выберите язык</option>
+                                        <option value="C++">C++</option>
+                                        <option value="Python">Python</option>
+                                        <option value="Java">Java</option>
+                                    </select>
+                                    {isFieldInvalid('programming_language') && (
+                                        <div className="register-error">
+                                            {getFieldError('programming_language')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="register-form-group">
+                                <label className="register-label">Формат участия</label>
+                                <div className="register-radio-group">
+                                    <label className="register-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="individual"
+                                            checked={formData.participation_format === 'individual'}
+                                            onChange={handleChange}
+                                        />
+                                        <span className="register-radio-mark"></span>
+                                        <span className="register-radio-label">Индивидуальное</span>
+                                    </label>
+                                    <label className="register-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="team"
+                                            checked={formData.participation_format === 'team'}
+                                            onChange={handleChange}
+                                        />
+                                        <span className="register-radio-mark"></span>
+                                        <span className="register-radio-label">Командное</span>
+                                    </label>
+                                </div>
+                                {isFieldInvalid('participation_format') && (
+                                    <div className="register-error">
+                                        {getFieldError('participation_format')}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="register-checkbox-group">
+                                <label className="register-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={parentConsent}
+                                        onChange={(e) => {
+                                            setParentConsent(e.target.checked);
+                                            if (errors.parentConsent) {
+                                                setErrors(prev => {
+                                                    const newErrors = { ...prev };
+                                                    delete newErrors.parentConsent;
+                                                    return newErrors;
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <span className="register-checkbox-mark"></span>
+                                    <span className="register-checkbox-label">
+                                        Являюсь родителем (законным представителем) участника и согласен на{' '}
+                                        <a 
+                                            href="/consent" 
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            обработку его персональных данных
+                                        </a>
+                                    </span>
+                                </label>
+                                {errors.parentConsent && (
+                                    <div className="register-error">
+                                        {errors.parentConsent[0]}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="form-group">
-                    <label className="form-label">Формат участия</label>
-                    <div className="form-radio-group">
-                        <label className="form-radio">
-                            <input
-                                type="radio"
-                                name="participation_format"
-                                value="individual"
-                                checked={formData.participation_format === 'individual'}
-                                onChange={handleChange}
-                                className="form-radio-input"
-                            />
-                            <span className="form-radio-custom"></span>
-                            <span className="form-radio-label">Индивидуальное участие</span>
-                        </label>
-                        <label className="form-radio">
-                            <input
-                                type="radio"
-                                name="participation_format"
-                                value="team"
-                                checked={formData.participation_format === 'team'}
-                                onChange={handleChange}
-                                className="form-radio-input"
-                            />
-                            <span className="form-radio-custom"></span>
-                            <span className="form-radio-label">Командное участие</span>
-                        </label>
-                    </div>
-                    {isFieldInvalid('participation_format') && (
-                        <div className="form-error">
-                            {getFieldError('participation_format')}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-group">
-                    <label className="form-checkbox">
-                        <input
-                            type="checkbox"
-                            checked={parentConsent}
-                            onChange={(e) => {
-                                setParentConsent(e.target.checked);
-                                if (errors.parentConsent) {
-                                    setErrors(prev => {
-                                        const newErrors = { ...prev };
-                                        delete newErrors.parentConsent;
-                                        return newErrors;
-                                    });
-                                }
-                            }}
-                            className="form-checkbox-input"
-                        />
-                        <span className="form-checkbox-label">
-                            Являюсь родителем (законным представителем) участника и согласен на{' '}
-                            <a 
-                                href="/consent" 
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="form-checkbox-link"
-                                onClick={(e) => e.stopPropagation()}
+                        <div className="register-actions">
+                            <button 
+                                type="submit"
+                                disabled={isLoading}
+                                className="register-submit-btn"
                             >
-                                обработку его персональных данных
-                            </a>
-                        </span>
-                    </label>
-                    {errors.parentConsent && (
-                        <div className="form-error">
-                            {errors.parentConsent[0]}
+                                {isLoading ? 'Отправка...' : 'Зарегистрироваться'}
+                            </button>
+                            <p className="register-login-link">
+                                Уже есть аккаунт?{' '}
+                                <a 
+                                    href="/login"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate('/login');
+                                    }}
+                                >
+                                    Войти
+                                </a>
+                            </p>
                         </div>
-                    )}
-                </div>
-
-                <button 
-                    type="submit"
-                    disabled={isLoading}
-                    className="btn btn-primary btn-lg"
-                >
-                    {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-                </button>
-
-                <div className="text-center">
-                    <a 
-                        href="/login" 
-                        className="text-primary"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            navigate('/login');
-                        }}
-                    >
-                        Уже есть аккаунт? Войти
-                    </a>
-                </div>
-            </form>
+                    </form>
                 </div>
             </div>
         </div>

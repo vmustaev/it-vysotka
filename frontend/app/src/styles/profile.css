@@ -1,25 +1,76 @@
 @import './variables.css';
 
-/* Страница профиля */
-.page.profile-page {
-  min-height: 100vh;
-  padding: 60px 40px;
+/* Profile Page */
+.profile-page {
+    min-height: 100vh;
+    padding: 120px 40px 80px;
+    background: transparent;
 }
 
-/* Карточка информации о профиле */
-.profile-info-card {
-    background: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.08);
+.profile-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Hero Section */
+.profile-hero {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.profile-title {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+.profile-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Sections */
+.profile-section {
+    margin-bottom: 32px;
+}
+
+.profile-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Profile Card */
+.profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(96, 165, 250, 0.3);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
 .profile-row {
     display: flex;
-    padding: 20px 0;
-    border-bottom: 1px solid #f1f5f9;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .profile-row:last-child {
@@ -27,221 +78,322 @@
 }
 
 .profile-label {
+    font-size: 14px;
     font-weight: 600;
     color: #64748b;
-    min-width: 160px;
-    font-size: 15px;
+    min-width: 180px;
+    flex-shrink: 0;
 }
 
 .profile-value {
+    font-size: 15px;
     color: #0f172a;
     flex: 1;
-    font-size: 16px;
-    font-weight: 500;
+    word-break: break-word;
 }
 
-/* Бейдж администратора */
+/* Badges */
 .admin-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #ffffff;
+    border-radius: 100px;
     font-size: 13px;
-    font-weight: 700;
-    padding: 6px 16px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
-/* Section Header */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-lg);
+.place-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #ffffff;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
 }
 
 .team-status-badge {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--primary-color);
-    background: rgba(var(--primary-rgb), 0.1);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--border-radius);
+    display: inline-block;
+    padding: 6px 14px;
+    background: #e0e7ff;
+    color: #3730a3;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-/* Пустая команда */
+.lead-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+}
+
+.current-user-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+/* Links */
+.certificate-link,
+.essay-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.certificate-link:hover,
+.essay-link:hover {
+    color: #1e40af;
+    border-bottom-color: #1e40af;
+}
+
+.empty-value {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Results Empty State */
+.results-empty {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.results-empty-icon {
+    color: #cbd5e1;
+    margin-bottom: 16px;
+}
+
+.results-empty-text {
+    color: #64748b;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Radio Group in Profile */
+.profile-radio-group {
+    display: flex;
+    gap: 20px;
+}
+
+.profile-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.profile-radio:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.profile-radio input[type="radio"] {
+    display: none;
+}
+
+.profile-radio-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.profile-radio input[type="radio"]:checked ~ .profile-radio-mark {
+    border-color: #3b82f6;
+    background: #3b82f6;
+}
+
+.profile-radio input[type="radio"]:checked ~ .profile-radio-mark::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+}
+
+.profile-radio-text {
+    font-size: 15px;
+    color: #334155;
+    font-weight: 500;
+}
+
+/* Team Section */
 .team-empty {
     text-align: center;
-    padding: var(--spacing-2xl);
-    background: var(--bg-secondary);
-    border-radius: var(--border-radius-lg);
-    border: 1px dashed var(--border-color);
+    padding: 48px 32px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(96, 165, 250, 0.3);
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .empty-message {
-    font-size: var(--font-size-lg);
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
-    font-weight: var(--font-weight-medium);
+    font-size: 16px;
+    color: #64748b;
+    margin-bottom: 24px;
 }
 
-/* Форма создания команды */
-.team-create-form {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    max-width: 500px;
-    margin: var(--spacing-xl) auto 0;
+.team-create-form,
+.essay-edit-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: #0f172a;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-hint {
     display: block;
-    color: var(--text-tertiary);
-    margin-top: var(--spacing-xs);
-    font-size: var(--font-size-sm);
-    line-height: 1.4;
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 6px;
 }
 
 .form-actions {
     display: flex;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.form-actions .btn {
-    flex: 1;
-}
-
-/* Карточка команды */
+/* Team Info Card */
 .team-info-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: var(--shadow);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(96, 165, 250, 0.3);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .team-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: var(--spacing-lg);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .team-name {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-primary);
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
     margin: 0;
 }
 
-.team-lead-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--border-radius);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.team-member-count {
-    font-size: var(--font-size-base);
-    color: var(--text-secondary);
-    background: var(--bg-secondary);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius);
-}
-
-/* Блок приглашения */
 .team-invite {
-    background: var(--bg-secondary);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 32px;
 }
 
 .team-invite h4 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-md);
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 12px;
 }
 
 .invite-link-container {
     display: flex;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
+    gap: 12px;
 }
 
 .invite-link-container .form-input {
     flex: 1;
-    font-size: var(--font-size-sm);
 }
 
-.invite-link-container .btn {
-    flex-shrink: 0;
-}
-
-.team-invite .form-hint {
-    display: block;
-    color: var(--text-tertiary);
-    font-size: var(--font-size-sm);
-    margin-top: var(--spacing-sm);
-}
-
-/* Список участников */
+/* Team Members */
 .team-members {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 24px;
 }
 
 .team-members h4 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-md);
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 16px;
 }
 
 .members-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 12px;
 }
 
 .member-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    transition: all var(--transition-base);
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
-.member-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Подсветка текущего пользователя */
 .member-card-current {
-    background: rgba(59, 130, 246, 0.05);
-    border-color: rgba(59, 130, 246, 0.3);
-    border-width: 2px;
+    background: #eff6ff;
+    border-color: #bfdbfe;
 }
 
-/* Подсветка лидера */
 .member-card-lead {
-    background: rgba(16, 185, 129, 0.05);
-    border-color: rgba(16, 185, 129, 0.3);
-    border-width: 2px;
+    border-left: 4px solid #3b82f6;
 }
 
 .member-info {
@@ -249,181 +401,224 @@
 }
 
 .member-name {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.lead-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius);
-    text-transform: uppercase;
-}
-
-.current-user-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: white;
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius);
-    text-transform: uppercase;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .member-email {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-size: 13px;
+    color: #64748b;
 }
 
-/* Действия с командой */
+/* Team Actions */
 .team-actions {
-    display: flex;
-    justify-content: center;
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
 }
 
-/* Button loading states */
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: #475569;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #475569;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-outline:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none !important;
 }
 
-/* Results Section - Бейдж места */
-.place-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-    font-size: 24px;
-    font-weight: 700;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+.icon-spin {
+    animation: spin 1s linear infinite;
 }
 
-/* Пустое состояние результатов */
-.results-empty {
-    text-align: center;
-    padding: var(--spacing-2xl) var(--spacing-lg);
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.results-empty-icon {
-    color: var(--text-tertiary);
-    margin-bottom: var(--spacing-lg);
-    opacity: 0.5;
-}
-
-.results-empty-text {
-    font-size: var(--font-size-lg);
-    color: var(--text-secondary);
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-}
-
-/* Ссылка на сертификат */
-.certificate-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: var(--font-weight-medium);
-    transition: all var(--transition-base);
-}
-
-.certificate-link:hover {
-    color: var(--primary-hover);
-    gap: 12px;
-}
-
-.certificate-link svg {
-    flex-shrink: 0;
-}
-
-/* Ссылка на эссе */
-.essay-link {
-    color: var(--primary-color);
-    text-decoration: none;
-    word-break: break-all;
-    transition: color var(--transition-base);
-}
-
-.essay-link:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-}
-
-/* Пустое значение */
-.empty-value {
-    color: var(--text-tertiary);
-    font-style: italic;
-}
-
-/* Форма редактирования эссе */
-.essay-edit-form {
-    padding: var(--spacing-md) 0;
-}
-
-.essay-edit-form .form-group {
-    margin-bottom: 0;
-}
-
-/* Адаптивность */
+/* Responsive Design */
 @media (max-width: 768px) {
+    .profile-page {
+        padding: 100px 24px 60px;
+    }
+
+    .profile-hero {
+        margin-bottom: 40px;
+    }
+
+    .profile-title {
+        font-size: 32px;
+    }
+
+    .profile-subtitle {
+        font-size: 16px;
+    }
+
+    .profile-card,
+    .team-info-card,
+    .team-empty {
+        padding: 24px 20px;
+        border-radius: 20px;
+    }
+
     .profile-row {
         flex-direction: column;
-        gap: var(--spacing-xs);
+        gap: 8px;
+        padding: 12px 0;
     }
 
     .profile-label {
         min-width: auto;
+        font-size: 13px;
     }
 
-    .section-header {
+    .profile-value {
+        font-size: 14px;
+    }
+
+    .profile-section-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-sm);
+        gap: 12px;
+    }
+
+    .profile-section-title {
+        font-size: 20px;
     }
 
     .team-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-sm);
+        gap: 12px;
+    }
+
+    .team-name {
+        font-size: 22px;
     }
 
     .invite-link-container {
         flex-direction: column;
     }
 
-    .invite-link-container .btn {
-        width: 100%;
-    }
-
     .member-card {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-sm);
-    }
-
-    .member-card .btn {
-        width: 100%;
+        gap: 12px;
     }
 
     .form-actions {
         flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .profile-radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .profile-radio {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-page {
+        padding: 90px 20px 50px;
+    }
+
+    .profile-title {
+        font-size: 28px;
+    }
+
+    .profile-subtitle {
+        font-size: 15px;
+    }
+
+    .profile-card,
+    .team-info-card,
+    .team-empty {
+        padding: 20px 16px;
+    }
+
+    .team-name {
+        font-size: 20px;
     }
 }

@@ -8,7 +8,7 @@
 .admin-layout {
     display: flex;
     gap: 24px;
-    padding: 80px 40px 80px;
+    padding: 120px 40px 80px;
     min-height: 100vh;
     background: transparent;
 }
@@ -24,12 +24,11 @@
     display: flex;
     flex-direction: column;
     position: sticky;
-    top: 70px;
+    top: 120px;
     height: fit-content;
-    max-height: calc(100vh - 70px);
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
     flex-shrink: 0;
-    align-self: flex-start;
 }
 
 .admin-sidebar-header {
@@ -146,7 +145,14 @@
     padding: 24px;
     display: flex;
     gap: 20px;
+    transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border-color: rgba(96, 165, 250, 0.4);
 }
 
 .admin-stat-icon {
@@ -456,35 +462,32 @@
 /* Tabs */
 .admin-page .tabs {
     display: flex;
-    gap: 8px;
-    background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.9));
-    border-radius: 12px;
-    padding: 6px;
+    gap: 0;
+    border-bottom: 2px solid #e2e8f0;
     margin-bottom: 32px;
 }
 
 .admin-page .tab-button {
-    padding: 12px 24px;
+    padding: 14px 28px;
     background: transparent;
     border: none;
-    border-radius: 8px;
+    border-bottom: 2px solid transparent;
     cursor: pointer;
     font-size: 15px;
     font-weight: 500;
     color: #64748b;
     transition: all 0.3s ease;
+    margin-bottom: -2px;
 }
 
 .admin-page .tab-button:hover {
     color: #3b82f6;
-    background: rgba(59, 130, 246, 0.05);
 }
 
 .admin-page .tab-button.active {
-    color: #ffffff;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Badges */
@@ -497,7 +500,6 @@
     text-transform: uppercase;
     white-space: nowrap;
     letter-spacing: 0.3px;
-    margin-left: 8px;
 }
 
 .badge-lead {
@@ -722,173 +724,6 @@
     color: #64748b;
     line-height: 1.5;
     margin-bottom: 4px;
-}
-
-/* Modern Buttons - Override старые стили */
-.admin-page .btn,
-.admin-layout .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    justify-content: center;
-}
-
-.admin-page .btn-primary,
-.admin-layout .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.admin-page .btn-primary:hover:not(:disabled),
-.admin-layout .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-    transform: translateY(-2px);
-}
-
-.admin-page .btn-secondary,
-.admin-layout .btn-secondary {
-    background: #ffffff !important;
-    color: #475569 !important;
-    border: 2px solid #e2e8f0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.admin-page .btn-secondary:hover:not(:disabled),
-.admin-layout .btn-secondary:hover:not(:disabled) {
-    border-color: #cbd5e1 !important;
-    background: #f8fafc !important;
-    color: #475569 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.admin-page .btn-outline,
-.admin-layout .btn-outline {
-    background: #ffffff !important;
-    color: #3b82f6 !important;
-    border: 2px solid #3b82f6 !important;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-}
-
-.admin-page .btn-outline:hover:not(:disabled),
-.admin-layout .btn-outline:hover:not(:disabled) {
-    background: #3b82f6 !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    transform: translateY(-2px);
-}
-
-.admin-page .btn-success,
-.admin-layout .btn-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.admin-page .btn-success:hover:not(:disabled),
-.admin-layout .btn-success:hover:not(:disabled) {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-    transform: translateY(-2px);
-}
-
-.admin-page .btn-danger,
-.admin-layout .btn-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.admin-page .btn-danger:hover:not(:disabled),
-.admin-layout .btn-danger:hover:not(:disabled) {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-    transform: translateY(-2px);
-}
-
-.admin-page .btn:disabled,
-.admin-layout .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.admin-page .btn-sm,
-.admin-layout .btn-sm {
-    padding: 8px 16px;
-    font-size: 13px;
-}
-
-.admin-page .btn-lg,
-.admin-layout .btn-lg {
-    padding: 14px 28px;
-    font-size: 16px;
-}
-
-.admin-page .btn-with-icon,
-.admin-layout .btn-with-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Icon Buttons */
-.btn-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-}
-
-.btn-icon:hover {
-    background: #f1f5f9;
-    color: #3b82f6;
-    transform: scale(1.05);
-}
-
-.btn-icon-edit {
-    color: #3b82f6;
-}
-
-.btn-icon-edit:hover {
-    background: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
-}
-
-.btn-icon-delete {
-    color: #ef4444;
-}
-
-.btn-icon-delete:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
-/* Table Actions */
-.admin-table-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
 }
 
 /* Responsive */

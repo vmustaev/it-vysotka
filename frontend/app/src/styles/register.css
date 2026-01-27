@@ -1,0 +1,413 @@
+@import './variables.css';
+
+/* Register Page */
+.register-page {
+    min-height: 100vh;
+    padding: 120px 40px 80px;
+    background: transparent;
+}
+
+.register-content {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Hero Section */
+.register-hero {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.register-title {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+.register-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Card */
+.register-form-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(96, 165, 250, 0.3);
+    border-radius: 28px;
+    padding: 48px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Alert */
+.register-alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.register-alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Form */
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Form Section */
+.register-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.register-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Form Group */
+.register-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.register-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: 0.01em;
+}
+
+/* Form Row */
+.register-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.register-form-row-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Input & Select */
+.register-input,
+.register-select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: #0f172a;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.register-input::placeholder {
+    color: #94a3b8;
+}
+
+.register-input:focus,
+.register-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.register-input.error,
+.register-select.error {
+    border-color: #ef4444;
+}
+
+.register-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+/* Error Message */
+.register-error {
+    font-size: 13px;
+    color: #ef4444;
+    font-weight: 500;
+}
+
+/* Radio Group */
+.register-radio-group {
+    display: flex;
+    gap: 20px;
+}
+
+.register-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.register-radio:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.register-radio input[type="radio"] {
+    display: none;
+}
+
+.register-radio-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.register-radio input[type="radio"]:checked ~ .register-radio-mark {
+    border-color: #3b82f6;
+    background: #3b82f6;
+}
+
+.register-radio input[type="radio"]:checked ~ .register-radio-mark::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+}
+
+.register-radio-label {
+    font-size: 15px;
+    color: #334155;
+    font-weight: 500;
+}
+
+/* Checkbox */
+.register-checkbox-group {
+    margin-top: 8px;
+}
+
+.register-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.register-checkbox:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.register-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.register-checkbox-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.register-checkbox input[type="checkbox"]:checked ~ .register-checkbox-mark {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.register-checkbox input[type="checkbox"]:checked ~ .register-checkbox-mark::after {
+    content: '✓';
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.register-checkbox-label {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.register-checkbox-label a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.register-checkbox-label a:hover {
+    border-bottom-color: #2563eb;
+}
+
+/* Actions */
+.register-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    padding-top: 12px;
+}
+
+.register-submit-btn {
+    width: 100%;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+.register-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+.register-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.register-login-link {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0;
+}
+
+.register-login-link a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.register-login-link a:hover {
+    color: #1e40af;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .register-page {
+        padding: 100px 24px 60px;
+    }
+
+    .register-hero {
+        margin-bottom: 36px;
+    }
+
+    .register-title {
+        font-size: 32px;
+    }
+
+    .register-subtitle {
+        font-size: 16px;
+    }
+
+    .register-form-card {
+        padding: 32px 24px;
+        border-radius: 24px;
+    }
+
+    .register-form {
+        gap: 28px;
+    }
+
+    .register-form-section {
+        gap: 16px;
+    }
+
+    .register-section-title {
+        font-size: 18px;
+    }
+
+    .register-form-row,
+    .register-form-row-3 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .register-radio-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .register-radio {
+        padding: 14px 16px;
+    }
+
+    .register-submit-btn {
+        padding: 14px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-page {
+        padding: 90px 20px 50px;
+    }
+
+    .register-title {
+        font-size: 28px;
+    }
+
+    .register-subtitle {
+        font-size: 15px;
+    }
+
+    .register-form-card {
+        padding: 28px 20px;
+    }
+
+    .register-input,
+    .register-select {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+}
+

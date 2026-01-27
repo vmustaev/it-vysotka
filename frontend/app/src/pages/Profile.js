@@ -378,17 +378,22 @@ const Profile = () => {
     const isLead = team?.members?.find(m => m.id === profile.id)?.isLead || false;
 
     return (
-        <div className="page profile-page">
-            <div className="page-content">
-                <div className="page-header">
-                    <h1 className="page-title">Профиль</h1>
-                    <p className="page-subtitle">Управление профилем и командой</p>
+        <div className="profile-page">
+            <div className="profile-content">
+                <div className="profile-hero">
+                    <h1 className="profile-title">Личный кабинет</h1>
+                    {profile.role === 'admin' && (
+                        <p className="profile-subtitle">Управление вашим профилем администратора</p>
+                    )}
+                    {profile.role !== 'admin' && (
+                        <p className="profile-subtitle">Управление вашим профилем участника</p>
+                    )}
                 </div>
 
                 {/* User Info Section */}
-                <div className="section">
-                    <h2 className="section-title">Личная информация</h2>
-                    <div className="profile-info-card">
+                <div className="profile-section">
+                    <h2 className="profile-section-title">Личная информация</h2>
+                    <div className="profile-card">
                         <div className="profile-row">
                             <span className="profile-label">ФИО:</span>
                             <span className="profile-value">
@@ -410,32 +415,30 @@ const Profile = () => {
                         <div className="profile-row">
                             <span className="profile-label">Формат участия:</span>
                             <div className="profile-value">
-                                <div className="form-radio-group" style={{ marginTop: 0 }}>
-                                    <label className="form-radio">
+                                <div className="profile-radio-group">
+                                    <label className="profile-radio">
                                         <input
                                             type="radio"
                                             name="participation_format"
                                             value="individual"
                                             checked={profile.participation_format === 'individual'}
                                             onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            className="form-radio-input"
                                             disabled={actionLoading}
                                         />
-                                        <span className="form-radio-custom"></span>
-                                        <span className="form-radio-label">Индивидуальное</span>
+                                        <span className="profile-radio-mark"></span>
+                                        <span className="profile-radio-text">Индивидуальное</span>
                                     </label>
-                                    <label className="form-radio">
+                                    <label className="profile-radio">
                                         <input
                                             type="radio"
                                             name="participation_format"
                                             value="team"
                                             checked={profile.participation_format === 'team'}
                                             onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            className="form-radio-input"
                                             disabled={actionLoading}
                                         />
-                                        <span className="form-radio-custom"></span>
-                                        <span className="form-radio-label">Командное</span>
+                                        <span className="profile-radio-mark"></span>
+                                        <span className="profile-radio-text">Командное</span>
                                     </label>
                                 </div>
                             </div>
@@ -444,9 +447,9 @@ const Profile = () => {
                 </div>
 
                 {/* Results Section - всегда показываем */}
-                <div className="section">
-                    <h2 className="section-title">Результаты</h2>
-                    <div className="profile-info-card">
+                <div className="profile-section">
+                    <h2 className="profile-section-title">Результаты</h2>
+                    <div className="profile-card">
                         {profile.place || profile.certificateUrl ? (
                             <>
                                 {profile.place && (
@@ -493,9 +496,9 @@ const Profile = () => {
 
                 {/* Essay Section - только для индивидуальных участников или лидеров команд */}
                 {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
-                    <div className="section">
-                        <div className="section-header">
-                            <h2 className="section-title">Эссе</h2>
+                    <div className="profile-section">
+                        <div className="profile-section-header">
+                            <h2 className="profile-section-title">Эссе</h2>
                             {!isEditingEssay && (
                                 <button
                                     className="btn btn-secondary btn-sm btn-with-icon"
@@ -511,7 +514,7 @@ const Profile = () => {
                             )}
                         </div>
                         
-                        <div className="profile-info-card">
+                        <div className="profile-card">
                             {!isEditingEssay ? (
                                 <div className="profile-row">
                                     <span className="profile-label">Ссылка на эссе:</span>
@@ -591,9 +594,9 @@ const Profile = () => {
 
                 {/* Team Section - показываем только для командного формата */}
                 {profile.participation_format === 'team' && (
-                    <div className="section">
-                        <div className="section-header">
-                            <h2 className="section-title">Моя команда</h2>
+                    <div className="profile-section">
+                        <div className="profile-section-header">
+                            <h2 className="profile-section-title">Моя команда</h2>
                         </div>
 
                     {!team ? (

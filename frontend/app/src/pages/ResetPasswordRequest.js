@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../http';
+import '../styles/reset-password.css';
 
 const ResetPasswordRequest = () => {
     const [email, setEmail] = useState('');
@@ -56,16 +57,20 @@ const ResetPasswordRequest = () => {
     };
 
     return (
-        <div className="page">
-            <div className="form-container">
-                <div className="form-card">
-                    <h2 className="form-title">Сброс пароля</h2>
-                    <p style={{ marginBottom: '20px', color: 'var(--text-secondary)', textAlign: 'center' }}>
+        <div className="reset-page">
+            <div className="reset-content">
+                {/* Hero Section */}
+                <div className="reset-hero">
+                    <h1 className="reset-title">Сброс пароля</h1>
+                    <p className="reset-subtitle">
                         Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
                     </p>
-                    
+                </div>
+
+                {/* Form Card */}
+                <div className="reset-form-card">
                     {successMessage && (
-                        <div className="alert alert-success">
+                        <div className="reset-alert reset-alert-success">
                             {successMessage}
                             <div style={{ marginTop: '10px', fontSize: '14px' }}>
                                 Вы будете перенаправлены на страницу входа через 5 секунд...
@@ -74,53 +79,55 @@ const ResetPasswordRequest = () => {
                     )}
                     
                     {errors._message && (
-                        <div className="alert alert-error">
+                        <div className="reset-alert reset-alert-error">
                             {errors._message}
                         </div>
                     )}
                     
-                    <form onSubmit={handleSubmit} className="form">
-                        <div className="form-group">
+                    <form onSubmit={handleSubmit} className="reset-form">
+                        <div className="reset-form-group">
+                            <label className="reset-label">Email</label>
                             <input
                                 type="email"
-                                placeholder="Email"
+                                placeholder="Введите ваш email"
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);
                                     if (errors.email) setErrors(prev => ({ ...prev, email: [] }));
                                 }}
-                                className={`form-input ${isFieldInvalid('email') ? 'error' : ''}`}
+                                className={`reset-input ${isFieldInvalid('email') ? 'error' : ''}`}
                                 required
                                 disabled={isLoading}
                             />
                             {isFieldInvalid('email') && (
-                                <div className="form-error">
+                                <div className="reset-error">
                                     {getFieldError('email')}
                                 </div>
                             )}
                         </div>
                         
-                        <button 
-                            type="submit"
-                            disabled={isLoading}
-                            className="btn btn-secondary btn-lg"
-                        >
-                            {isLoading ? 'Отправка...' : 'Отправить ссылку для сброса'}
-                        </button>
+                        <div className="reset-actions">
+                            <button 
+                                type="submit"
+                                disabled={isLoading}
+                                className="reset-submit-btn"
+                            >
+                                {isLoading ? 'Отправка...' : 'Отправить ссылку для сброса'}
+                            </button>
+                            
+                            <p className="reset-back-link">
+                                <a 
+                                    href="/login"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate('/login');
+                                    }}
+                                >
+                                    Вернуться ко входу
+                                </a>
+                            </p>
+                        </div>
                     </form>
-                    
-                    <div className="text-center mt-lg">
-                        <a 
-                            href="/login" 
-                            className="text-primary"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/login');
-                            }}
-                        >
-                            Вернуться ко входу
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

@@ -25,14 +25,19 @@ const AdminDashboard = () => {
     return (
         <div className="admin-page">
             <div className="admin-page-header">
-                <h1 className="admin-page-title">Панель управления</h1>
-                <p className="admin-page-subtitle">
-                    Добро пожаловать в панель администратора!
-                </p>
+                <div>
+                    <h1 className="admin-page-title">Панель управления</h1>
+                    <p className="admin-page-subtitle">
+                        Добро пожаловать в панель администратора!
+                    </p>
+                </div>
             </div>
 
             {loading ? (
-                <div className="loading">Загрузка статистики...</div>
+                <div className="admin-loading">
+                    <div className="spinner"></div>
+                    <p>Загрузка статистики...</p>
+                </div>
             ) : stats && (
                 <div className="admin-stats-grid">
                     <div className="admin-stat-card">

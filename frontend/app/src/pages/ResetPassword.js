@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from '../http';
+import '../styles/reset-password.css';
 
 const ResetPassword = () => {
     const [newPassword, setNewPassword] = useState('');
@@ -79,19 +80,26 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="page">
-            <div className="form-container">
-                <div className="form-card">
-                    <h2 className="form-title">Установка нового пароля</h2>
-                    
+        <div className="reset-page">
+            <div className="reset-content">
+                {/* Hero Section */}
+                <div className="reset-hero">
+                    <h1 className="reset-title">Установка нового пароля</h1>
+                    <p className="reset-subtitle">
+                        Введите новый пароль для вашего аккаунта
+                    </p>
+                </div>
+
+                {/* Form Card */}
+                <div className="reset-form-card">
                     {!token ? (
-                        <div className="alert alert-warning">
+                        <div className="reset-alert reset-alert-warning">
                             Загрузка...
                         </div>
                     ) : (
                         <>
                             {successMessage && (
-                                <div className="alert alert-success">
+                                <div className="reset-alert reset-alert-success">
                                     {successMessage}
                                     <div style={{ marginTop: '10px', fontSize: '14px' }}>
                                         Перенаправление на страницу входа...
@@ -100,78 +108,81 @@ const ResetPassword = () => {
                             )}
                             
                             {errors._message && (
-                                <div className="alert alert-error">
+                                <div className="reset-alert reset-alert-error">
                                     {errors._message}
                                 </div>
                             )}
                             
-                            <form onSubmit={handleSubmit} className="form">
-                                <div className="form-group">
+                            <form onSubmit={handleSubmit} className="reset-form">
+                                <div className="reset-form-group">
+                                    <label className="reset-label">Новый пароль</label>
                                     <input
                                         type="password"
-                                        placeholder="Новый пароль"
+                                        placeholder="Введите новый пароль"
                                         value={newPassword}
                                         onChange={(e) => {
                                             setNewPassword(e.target.value);
                                             if (errors.newPassword) setErrors(prev => ({ ...prev, newPassword: [] }));
                                         }}
-                                        className={`form-input ${isFieldInvalid('newPassword') ? 'error' : ''}`}
+                                        className={`reset-input ${isFieldInvalid('newPassword') ? 'error' : ''}`}
                                         required
                                         disabled={isLoading}
                                     />
                                     {isFieldInvalid('newPassword') && (
-                                        <div className="form-error">
+                                        <div className="reset-error">
                                             {getFieldError('newPassword')}
                                         </div>
                                     )}
-                                    <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                                    <div className="reset-hint">
                                         Минимум 8 символов, заглавные и строчные буквы, цифры
                                     </div>
                                 </div>
                                 
-                                <div className="form-group">
+                                <div className="reset-form-group">
+                                    <label className="reset-label">Подтверждение пароля</label>
                                     <input
                                         type="password"
-                                        placeholder="Подтвердите пароль"
+                                        placeholder="Подтвердите новый пароль"
                                         value={confirmPassword}
                                         onChange={(e) => {
                                             setConfirmPassword(e.target.value);
                                             if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: [] }));
                                         }}
-                                        className={`form-input ${isFieldInvalid('confirmPassword') ? 'error' : ''}`}
+                                        className={`reset-input ${isFieldInvalid('confirmPassword') ? 'error' : ''}`}
                                         required
                                         disabled={isLoading}
                                     />
                                     {isFieldInvalid('confirmPassword') && (
-                                        <div className="form-error">
+                                        <div className="reset-error">
                                             {getFieldError('confirmPassword')}
                                         </div>
                                     )}
                                 </div>
                                 
-                                <button 
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="btn btn-secondary btn-lg"
-                                >
-                                    {isLoading ? 'Сохранение...' : 'Сохранить новый пароль'}
-                                </button>
+                                <div className="reset-actions">
+                                    <button 
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="reset-submit-btn"
+                                    >
+                                        {isLoading ? 'Сохранение...' : 'Сохранить новый пароль'}
+                                    </button>
+                                    
+                                    <p className="reset-back-link">
+                                        <a 
+                                            href="/login"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate('/login');
+                                            }}
+                                        >
+                                            Вернуться ко входу
+                                        </a>
+                                    </p>
+                                </div>
                             </form>
                         </>
                     )}
-                    
-                    <div className="text-center mt-lg">
-                        <a 
-                            href="/login" 
-                            className="text-primary"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/login');
-                            }}
-                        >
-                            Вернуться ко входу
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
