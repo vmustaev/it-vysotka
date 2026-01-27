@@ -40,7 +40,14 @@ const App = observer(() => {
     }
 
     return (
-        <div>
+        <div style={{
+            backgroundImage: 'linear-gradient(rgba(37, 99, 235, 0.5), rgba(59, 130, 246, 0.4)), url(/assets/img/background.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            backgroundRepeat: 'no-repeat',
+            minHeight: '100vh'
+        }}>
             <Navbar />
 
             <Routes>

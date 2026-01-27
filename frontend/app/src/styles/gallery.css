@@ -1,41 +1,5 @@
 @import './variables.css';
 
-.page {
-    min-height: 100vh;
-    padding: 60px 40px;
-}
-
-.page-content {
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.page-header {
-    text-align: center;
-    margin-bottom: 80px;
-}
-
-.page-title {
-    font-size: clamp(40px, 6vw, 64px);
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 20px;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-}
-
-.page-subtitle {
-    font-size: 20px;
-    color: #475569;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
-
-.section {
-    margin-bottom: 80px;
-}
-
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -45,18 +9,20 @@
 .gallery-item {
     position: relative;
     aspect-ratio: 4/3;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
-    background: #f1f5f9;
-    border: 2px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .gallery-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.15);
-    border-color: #cbd5e1;
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -8px rgba(59, 130, 246, 0.4);
+    border-color: rgba(96, 165, 250, 0.6);
 }
 
 .gallery-item img {

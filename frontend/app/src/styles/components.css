@@ -2,15 +2,17 @@
 
 /* Навигация */
 .navbar {
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: var(--spacing-sm);
   z-index: var(--z-sticky);
   height: var(--navbar-height);
   margin: 0 var(--spacing-md);
-  transition: background-color var(--transition-base), box-shadow var(--transition-base);
+  transition: all var(--transition-base);
 }
 
 .navbar-content {
@@ -42,47 +44,6 @@
   transform: scale(1.05);
 }
 
-/* Логотип в темной теме */
-[data-theme="dark"] .navbar-logo img {
-  filter: brightness(1.1);
-}
-
-/* Кнопка переключения темы - прижата к правому краю */
-.theme-toggle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  flex-shrink: 0;
-  margin-left: var(--spacing-md);
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-}
-
-.theme-toggle:hover {
-  background: var(--primary-color);
-  color: var(--text-inverse);
-  border-color: var(--primary-color);
-  transform: rotate(20deg);
-}
-
-.theme-toggle:focus {
-  outline: none;
-}
-
-.theme-toggle svg {
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-}
-
 .navbar-links {
   display: flex;
   gap: var(--spacing-lg);
@@ -93,21 +54,24 @@
 }
 
 .navbar-link {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: var(--font-weight-semibold);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
   position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-link:hover {
-  color: var(--primary-color);
-  background-color: var(--bg-secondary);
+  color: #ffffff;
+  background-color: rgba(96, 165, 250, 0.3);
+  transform: translateY(-1px);
 }
 
 .navbar-link.active {
-  color: var(--primary-color);
+  color: #ffffff;
+  background-color: rgba(96, 165, 250, 0.2);
 }
 
 /* Специальные стили для ссылок авторизации */
@@ -127,11 +91,12 @@
 }
 
 .navbar-link-user:hover {
-  color: var(--primary-color);
+  color: #ffffff;
+  background-color: rgba(96, 165, 250, 0.3);
 }
 
 .navbar-link-logout {
-  color: #ef4444;
+  color: rgba(255, 255, 255, 0.9);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -140,13 +105,20 @@
 }
 
 .navbar-link-logout:hover {
-  color: #dc2626;
-  background-color: rgba(239, 68, 68, 0.1);
+  color: #ffffff;
+  background-color: rgba(239, 68, 68, 0.3);
 }
 
 .navbar-link-register {
-  color: var(--primary-color);
+  color: rgba(255, 255, 255, 0.95);
   font-weight: var(--font-weight-semibold);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.3) 0%, rgba(59, 130, 246, 0.2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.navbar-link-register:hover {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.5) 0%, rgba(59, 130, 246, 0.4) 100%);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .navbar-link-register:hover {
@@ -1001,32 +973,6 @@
     z-index: 1002;
   }
 
-  /* Кнопка темы на мобильных - размещаем слева от бургера */
-  .theme-toggle {
-    position: absolute;
-    right: calc(var(--spacing-md) + 50px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    margin-left: 0;
-    z-index: 1002;
-  }
-
-  /* Убираем эффекты hover и active на мобильных */
-  .theme-toggle:hover,
-  .theme-toggle:active,
-  .theme-toggle:focus {
-    transform: translateY(-50%);
-    background: var(--bg-secondary);
-    border-color: var(--border-color);
-  }
-
-  .theme-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
-
   .navbar-menu {
     position: fixed;
     top: 0;
@@ -1103,25 +1049,6 @@
 
   .navbar-logo img {
     height: 35px;
-  }
-
-  /* Уменьшаем кнопку темы на самых маленьких экранах */
-  .theme-toggle {
-    width: 32px;
-    height: 32px;
-    right: calc(var(--spacing-md) + 45px);
-  }
-
-  /* Гарантируем фиксированное положение */
-  .theme-toggle:hover,
-  .theme-toggle:active,
-  .theme-toggle:focus {
-    transform: translateY(-50%);
-  }
-
-  .theme-toggle svg {
-    width: 16px;
-    height: 16px;
   }
 
   .navbar-burger {
