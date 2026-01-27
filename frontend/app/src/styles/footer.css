@@ -2,9 +2,8 @@
 
 /* Footer */
 .footer {
-    background: rgba(30, 58, 138, 0.6);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
     margin-top: auto;
     padding: var(--spacing-xl) var(--spacing-lg);
 }
@@ -19,31 +18,23 @@
 }
 
 .footer-copyright {
-    color: #ffffff;
+    color: var(--text-secondary);
     font-size: var(--font-size-sm);
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    font-weight: 500;
 }
 
 .footer-contact {
-    color: #ffffff;
+    color: var(--text-secondary);
     font-size: var(--font-size-sm);
     text-align: right;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    font-weight: 500;
 }
 
 .footer-contact a {
-    color: #ffffff;
-    text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.4);
-    transition: all 0.3s ease;
-    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
 }
 
 .footer-contact a:hover {
-    color: #93c5fd;
-    text-decoration-color: #93c5fd;
+    text-decoration: underline;
 }
 
 /* Адаптивность */

@@ -31,31 +31,9 @@ UserModel.hasOne(SeatingAssignmentModel, { foreignKey: 'userId', as: 'SeatingAss
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['http://localhost:80', 'http://localhost:3000', 'http://localhost'];
-
-app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (mobile apps, Postman, etc.)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true, // Allow cookies
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    maxAge: 86400 // 24 hours
-}));
-
-app.use(express.json({ limit: '10mb' })); // Limit request body size
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/api', router);
 app.use(errorMiddleware);

@@ -133,12 +133,14 @@ class UserService {
 
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
-            'access'
+            'access', 
+            '1m'
         );
         
         const refreshToken = tokenService.generateToken(
             { ...userDto }, 
-            'refresh'
+            'refresh', 
+            '3m'
         );
         
         await tokenService.saveToken(userDto.id, refreshToken, 'refresh');
@@ -183,12 +185,14 @@ class UserService {
         
         const accessToken = tokenService.generateToken(
             { ...userDto }, 
-            'access'
+            'access', 
+            '1m'
         );
         
         const newRefreshToken = tokenService.generateToken(
             { ...userDto }, 
-            'refresh'
+            'refresh', 
+            '3m'
         );
         
         await tokenService.removeToken(refreshToken, 'refresh');
