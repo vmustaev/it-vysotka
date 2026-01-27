@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
-import '../styles/results.css';
 
 const Results = () => {
     const [activeResultsTab, setActiveResultsTab] = useState('2025');
     const [activeTasksTab, setActiveTasksTab] = useState('2025');
 
     return (
-        <div className="page">
+        <div className="content-page">
             <div className="page-content">
-                <div className="page-header">
-                    <h1 className="page-title">Результаты чемпионата по программированию "IT-ВыСотка"</h1>
-                    <p className="page-subtitle">
+                <div className="content-page-header">
+                    <h1 className="content-page-title">Результаты чемпионата по программированию "IT-ВыСотка"</h1>
+                    <p className="content-page-subtitle">
                         Ознакомьтесь с результатами чемпионата и поздравьте победителей
                     </p>
                 </div>
 
-                <div className="section">
+                <div className="content-section">
                     <div className="tabs">
                         <button 
                             className={`tab-button ${activeResultsTab === '2025' ? 'active' : ''}`}
@@ -154,8 +153,8 @@ const Results = () => {
                     </div>
                 </div>
 
-                <div className="section">
-                    <h2 className="section-title">Задания чемпионата</h2>
+                <div className="content-section">
+                    <h2 className="content-section-title">Задания чемпионата</h2>
                     
                     <div className="tabs">
                         <button 

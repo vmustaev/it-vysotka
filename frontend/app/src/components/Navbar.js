@@ -8,7 +8,6 @@ const Navbar = observer(() => {
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    // Блокировка прокрутки при открытом мобильном меню
     useEffect(() => {
         if (mobileMenuOpen) {
             document.body.style.overflow = 'hidden';
@@ -99,7 +98,6 @@ const Navbar = observer(() => {
                                 <button 
                                     onClick={handleLogout}
                                     className="navbar-link navbar-link-logout"
-                                    title="Выйти"
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

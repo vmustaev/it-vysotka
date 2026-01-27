@@ -1,44 +1,37 @@
 import React from 'react';
-import '../styles/contacts.css';
 
 const Contacts = () => {
     return (
-        <div className="page">
+        <div className="content-page">
             <div className="page-content">
-                <div className="page-header">
-                    <h1 className="page-title">Контакты</h1>
-                    <p className="page-subtitle">
+                <div className="content-page-header">
+                    <h1 className="content-page-title">Контакты</h1>
+                    <p className="content-page-subtitle">
                         Свяжитесь с нами, если у вас есть вопросы или предложения
                     </p>
                 </div>
                 
-                <div className="section">
-                    <div className="contacts-grid">
-                        <div className="contact-card">
-                            <div className="contact-header">
-                                <h3>Телефон</h3>
-                            </div>
-                            <div className="contact-body">
+                <div className="content-section">
+                    <div className="content-grid content-grid-3">
+                        <div className="content-card">
+                            <h3 className="content-card-title">Телефон</h3>
+                            <div className="content-card-body">
                                 <a href="tel:+73472431714">+7 347 243-17-14</a>
                             </div>
                         </div>
 
-                        <div className="contact-card">
-                            <div className="contact-header">
-                                <h3>E-mail</h3>
-                            </div>
-                            <div className="contact-body">
+                        <div className="content-card">
+                            <h3 className="content-card-title">E-mail</h3>
+                            <div className="content-card-body">
                                 <a href="mailto:it.vysotka.usptu@mail.ru">it.vysotka.usptu@mail.ru</a>
                             </div>
                         </div>
 
-                        <div className="contact-card">
-                            <div className="contact-header">
-                                <h3>Адрес</h3>
-                            </div>
-                            <div className="contact-body">
+                        <div className="content-card">
+                            <h3 className="content-card-title">Адрес</h3>
+                            <div className="content-card-body">
                                 <a 
-                                    href="https://go.2gis.com/7yqth" 
+                                    href="https://yandex.ru/maps/org/ugntu_kafedra_vychislitelnoy_tekhniki_i_inzhenernoy_kibernetiki/1691660559/?ll=56.056627%2C54.818559&z=17.28" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                 >
@@ -50,7 +43,7 @@ const Contacts = () => {
                     </div>
                 </div>
 
-                <div className="section">
+                <div className="content-section">
                     <div className="map-container">
                         <iframe 
                             src="https://yandex.ru/map-widget/v1/?um=constructor%3Ac539861e7580230ac0b39a7fab9a04944404e83940da9d7886985362804f8c69&amp;source=constructor" 

@@ -32,12 +32,15 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  width: auto;
+  height: 45px;
 }
 
 .navbar-logo img {
   height: 45px;
   width: auto;
   transition: transform var(--transition-fast);
+  display: block;
 }
 
 .navbar-logo:hover img {
@@ -51,27 +54,34 @@
   flex-wrap: wrap;
   flex: 1;
   min-width: 0;
+  min-height: 40px;
+  contain: layout style;
 }
 
 .navbar-link {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: var(--font-weight-semibold);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
   position: relative;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .navbar-link:hover {
   color: #ffffff;
-  background-color: rgba(96, 165, 250, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-link.active {
   color: #ffffff;
-  background-color: rgba(96, 165, 250, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Специальные стили для ссылок авторизации */
@@ -110,19 +120,19 @@
 }
 
 .navbar-link-register {
-  color: rgba(255, 255, 255, 0.95);
+  color: #ffffff;
   font-weight: var(--font-weight-semibold);
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.3) 0%, rgba(59, 130, 246, 0.2) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-link-register:hover {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.5) 0%, rgba(59, 130, 246, 0.4) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
   border-color: rgba(255, 255, 255, 0.5);
-}
-
-.navbar-link-register:hover {
-  color: var(--primary-dark);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-actions {
@@ -131,6 +141,9 @@
   align-items: center;
   flex-shrink: 0;
   flex-wrap: nowrap;
+  min-height: 40px;
+  min-width: 200px;
+  contain: layout style;
 }
 
 .navbar-user {
@@ -288,6 +301,8 @@
   gap: var(--spacing-lg);
   flex: 1;
   min-width: 0;
+  min-height: 40px;
+  contain: layout style;
 }
 
 /* Оверлей для затемнения фона при открытом мобильном меню */
@@ -708,10 +723,8 @@
 .page-title {
   font-size: var(--font-size-4xl);
   margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .page-subtitle {

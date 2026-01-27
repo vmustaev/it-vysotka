@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import '../styles/gallery.css';
 
 const Gallery = () => {
     const [selectedImage, setSelectedImage] = useState(null);
@@ -37,16 +36,16 @@ const Gallery = () => {
     };
 
     return (
-        <div className="page">
+        <div className="content-page">
             <div className="page-content">
-                <div className="page-header">
-                    <h1 className="page-title">Фотографии с чемпионата "IT-высотка"</h1>
-                    <p className="page-subtitle">
+                <div className="content-page-header">
+                    <h1 className="content-page-title">Фотографии с чемпионата "IT-высотка"</h1>
+                    <p className="content-page-subtitle">
                         Яркие моменты и атмосфера соревнований
                     </p>
                 </div>
                 
-                <div className="section">
+                <div className="content-section">
                     <div className="gallery-grid">
                         {images.map((image, index) => (
                             <div 

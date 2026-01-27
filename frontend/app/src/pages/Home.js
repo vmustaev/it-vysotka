@@ -56,17 +56,22 @@ const Home = () => {
         <div className="home-page">
             <div className="hero-wrapper">
                 <div className="hero-content">
-                    <div className="hero-badge">Чемпионат по программированию</div>
                     <h1 className="hero-title">IT-ВыСотка</h1>
                     
-                    {registrationOpen && registrationData?.championship_datetime && (
+                    {registrationData?.championship_datetime && (
                         <div className="hero-event-info">
                             <div className="event-info-item">
-                                <span className="event-info-label">Дата и время</span>
+                                <span className="event-info-label">
+                                    {registrationOpen ? 'Дата и время' : 'Дата проведения'}
+                                </span>
                                 <span className="event-info-value">
                                     {new Date(registrationData.championship_datetime).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })} 
-                                    {' в '} 
-                                    {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                                    {registrationOpen && (
+                                        <>
+                                            {' в '} 
+                                            {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                                        </>
+                                    )}
                                 </span>
                             </div>
                             <div className="event-info-item">
@@ -87,13 +92,19 @@ const Home = () => {
                             <span className="cta-arrow">→</span>
                         </Link>
                     ) : (
-                        <>
-                            <p className="hero-closed">Чемпионат завершён. Ознакомьтесь с результатами!</p>
-                            <Link to="/results" className="hero-cta">
+                        <div className="hero-completed-section">
+                            <div className="hero-completed-badge">
+                                Чемпионат успешно завершён
+                            </div>
+                            <p className="hero-completed-text">
+                                Спасибо всем участникам за проявленные знания и упорство. 
+                                Результаты уже доступны — посмотрите, как выступили команды!
+                            </p>
+                            <Link to="/results" className="hero-cta hero-cta-results">
                                 Посмотреть результаты
                                 <span className="cta-arrow">→</span>
                             </Link>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
