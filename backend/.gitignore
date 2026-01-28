@@ -39,3 +39,10 @@ Thumbs.db
 # Certificates and fonts
 files/certificates/
 files/fonts/
+
+# Uploaded files (keep only .gitkeep)
+files/*
+!files/.gitkeep
+!files/generated-certificates/
+files/generated-certificates/*
+!files/generated-certificates/.gitkeep

@@ -16,6 +16,7 @@ const RoomModel = require('./models/room-model');
 const SeatingAssignmentModel = require('./models/seating-assignment-model');
 const SettingsModel = require('./models/settings-model');
 const CertificateModel = require('./models/certificate-model');
+const FileModel = require('./models/file-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });
@@ -28,6 +29,10 @@ SeatingAssignmentModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'User', 
 RoomModel.hasMany(SeatingAssignmentModel, { foreignKey: 'roomId', as: 'Assignments' });
 TeamModel.hasOne(SeatingAssignmentModel, { foreignKey: 'teamId', as: 'SeatingAssignment' });
 UserModel.hasOne(SeatingAssignmentModel, { foreignKey: 'userId', as: 'SeatingAssignment' });
+
+// Связи для файлов
+FileModel.belongsTo(UserModel, { foreignKey: 'uploadedBy', as: 'Uploader' });
+UserModel.hasMany(FileModel, { foreignKey: 'uploadedBy', as: 'UploadedFiles' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;

@@ -6,7 +6,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-schools": "node scripts/import-schools.js",
     "seed": "node scripts/seed-test-data.js",
-    "create-test-certificate": "node scripts/create-test-certificate.js"
+    "create-test-certificate": "node scripts/create-test-certificate.js",
+    "migrate": "node scripts/run-migration.js",
+    "test-files": "node scripts/test-file-system.js",
+    "import-files": "node scripts/import-existing-files.js"
   },
   "keywords": [],
   "author": "",

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import TasksSection from '../components/TasksSection';
 import '../styles/results.css';
 
 const Results = () => {
     const [activeResultsTab, setActiveResultsTab] = useState('2025');
-    const [activeTasksTab, setActiveTasksTab] = useState('2025');
 
     return (
         <div className="results-page">
@@ -224,117 +224,10 @@ const Results = () => {
                     </div>
                 </div>
 
-                {/* Секция заданий */}
+                {/* Секция заданий - загружается из файловой системы */}
                 <div className="tasks-section">
                     <h2 className="section-title-main">Задания чемпионата</h2>
-                    
-                    <div className="year-tabs">
-                        <button 
-                            className={`year-tab ${activeTasksTab === '2025' ? 'active' : ''}`}
-                            onClick={() => setActiveTasksTab('2025')}
-                        >
-                            2025
-                        </button>
-                        <button 
-                            className={`year-tab ${activeTasksTab === '2024' ? 'active' : ''}`}
-                            onClick={() => setActiveTasksTab('2024')}
-                        >
-                            2024
-                        </button>
-                    </div>
-
-                    <div className="tasks-content">
-                        {activeTasksTab === '2025' && (
-                            <div className="tasks-grid">
-                                <div className="task-card">
-                                    <div className="task-number">01</div>
-                                    <h3 className="task-title">Контакт</h3>
-                                    <p className="task-description">Найти минимальную степень двойки, первые цифры которой совпадают с заданным числом</p>
-                                    <a href="/files/task1_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">02</div>
-                                    <h3 className="task-title">Языки программирования</h3>
-                                    <p className="task-description">Определить, может ли слово из словаря быть подпоследовательностью введенной команды</p>
-                                    <a href="/files/task2_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">03</div>
-                                    <h3 className="task-title">Грузоподъем</h3>
-                                    <p className="task-description">Найти минимальную стоимость подъема сейфа на заданный этаж с учетом лифтов и лестниц</p>
-                                    <a href="/files/task3_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">04</div>
-                                    <h3 className="task-title">Заклинание</h3>
-                                    <p className="task-description">Вычислить магическую силу заклинания, равную количеству вхождений магического сочетания символов</p>
-                                    <a href="/files/task4_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">05</div>
-                                    <h3 className="task-title">Садовод</h3>
-                                    <p className="task-description">Определить максимальное количество кустов, которые можно спасти</p>
-                                    <a href="/files/task5_2025.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTasksTab === '2024' && (
-                            <div className="tasks-grid">
-                                <div className="task-card">
-                                    <div className="task-number">01</div>
-                                    <h3 className="task-title">Маршрут доставки</h3>
-                                    <p className="task-description">Постройте маршрут доставки пиццы от пиццерии до отеля</p>
-                                    <a href="/files/task1.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">02</div>
-                                    <h3 className="task-title">Гоночная трасса</h3>
-                                    <p className="task-description">Определите стартовую станцию для машинки на гоночной трассе</p>
-                                    <a href="/files/task2.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">03</div>
-                                    <h3 className="task-title">Лицензионный ключ</h3>
-                                    <p className="task-description">Переформатируйте лицензионный ключ</p>
-                                    <a href="/files/task3.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                                <div className="task-card">
-                                    <div className="task-number">04</div>
-                                    <h3 className="task-title">Вулкан</h3>
-                                    <p className="task-description">Найдите вулкан, название которого начинается и заканчивается на согласную</p>
-                                    <a href="/files/task4.pdf" className="task-button" target="_blank" rel="noopener noreferrer">
-                                        <span>Скачать задание</span>
-                                        <span className="button-arrow">→</span>
-                                    </a>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <TasksSection variant="results" />
                 </div>
 
             </div>

@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import FileService from '../services/FileService';
 import '../styles/regulations.css';
 
 const Regulations = () => {
+    const [documents, setDocuments] = useState({
+        roditeli: null,
+        uchastniki: null,
+        polozhenie: null,
+        booklet: null
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadDocuments();
+    }, []);
+
+    const loadDocuments = async () => {
+        try {
+            setLoading(true);
+            const response = await FileService.getFilesByType('regulations');
+            const docs = response.files;
+
+            // Маппинг файлов по их именам
+            const docsMap = {
+                roditeli: docs.find(d => d.filename.toLowerCase().includes('roditeli') || d.filename.toLowerCase().includes('родител')),
+                uchastniki: docs.find(d => d.filename.toLowerCase().includes('uchastniki') || d.filename.toLowerCase().includes('участник')),
+                polozhenie: docs.find(d => d.filename.toLowerCase().includes('polozhenie') || d.filename.toLowerCase().includes('положение')),
+                booklet: docs.find(d => d.filename.toLowerCase().includes('booklet') || d.filename.toLowerCase().includes('памятка'))
+            };
+
+            setDocuments(docsMap);
+        } catch (error) {
+            console.error('Ошибка при загрузке документов:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="regulations-page">
             <div className="regulations-content">
@@ -25,13 +60,19 @@ const Regulations = () => {
                             <p className="card-description">
                                 Если участник младше 18 лет, необходимо предоставить <strong>согласие родителя или законного представителя</strong>
                             </p>
-                            <a href="/files/roditeli.pdf" 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
-                               className="card-button">
-                                <span>Скачать форму согласия</span>
-                                <span className="button-arrow">→</span>
-                            </a>
+                            {documents.roditeli ? (
+                                <a href={documents.roditeli.url} 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   className="card-button">
+                                    <span>Скачать форму согласия</span>
+                                    <span className="button-arrow">→</span>
+                                </a>
+                            ) : (
+                                <div style={{ color: '#999', fontSize: '0.9rem', marginTop: '10px' }}>
+                                    {loading ? 'Загрузка...' : 'Документ не доступен'}
+                                </div>
+                            )}
                         </div>
 
                         {/* Карточка 2 */}
@@ -41,13 +82,19 @@ const Regulations = () => {
                             <p className="card-description">
                                 Если участник старше 18 лет, необходимо предоставить <strong>согласие на обработку персональных данных</strong>
                             </p>
-                            <a href="/files/uchastniki.pdf" 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
-                               className="card-button">
-                                <span>Скачать форму согласия</span>
-                                <span className="button-arrow">→</span>
-                            </a>
+                            {documents.uchastniki ? (
+                                <a href={documents.uchastniki.url} 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   className="card-button">
+                                    <span>Скачать форму согласия</span>
+                                    <span className="button-arrow">→</span>
+                                </a>
+                            ) : (
+                                <div style={{ color: '#999', fontSize: '0.9rem', marginTop: '10px' }}>
+                                    {loading ? 'Загрузка...' : 'Документ не доступен'}
+                                </div>
+                            )}
                         </div>
 
                         {/* Карточка 3 */}
@@ -86,13 +133,21 @@ const Regulations = () => {
                         <h3 className="highlight-title">Важная информация</h3>
                         <p className="highlight-text">
                             Настоятельно рекомендуем ознакомиться с{' '}
-                            <a href="/files/polozhenie.pdf" target="_blank" rel="noopener noreferrer">
-                                Положением о Чемпионате
-                            </a>
+                            {documents.polozhenie ? (
+                                <a href={documents.polozhenie.url} target="_blank" rel="noopener noreferrer">
+                                    Положением о Чемпионате
+                                </a>
+                            ) : (
+                                <span style={{ color: '#999' }}>Положением о Чемпионате</span>
+                            )}
                             {' '}и с{' '}
-                            <a href="/files/booklet.docx" target="_blank" rel="noopener noreferrer">
-                                Памяткой участникам соревнований
-                            </a>
+                            {documents.booklet ? (
+                                <a href={documents.booklet.url} target="_blank" rel="noopener noreferrer">
+                                    Памяткой участникам соревнований
+                                </a>
+                            ) : (
+                                <span style={{ color: '#999' }}>Памяткой участникам соревнований</span>
+                            )}
                             {' '}для полного понимания правил и требований проведения чемпионата.
                         </p>
                     </div>

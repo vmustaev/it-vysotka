@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import FileService from '../services/FileService';
 
 const Gallery = () => {
     const [selectedImage, setSelectedImage] = useState(null);
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const images = [
-        'DSC_0194-min.JPG',
-        'DSC_5314-min.JPG',
-        'DSC_5316-min.JPG',
-        'DSC_5320-min.JPG',
-        'DSC_5389-min.JPG',
-        'DSC_5402-min.JPG',
-        'DSC_5419-min.JPG',
-        'DSC_5432-min.JPG',
-        'DSC_5441-min.jpg',
-        'DSC_5452-min.jpg',
-        'DSC_5552-min.jpg',
-        'DSC_5560-min.jpg',
-        'DSC_5630-min.jpg',
-        'IMG_1620-min.jpg',
-        'IMG_1624-min.jpg',
-        'IMG_1674-min.jpg',
-        'IMG_1676-min.jpg',
-        'IMG_1683-min.jpg',
-        'IMG_1762-min.jpg',
-        'IMG_1796-min.jpg',
-        'ITchamp-0044-min.jpg'
-    ];
+    useEffect(() => {
+        loadGallery();
+    }, []);
+
+    const loadGallery = async () => {
+        try {
+            setLoading(true);
+            const response = await FileService.getFilesByType('gallery');
+            setImages(response.files);
+        } catch (error) {
+            console.error('Ошибка при загрузке галереи:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const openImage = (image) => {
         setSelectedImage(image);
@@ -34,6 +29,21 @@ const Gallery = () => {
     const closeImage = () => {
         setSelectedImage(null);
     };
+
+    if (loading) {
+        return (
+            <div className="content-page">
+                <div className="page-content">
+                    <div className="content-page-header">
+                        <h1 className="content-page-title">Фотографии с чемпионата "IT-высотка"</h1>
+                    </div>
+                    <div className="content-section" style={{ textAlign: 'center', padding: '60px 20px' }}>
+                        <div style={{ fontSize: '1.2rem', color: '#666' }}>Загрузка фотографий...</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="content-page">
@@ -46,30 +56,36 @@ const Gallery = () => {
                 </div>
                 
                 <div className="content-section">
-                    <div className="gallery-grid">
-                        {images.map((image, index) => (
-                            <div 
-                                key={index} 
-                                className="gallery-item"
-                                onClick={() => openImage(image)}
-                            >
-                                <img 
-                                    src={`/files/${image}`} 
-                                    alt={`Фото ${index + 1}`}
-                                    loading="lazy"
-                                />
-                                <div className="gallery-overlay"></div>
-                            </div>
-                        ))}
-                    </div>
+                    {images.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666' }}>
+                            Фотографий пока нет
+                        </div>
+                    ) : (
+                        <div className="gallery-grid">
+                            {images.map((image) => (
+                                <div 
+                                    key={image.id} 
+                                    className="gallery-item"
+                                    onClick={() => openImage(image)}
+                                >
+                                    <img 
+                                        src={image.url} 
+                                        alt={image.description || image.filename}
+                                        loading="lazy"
+                                    />
+                                    <div className="gallery-overlay"></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {selectedImage && (
                     <div className="gallery-modal" onClick={closeImage}>
                         <div className="modal-content">
                             <img 
-                                src={`/files/${selectedImage}`} 
-                                alt="Увеличенное фото"
+                                src={selectedImage.url} 
+                                alt={selectedImage.description || selectedImage.filename}
                                 onClick={closeImage}
                             />
                         </div>

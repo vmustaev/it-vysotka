@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SettingsService from '../services/SettingsService';
+import FileService from '../services/FileService';
 import '../styles/home.css';
 
 const Home = () => {
     const [registrationOpen, setRegistrationOpen] = useState(false);
     const [registrationData, setRegistrationData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sponsors, setSponsors] = useState([]);
 
     useEffect(() => {
         checkRegistrationStatus();
+        loadSponsors();
     }, []);
 
     const checkRegistrationStatus = async () => {
@@ -22,6 +25,15 @@ const Home = () => {
             console.error('Error checking registration status:', e);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadSponsors = async () => {
+        try {
+            const response = await FileService.getFilesByType('sponsors');
+            setSponsors(response.files);
+        } catch (error) {
+            console.error('Ошибка при загрузке спонсоров:', error);
         }
     };
 
@@ -163,15 +175,22 @@ const Home = () => {
 
                 <section className="sponsors-section">
                     <h2 className="section-heading">Партнёры чемпионата</h2>
-                    <div className="sponsors-container">
-                        <div className="sponsor-item"><img src="/files/redsoft.png" alt="Редсофт" /></div>
-                        <div className="sponsor-item"><img src="/files/burintech.jpg" alt="Буринтех" /></div>
-                        <div className="sponsor-item"><img src="/files/банер гк бит ПНг.png" alt="ГК Бит" /></div>
-                        <div className="sponsor-item"><img src="/files/роснефть.jpg" alt="Роснефть" /></div>
-                        <div className="sponsor-item"><img src="/files/транснефть.png" alt="Транснефть" /></div>
-                        <div className="sponsor-item"><img src="/files/petrotest.png" alt="Башнефть" /></div>
-                        <div className="sponsor-item"><img src="/files/kuraisoft.jpg" alt="Курайсофт" /></div>
-                    </div>
+                    {sponsors.length > 0 ? (
+                        <div className="sponsors-container">
+                            {sponsors.map((sponsor) => (
+                                <div key={sponsor.id} className="sponsor-item">
+                                    <img 
+                                        src={sponsor.url} 
+                                        alt={sponsor.description || sponsor.filename} 
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                            Информация о партнерах появится позже
+                        </div>
+                    )}
                 </section>
             </div>
         </div>

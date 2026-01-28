@@ -8,6 +8,7 @@ const roomController = require('../controllers/room-controller');
 const seatingController = require('../controllers/seating-controller');
 const settingsController = require('../controllers/settings-controller');
 const certificateController = require('../controllers/certificate-controller');
+const fileController = require('../controllers/file-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
@@ -19,7 +20,12 @@ const { createRoomValidation, updateRoomValidation } = require('../validation/ro
 const multer = require('multer');
 const upload = multer({ 
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+        // Исправляем кодировку имени файла
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        cb(null, true);
+    }
 });
 
 router.post('/registration', registrationValidation, validationMiddleware, userController.registration);
@@ -100,5 +106,16 @@ router.get('/certificates/download/:participantId', authMiddleware, certificateC
 
 // Public routes - Settings
 router.get('/settings/registration-status', settingsController.getRegistrationStatus);
+
+// Admin routes - Files
+router.post('/admin/files/upload', authMiddleware, adminMiddleware, upload.single('file'), fileController.upload);
+router.get('/admin/files', authMiddleware, adminMiddleware, fileController.getAll);
+router.get('/admin/files/stats', authMiddleware, adminMiddleware, fileController.getStats);
+router.get('/admin/files/:id', authMiddleware, adminMiddleware, fileController.getById);
+router.put('/admin/files/:id', authMiddleware, adminMiddleware, fileController.update);
+router.delete('/admin/files/:id', authMiddleware, adminMiddleware, fileController.delete);
+
+// Public routes - Files (получение файлов по типу)
+router.get('/files/type/:type', fileController.getByType);
 
 module.exports = router;

@@ -27,6 +27,7 @@ import CMS from "./pages/admin/CMS";
 import Certificates from "./pages/admin/Certificates";
 import Settings from "./pages/admin/Settings";
 import Logs from "./pages/admin/Logs";
+import FileManager from "./pages/admin/FileManager";
 
 const App = observer(() => {
     const { store } = useContext(Context);
@@ -96,6 +97,7 @@ const App = observer(() => {
                     <Route path="certificates" element={<Certificates />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="logs" element={<Logs />} />
+                    <Route path="files" element={<FileManager />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
