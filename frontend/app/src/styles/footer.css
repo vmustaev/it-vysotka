@@ -37,13 +37,14 @@
 }
 
 .footer-contact a {
-    color: #60a5fa;
+    color: #ffffff;
     text-decoration: none;
+    font-weight: 600;
     transition: all 0.2s ease;
 }
 
 .footer-contact a:hover {
-    color: #93c5fd;
+    color: #ffffff;
     text-decoration: underline;
 }
 

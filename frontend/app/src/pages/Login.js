@@ -2,26 +2,41 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
+import Toast from '../components/Toast';
 import '../styles/login.css';
 
 const LoginPage = observer(() => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-    const [successMessage, setSuccessMessage] = useState('');
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const { store } = useContext(Context);
     const navigate = useNavigate();
     const location = useLocation();
     
     useEffect(() => {
         if (location.state?.registrationSuccess) {
-            setSuccessMessage(location.state.message || 'Регистрация успешна!');
+            setNotification({ 
+                type: 'success', 
+                message: location.state.message || 'Регистрация успешна!' 
+            });
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+        
+        if (location.state?.toastMessage) {
+            setNotification({ 
+                type: location.state.toastType || 'success', 
+                message: location.state.toastMessage 
+            });
             navigate(location.pathname, { replace: true, state: {} });
         }
         
         const params = new URLSearchParams(location.search);
         if (params.get('activated') === 'true') {
-            setSuccessMessage('Аккаунт успешно активирован! Теперь вы можете войти.');
+            setNotification({ 
+                type: 'success', 
+                message: 'Аккаунт успешно активирован! Теперь вы можете войти.' 
+            });
             navigate(location.pathname, { replace: true });
         }
         if (params.get('activation_error') === 'true') {
@@ -58,23 +73,21 @@ const LoginPage = observer(() => {
                 }
             }
         } catch (e) {
-            setSuccessMessage('');
             const responseData = e.response?.data;
             const newErrors = {};
 
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
+                setErrors(newErrors);
             } else {
+                let errorMessage = 'Ошибка входа';
                 if (responseData?.message) {
-                    newErrors._message = responseData.message;
+                    errorMessage = responseData.message;
                 } else if (responseData?.errors && responseData.errors.length > 0) {
-                    newErrors._message = Array.isArray(responseData.errors) ? responseData.errors[0] : responseData.errors;
-                } else {
-                    newErrors._message = 'Ошибка входа';
+                    errorMessage = Array.isArray(responseData.errors) ? responseData.errors[0] : responseData.errors;
                 }
+                setNotification({ type: 'error', message: errorMessage });
             }
-            
-            setErrors(newErrors);
         }
     };
 
@@ -88,38 +101,27 @@ const LoginPage = observer(() => {
 
     return (
         <div className="login-page">
+            {notification.message && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                />
+            )}
+            
             <div className="login-content">
                 {/* Hero Section */}
                 <div className="login-hero">
                     <h1 className="login-title">Вход</h1>
-                    <p className="login-subtitle">Войдите в свой аккаунт для участия в чемпионате</p>
                 </div>
 
                 {/* Form Card */}
                 <div className="login-form-card">
-                    {successMessage && (
-                        <div className="login-alert login-alert-success">
-                            {successMessage}
-                            {successMessage.includes('активирован') && (
-                                <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                                    После активации войдите в аккаунт
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    
-                    {errors._message && (
-                        <div className="login-alert login-alert-error">
-                            {errors._message}
-                        </div>
-                    )}
-                    
                     <form onSubmit={handleSubmit} className="login-form">
                         <div className="login-form-group">
                             <label className="login-label">Email</label>
                             <input
                                 type="email"
-                                placeholder="Введите ваш email"
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);
@@ -139,7 +141,6 @@ const LoginPage = observer(() => {
                             <label className="login-label">Пароль</label>
                             <input
                                 type="password"
-                                placeholder="Введите ваш пароль"
                                 value={password}
                                 onChange={(e) => {
                                     setPassword(e.target.value);

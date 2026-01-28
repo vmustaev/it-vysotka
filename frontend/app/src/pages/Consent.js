@@ -1,21 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/consent.css';
 
 const Consent = () => {
     return (
-        <div className="content-page">
-            <div className="page-content">
-                <div className="content-page-header">
-                    <h1 className="content-page-title">Согласие на обработку персональных данных</h1>
-                    <p className="content-page-subtitle">
+        <div className="consent-page">
+            <div className="consent-container">
+                <div className="consent-header">
+                    <h1 className="consent-title">Согласие на обработку персональных данных</h1>
+                    <p className="consent-subtitle">
                         Согласие родителя (законного представителя) на обработку персональных данных 
                         несовершеннолетнего участника Чемпионата по программированию для школьников «IT-ВыСотка»
                     </p>
                 </div>
 
-                <div className="content-container-light">
-                    <div className="content-section">
-                        <h2 className="content-section-title">Общие положения</h2>
+                <div className="consent-content">
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Общие положения</h2>
                         <p>
                             Субъектами персональных данных (далее – Субъекты) являются Участник и Родитель.
                         </p>
@@ -24,8 +25,8 @@ const Consent = () => {
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Ознакомление с документами</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Ознакомление с документами</h2>
                         <p>
                             Родитель подтверждает своё ознакомление с нормативными документами, определяющими 
                             порядок проведения Чемпионата по программированию для школьников «IT-ВыСотка» (далее – 
@@ -35,8 +36,8 @@ const Consent = () => {
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Согласие на обработку персональных данных</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Согласие на обработку персональных данных</h2>
                         <p>
                             Субъект даёт согласие Оператору на обработку своих персональных данных, а также 
                             персональных данных Участника в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О 
@@ -46,8 +47,8 @@ const Consent = () => {
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Цели обработки персональных данных</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Цели обработки персональных данных</h2>
                         <p>
                             Согласие даётся Оператору в целях организации, проведения и подведения итогов чемпионата 
                             и приглашения Участника и Родителя для участия в профориентационных мероприятиях, проводимых 
@@ -55,16 +56,16 @@ const Consent = () => {
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Публикация персональных данных</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Публикация персональных данных</h2>
                         <p>
                             Родитель даёт согласие Оператору на публикацию персональных данных Участника, в том 
                             числе в сети «Интернет».
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Объем обрабатываемых персональных данных</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Объем обрабатываемых персональных данных</h2>
                         <p>
                             Согласие распространяется на следующие персональные данные Родителя: фамилия, имя и 
                             отчество, данные удостоверяющего личность документа, адрес регистрации, реквизиты документа, 
@@ -79,20 +80,20 @@ const Consent = () => {
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Срок действия согласия</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Срок действия согласия</h2>
                         <p>
                             Настоящее согласие действует в течение года со дня его подписания. Согласие может быть 
                             отозвано Субъектом в письменной форме по адресу:
                         </p>
-                        <p style={{ fontWeight: 600, marginTop: 16 }}>
+                        <p>
                             450064, г. Уфа, ул. Космонавтов 1, ФГБОУ ВО «Уфимский государственный нефтяной технический 
                             университет» в соответствии с законодательством РФ
                         </p>
                     </div>
 
-                    <div className="content-section">
-                        <h2 className="content-section-title">Подтверждение</h2>
+                    <div className="consent-section">
+                        <h2 className="consent-section-title">Подтверждение</h2>
                         <p>
                             Родитель подтверждает, что он действует по своей воле и в интересах Участника.
                         </p>

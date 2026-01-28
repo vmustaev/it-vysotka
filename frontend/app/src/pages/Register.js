@@ -4,6 +4,7 @@ import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 import SearchableSelect from '../components/SearchableSelect';
 import SettingsService from '../services/SettingsService';
+import Toast from '../components/Toast';
 import $api from '../http';
 import '../styles/register-closed.css';
 import '../styles/register.css';
@@ -29,6 +30,7 @@ const RegisterPage = observer(() => {
     const [parentConsent, setParentConsent] = useState(false);
 
     const [errors, setErrors] = useState({});
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const [isLoading, setIsLoading] = useState(false);
     const { store } = useContext(Context);
     const navigate = useNavigate();
@@ -283,15 +285,11 @@ const RegisterPage = observer(() => {
             
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
+                setErrors(newErrors);
             } else {
-                if (responseData?.message) {
-                    newErrors._message = responseData.message;
-                } else {
-                    newErrors._message = 'Ошибка регистрации';
-                }
+                const errorMessage = responseData?.message || 'Ошибка регистрации';
+                setNotification({ type: 'error', message: errorMessage });
             }
-            
-            setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
@@ -346,21 +344,20 @@ const RegisterPage = observer(() => {
     // Если регистрация открыта, показываем форму
     return (
         <div className="register-page">
+            {notification.message && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                />
+            )}
+            
             <div className="register-content">
                 <div className="register-hero">
                     <h1 className="register-title">Регистрация на чемпионат</h1>
-                    <p className="register-subtitle">
-                        Заполните форму для участия в IT-ВыСотка
-                    </p>
                 </div>
 
                 <div className="register-form-card">
-                    {errors._message && (
-                        <div className="register-alert register-alert-error">
-                            {errors._message}
-                        </div>
-                    )}
-                    
                     <form onSubmit={handleSubmit} className="register-form">
                         <div className="register-form-section">
                             <h3 className="register-section-title">Учетные данные</h3>
@@ -369,7 +366,6 @@ const RegisterPage = observer(() => {
                                 <input
                                     type="email"
                                     name="email"
-                                    placeholder="example@mail.ru"
                                     value={formData.email}
                                     onChange={handleChange}
                                     className={`register-input ${isFieldInvalid('email') ? 'error' : ''}`}
@@ -387,7 +383,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="password"
                                         name="password"
-                                        placeholder="Минимум 6 символов"
                                         value={formData.password}
                                         onChange={handleChange}
                                         className={`register-input ${isFieldInvalid('password') ? 'error' : ''}`}
@@ -404,7 +399,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="password"
                                         name="password_confirmation"
-                                        placeholder="Повторите пароль"
                                         value={formData.password_confirmation}
                                         onChange={handleChange}
                                         className={`register-input ${isFieldInvalid('password_confirmation') ? 'error' : ''}`}
@@ -427,7 +421,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="text"
                                         name="last_name"
-                                        placeholder="Иванов"
                                         value={formData.last_name}
                                         onChange={handleChange}
                                         className={`register-input ${isFieldInvalid('last_name') ? 'error' : ''}`}
@@ -444,7 +437,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="text"
                                         name="first_name"
-                                        placeholder="Иван"
                                         value={formData.first_name}
                                         onChange={handleChange}
                                         className={`register-input ${isFieldInvalid('first_name') ? 'error' : ''}`}
@@ -461,7 +453,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="text"
                                         name="second_name"
-                                        placeholder="Необязательно"
                                         value={formData.second_name}
                                         onChange={handleChange}
                                         className={`register-input ${isFieldInvalid('second_name') ? 'error' : ''}`}
@@ -496,7 +487,6 @@ const RegisterPage = observer(() => {
                                     <input
                                         type="tel"
                                         name="phone"
-                                        placeholder="+7 (___) ___-__-__"
                                         value={formData.phone}
                                         onChange={handlePhoneChange}
                                         className={`register-input ${isFieldInvalid('phone') ? 'error' : ''}`}
@@ -581,8 +571,8 @@ const RegisterPage = observer(() => {
                                         className={`register-select ${isFieldInvalid('grade') ? 'error' : ''}`}
                                     >
                                         <option value="">Выберите класс</option>
-                                        {[...Array(11)].map((_, i) => (
-                                            <option key={i} value={i + 1}>{i + 1} класс</option>
+                                        {[9, 10, 11].map((grade) => (
+                                            <option key={grade} value={grade}>{grade} класс</option>
                                         ))}
                                     </select>
                                     {isFieldInvalid('grade') && (

@@ -15,7 +15,7 @@ class UserController {
                 email, password, password_confirmation,
                 last_name, first_name, second_name, birthday,
                 region, city, school, programming_language,
-                phone, grade
+                phone, grade, participation_format
             } = req.body;
             
             const additionalData = {
@@ -28,7 +28,8 @@ class UserController {
                 school,
                 programming_language,
                 phone,
-                grade: parseInt(grade)
+                grade: parseInt(grade),
+                participation_format: participation_format || 'individual'
             };
             
             await userService.registration(email, password, additionalData);

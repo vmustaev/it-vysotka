@@ -27,9 +27,9 @@ const validateAge = (value) => {
     const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        return age - 1 >= 6 && age - 1 <= 100;
+        return age - 1 >= 14 && age - 1 <= 100;
     }
-    return age >= 6 && age <= 100;
+    return age >= 14 && age <= 100;
 };
 
 const registrationValidation = [
@@ -88,7 +88,7 @@ const registrationValidation = [
     
     body('grade')
         .notEmpty().withMessage('Класс обязателен')
-        .isInt({ min: 1, max: 11 }).withMessage(errorMessages.GRADE_INVALID),
+        .isInt({ min: 9, max: 11 }).withMessage(errorMessages.GRADE_INVALID),
     
     body('participation_format')
         .notEmpty().withMessage('Формат участия обязателен')

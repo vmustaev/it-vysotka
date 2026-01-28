@@ -28,13 +28,13 @@ module.exports = {
     
     // Телефон
     PHONE_REQUIRED: 'Телефон обязателен',
-    PHONE_INVALID: 'Неверный формат телефона. Используйте +7XXXXXXXXXX или 8XXXXXXXXXX',
+    PHONE_INVALID: 'Неверный формат телефона',
     PHONE_EXISTS: 'Пользователь с таким номером телефона уже существует',
     
     // Дата рождения
     BIRTHDAY_REQUIRED: 'Дата рождения обязательна',
     BIRTHDAY_INVALID: 'Неверный формат даты',
-    BIRTHDAY_AGE: 'Возраст должен быть от 6 до 100 лет',
+    BIRTHDAY_AGE: 'Возраст должен быть от 14 лет',
     
     // Другие поля
     REGION_REQUIRED: 'Регион обязателен',
@@ -43,7 +43,7 @@ module.exports = {
     PROGRAMMING_LANGUAGE_REQUIRED: 'Язык программирования обязателен',
     PROGRAMMING_LANGUAGE_INVALID: 'Неверный формат. Допустимо: C++ или Python или Java',
     GRADE_REQUIRED: 'Класс обязателен',
-    GRADE_INVALID: 'Класс должен быть от 1 до 11',
+    GRADE_INVALID: 'Класс должен быть от 9 до 11',
     
     // Аккаунт
     ACTIVATION_LINK_INVALID: 'Некорректная ссылка активации',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from '../http';
+import Toast from '../components/Toast';
 import '../styles/reset-password.css';
 
 const ResetPassword = () => {
@@ -8,7 +9,7 @@ const ResetPassword = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
+    const [notification, setNotification] = useState({ type: null, message: '' });
     const [token, setToken] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -34,7 +35,7 @@ const ResetPassword = () => {
         }
         
         setErrors({});
-        setSuccessMessage('');
+        setNotification({ type: null, message: '' });
         setIsLoading(true);
 
         try {
@@ -44,28 +45,23 @@ const ResetPassword = () => {
                 confirmPassword 
             });
             
-            setSuccessMessage('Пароль успешно изменен! Теперь вы можете войти с новым паролем.');
-            setNewPassword('');
-            setConfirmPassword('');
-            
-            setTimeout(() => {
-                navigate('/login');
-            }, 3000);
+            navigate('/login', {
+                state: {
+                    toastMessage: 'Пароль успешно изменен! Теперь вы можете войти',
+                    toastType: 'success'
+                }
+            });
         } catch (error) {
             const responseData = error.response?.data;
             const newErrors = {};
             
             if (responseData?.fieldErrors && Object.keys(responseData.fieldErrors).length > 0) {
                 Object.assign(newErrors, responseData.fieldErrors);
+                setErrors(newErrors);
             } else {
-                if (responseData?.message) {
-                    newErrors._message = responseData.message;
-                } else {
-                    newErrors._message = 'Ошибка при сбросе пароля';
-                }
+                const errorMessage = responseData?.message || 'Ошибка при сбросе пароля';
+                setNotification({ type: 'error', message: errorMessage });
             }
-            
-            setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
@@ -81,44 +77,33 @@ const ResetPassword = () => {
 
     return (
         <div className="reset-page">
+            {notification.message && (
+                <Toast
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification({ type: null, message: '' })}
+                />
+            )}
+            
             <div className="reset-content">
                 {/* Hero Section */}
                 <div className="reset-hero">
                     <h1 className="reset-title">Установка нового пароля</h1>
-                    <p className="reset-subtitle">
-                        Введите новый пароль для вашего аккаунта
-                    </p>
                 </div>
 
                 {/* Form Card */}
                 <div className="reset-form-card">
                     {!token ? (
-                        <div className="reset-alert reset-alert-warning">
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>
                             Загрузка...
                         </div>
                     ) : (
                         <>
-                            {successMessage && (
-                                <div className="reset-alert reset-alert-success">
-                                    {successMessage}
-                                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
-                                        Перенаправление на страницу входа...
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {errors._message && (
-                                <div className="reset-alert reset-alert-error">
-                                    {errors._message}
-                                </div>
-                            )}
-                            
                             <form onSubmit={handleSubmit} className="reset-form">
                                 <div className="reset-form-group">
                                     <label className="reset-label">Новый пароль</label>
                                     <input
                                         type="password"
-                                        placeholder="Введите новый пароль"
                                         value={newPassword}
                                         onChange={(e) => {
                                             setNewPassword(e.target.value);
@@ -133,16 +118,12 @@ const ResetPassword = () => {
                                             {getFieldError('newPassword')}
                                         </div>
                                     )}
-                                    <div className="reset-hint">
-                                        Минимум 8 символов, заглавные и строчные буквы, цифры
-                                    </div>
                                 </div>
                                 
                                 <div className="reset-form-group">
                                     <label className="reset-label">Подтверждение пароля</label>
                                     <input
                                         type="password"
-                                        placeholder="Подтвердите новый пароль"
                                         value={confirmPassword}
                                         onChange={(e) => {
                                             setConfirmPassword(e.target.value);
