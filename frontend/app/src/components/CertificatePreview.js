@@ -10,17 +10,21 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
     const [scale, setScale] = useState(1);
     const [pageHeight, setPageHeight] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!templateUrl) return;
 
         const loadPdf = async () => {
             try {
+                setIsLoading(true);
                 const loadingTask = pdfjsLib.getDocument(templateUrl);
                 const pdf = await loadingTask.promise;
                 const page = await pdf.getPage(1);
 
                 const canvas = canvasRef.current;
+                if (!canvas) return;
+                
                 const context = canvas.getContext('2d');
 
                 // Вычисляем масштаб для отображения
@@ -32,9 +36,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 
                 canvas.height = scaledViewport.height;
                 canvas.width = scaledViewport.width;
-                
-                setScale(computedScale);
-                setPageHeight(viewport.height);
 
                 const renderContext = {
                     canvasContext: context,
@@ -42,8 +43,14 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 };
 
                 await page.render(renderContext).promise;
+                
+                // Устанавливаем значения только после успешного рендера
+                setScale(computedScale);
+                setPageHeight(viewport.height);
+                setIsLoading(false);
             } catch (error) {
                 console.error('Ошибка загрузки PDF:', error);
+                setIsLoading(false);
             }
         };
 
@@ -90,15 +97,18 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
 
     useEffect(() => {
         if (isDragging) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
+            const moveHandler = (e) => handleMouseMove(e);
+            const upHandler = () => handleMouseUp();
+            
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('mouseup', upHandler);
             
             return () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('mouseup', upHandler);
             };
         }
-    }, [isDragging]);
+    }, [isDragging, pageHeight, scale, onTextYChange]);
 
     return (
         <div 
@@ -112,20 +122,44 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 overflow: 'hidden',
                 backgroundColor: 'var(--bg-secondary)',
                 maxWidth: '100%',
-                cursor: isDragging ? 'grabbing' : 'grab'
+                cursor: isDragging ? 'grabbing' : 'grab',
+                minHeight: isLoading ? '400px' : 'auto'
             }}
         >
+            {isLoading && (
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    color: 'var(--text-secondary)',
+                    zIndex: 20
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid var(--border)',
+                        borderTop: '4px solid var(--primary)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 10px'
+                    }} />
+                    <div>Загрузка шаблона...</div>
+                </div>
+            )}
+            
             <canvas 
                 ref={canvasRef}
                 style={{ 
-                    display: 'block',
+                    display: isLoading ? 'none' : 'block',
                     width: '100%',
                     height: 'auto'
                 }}
             />
             
             {/* Горизонтальная линия для позиции текста */}
-            {pageHeight > 0 && (
+            {!isLoading && pageHeight > 0 && (
                 <div
                     style={{
                         position: 'absolute',

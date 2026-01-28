@@ -93,6 +93,10 @@ router.get('/admin/certificates/preview', authMiddleware, adminMiddleware, certi
 router.get('/admin/certificates/preview/:participantId', authMiddleware, adminMiddleware, certificateController.preview);
 router.get('/admin/certificates/generate/:participantId', authMiddleware, adminMiddleware, certificateController.generateOne);
 router.post('/admin/certificates/generate-all', authMiddleware, adminMiddleware, certificateController.generateAll);
+router.post('/admin/certificates/issue', authMiddleware, adminMiddleware, certificateController.issueCertificates);
+
+// Participant routes - Certificates
+router.get('/certificates/download/:participantId', authMiddleware, certificateController.downloadCertificate);
 
 // Public routes - Settings
 router.get('/settings/registration-status', settingsController.getRegistrationStatus);

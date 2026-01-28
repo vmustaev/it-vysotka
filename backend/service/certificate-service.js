@@ -133,8 +133,8 @@ class CertificateService {
         return certificate;
     }
 
-    // Генерация одного сертификата для участника
-    async generateCertificate(participantId) {
+    // Генерация одного сертификата для участника (без сохранения)
+    async generateCertificate(participantId, saveToFile = false) {
         try {
             // Получаем участника
             const participant = await User.findByPk(participantId);
@@ -203,9 +203,28 @@ class CertificateService {
 
             // Сохраняем PDF
             const pdfBytes = await pdfDoc.save();
+            const buffer = Buffer.from(pdfBytes);
+
+            // Если нужно сохранить в файл
+            let filePath = null;
+            if (saveToFile) {
+                const certificatesDir = path.join(__dirname, '..', 'files', 'generated-certificates');
+                
+                // Создаем папку, если её нет
+                try {
+                    await fs.access(certificatesDir);
+                } catch {
+                    await fs.mkdir(certificatesDir, { recursive: true });
+                }
+
+                const filename = `certificate_${participant.id}_${Date.now()}.pdf`;
+                filePath = path.join(certificatesDir, filename);
+                await fs.writeFile(filePath, buffer);
+            }
 
             return {
-                buffer: Buffer.from(pdfBytes),
+                buffer: buffer,
+                filePath: filePath,
                 filename: `certificate_${participant.id}_${participant.last_name}.pdf`,
                 participant: {
                     id: participant.id,
@@ -216,6 +235,95 @@ class CertificateService {
         } catch (e) {
             console.error('Ошибка генерации сертификата:', e);
             throw ApiError.BadRequest('Ошибка генерации сертификата: ' + e.message);
+        }
+    }
+
+    // Генерация и выдача сертификатов выбранным участникам
+    async issueСertificatesToParticipants(participantIds) {
+        try {
+            const results = [];
+            const errors = [];
+
+            for (const participantId of participantIds) {
+                try {
+                    // Генерируем сертификат и сохраняем в файл
+                    const result = await this.generateCertificate(participantId, true);
+                    
+                    // Обновляем certificateUrl у участника
+                    const participant = await User.findByPk(participantId);
+                    if (participant) {
+                        // Сохраняем относительный путь или URL
+                        const certificateUrl = `/api/certificates/download/${participantId}`;
+                        participant.certificateUrl = certificateUrl;
+                        await participant.save();
+
+                        results.push({
+                            participantId: participantId,
+                            fullName: result.participant.fullName,
+                            certificateUrl: certificateUrl
+                        });
+                    }
+                } catch (e) {
+                    console.error(`Ошибка выдачи сертификата участнику ${participantId}:`, e);
+                    errors.push({
+                        participantId: participantId,
+                        error: e.message
+                    });
+                }
+            }
+
+            return {
+                success: results.length,
+                failed: errors.length,
+                total: participantIds.length,
+                results: results,
+                errors: errors
+            };
+        } catch (e) {
+            console.error('Ошибка выдачи сертификатов:', e);
+            throw ApiError.BadRequest('Ошибка выдачи сертификатов');
+        }
+    }
+
+    // Получение сертификата участника по ID
+    async getParticipantCertificate(participantId) {
+        try {
+            const participant = await User.findByPk(participantId);
+            if (!participant) {
+                throw ApiError.BadRequest('Участник не найден');
+            }
+
+            if (!participant.certificateUrl) {
+                throw ApiError.BadRequest('Сертификат не был выдан этому участнику');
+            }
+
+            // Ищем файл сертификата
+            const certificatesDir = path.join(__dirname, '..', 'files', 'generated-certificates');
+            const files = await fs.readdir(certificatesDir);
+            
+            // Ищем файл, начинающийся с ID участника
+            const certificateFile = files.find(file => file.startsWith(`certificate_${participantId}_`));
+            
+            if (!certificateFile) {
+                // Если файл не найден, генерируем заново
+                console.log(`Файл сертификата не найден для участника ${participantId}, генерируем заново...`);
+                const result = await this.generateCertificate(participantId, true);
+                return {
+                    buffer: result.buffer,
+                    filename: result.filename
+                };
+            }
+
+            const filePath = path.join(certificatesDir, certificateFile);
+            const buffer = await fs.readFile(filePath);
+
+            return {
+                buffer: buffer,
+                filename: `certificate_${participant.last_name}_${participant.first_name}.pdf`
+            };
+        } catch (e) {
+            console.error('Ошибка получения сертификата:', e);
+            throw ApiError.BadRequest('Ошибка получения сертификата: ' + e.message);
         }
     }
 

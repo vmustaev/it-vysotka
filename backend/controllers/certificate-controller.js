@@ -162,6 +162,49 @@ class CertificateController {
             next(e);
         }
     }
+
+    // Выдача сертификатов выбранным участникам
+    async issueCertificates(req, res, next) {
+        try {
+            const { participantIds } = req.body;
+            
+            if (!participantIds || !Array.isArray(participantIds) || participantIds.length === 0) {
+                throw ApiError.BadRequest('Не указаны ID участников');
+            }
+
+            const result = await certificateService.issueСertificatesToParticipants(participantIds);
+            
+            return res.json({
+                success: true,
+                message: `Выдано сертификатов: ${result.success} из ${result.total}`,
+                data: result
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    // Скачивание сертификата участником (публичный эндпоинт)
+    async downloadCertificate(req, res, next) {
+        try {
+            const participantId = req.params.participantId;
+            
+            // Проверяем, что пользователь скачивает свой сертификат
+            // или является администратором
+            if (req.user.role !== 'admin' && req.user.id !== parseInt(participantId)) {
+                throw ApiError.Forbidden('Доступ запрещен');
+            }
+
+            const result = await certificateService.getParticipantCertificate(participantId);
+            
+            // Отправляем PDF файл
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.filename)}"; filename*=UTF-8''${encodeURIComponent(result.filename)}`);
+            res.send(result.buffer);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new CertificateController();

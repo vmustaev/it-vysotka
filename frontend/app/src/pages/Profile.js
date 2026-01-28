@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Context } from "../index";
 import TeamService from '../services/TeamService';
 import UserService from '../services/UserService';
+import CertificateService from '../services/CertificateService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
 import '../styles/profile.css';
@@ -342,6 +343,29 @@ const Profile = () => {
         setNotification({ type: null, message: '' });
     };
 
+    const handleDownloadCertificate = async () => {
+        executeAction(
+            async () => {
+                const response = await CertificateService.downloadCertificate(profile.id);
+                
+                // Скачиваем сертификат
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                
+                const filename = `certificate_${profile.last_name}_${profile.first_name}.pdf`;
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+                
+                return { data: { message: 'Сертификат скачан!' } };
+            },
+            { showLoading: true }
+        );
+    };
+
     if (loading) {
         return (
             <div className="page profile-page">
@@ -464,21 +488,38 @@ const Profile = () => {
                                     <div className="profile-row">
                                         <span className="profile-label">Сертификат:</span>
                                         <span className="profile-value">
-                                            <a 
-                                                href={profile.certificateUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
+                                            <button 
+                                                onClick={handleDownloadCertificate}
+                                                disabled={actionLoading}
                                                 className="certificate-link"
+                                                style={{ 
+                                                    background: 'none', 
+                                                    border: 'none', 
+                                                    padding: 0,
+                                                    cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                                    opacity: actionLoading ? 0.6 : 1
+                                                }}
                                             >
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                    <polyline points="14 2 14 8 20 8"/>
-                                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                                    <polyline points="10 9 9 9 8 9"/>
-                                                </svg>
-                                                Скачать сертификат
-                                            </a>
+                                                {actionLoading ? (
+                                                    <>
+                                                        <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                                        </svg>
+                                                        Скачивание...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                            <polyline points="14 2 14 8 20 8"/>
+                                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                                            <polyline points="10 9 9 9 8 9"/>
+                                                        </svg>
+                                                        Скачать сертификат
+                                                    </>
+                                                )}
+                                            </button>
                                         </span>
                                     </div>
                                 )}

@@ -69,6 +69,18 @@ class CertificateService {
     async generateAll() {
         return $api.post('/admin/certificates/generate-all');
     }
+
+    // Выдача сертификатов выбранным участникам
+    async issueCertificates(participantIds) {
+        return $api.post('/admin/certificates/issue', { participantIds });
+    }
+
+    // Скачивание сертификата участника
+    async downloadCertificate(participantId) {
+        return $api.get(`/certificates/download/${participantId}`, {
+            responseType: 'blob'
+        });
+    }
 }
 
 export default new CertificateService();
