@@ -99,8 +99,10 @@ class ParticipantsController {
                     'teamId',
                     'isLead',
                     'isActivated',
-                    'role'
-                    // Исключаем: password, birthday
+                    'role',
+                    'birthday',
+                    'essayUrl'
+                    // Исключаем: password
                 ]
             });
 
@@ -234,7 +236,7 @@ class ParticipantsController {
                     include: [{
                         model: UserModel,
                         as: 'Members',
-                        attributes: ['id', 'first_name', 'last_name', 'second_name', 'email', 'grade', 'programming_language', 'isLead', 'school']
+                        attributes: ['id', 'first_name', 'last_name', 'second_name', 'email', 'grade', 'programming_language', 'isLead', 'school', 'essayUrl']
                     }]
                 }],
                 attributes: [
@@ -253,8 +255,10 @@ class ParticipantsController {
                     'teamId',
                     'isLead',
                     'isActivated',
-                    'role'
-                    // Исключаем: password, birthday
+                    'role',
+                    'birthday',
+                    'essayUrl'
+                    // Исключаем: password
                 ]
             });
 

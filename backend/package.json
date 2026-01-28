@@ -5,13 +5,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-schools": "node scripts/import-schools.js",
-    "seed": "node scripts/seed-test-data.js"
+    "seed": "node scripts/seed-test-data.js",
+    "create-test-certificate": "node scripts/create-test-certificate.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -21,7 +23,10 @@
     "express": "^5.1.0",
     "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.11",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.4.530",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",

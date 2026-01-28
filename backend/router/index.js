@@ -7,6 +7,7 @@ const participantsController = require('../controllers/participants-controller')
 const roomController = require('../controllers/room-controller');
 const seatingController = require('../controllers/seating-controller');
 const settingsController = require('../controllers/settings-controller');
+const certificateController = require('../controllers/certificate-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
@@ -15,6 +16,11 @@ const { registrationValidation, loginValidation } = require('../validation/auth-
 const { passwordResetRequestValidation, passwordResetValidation } = require('../validation/password-reset-validation');
 const { createTeamValidation } = require('../validation/team-validation');
 const { createRoomValidation, updateRoomValidation } = require('../validation/room-validation');
+const multer = require('multer');
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 
 router.post('/registration', registrationValidation, validationMiddleware, userController.registration);
 router.post('/login', loginValidation, validationMiddleware, userController.login);
@@ -76,6 +82,17 @@ router.put('/admin/settings', authMiddleware, adminMiddleware, settingsControlle
 
 // Admin routes - User results
 router.put('/admin/users/:userId/result', authMiddleware, adminMiddleware, userController.setUserResult);
+
+// Admin routes - Certificates
+router.post('/admin/certificates/upload-template', authMiddleware, adminMiddleware, upload.single('template'), certificateController.uploadTemplate);
+router.post('/admin/certificates/upload-font', authMiddleware, adminMiddleware, upload.single('font'), certificateController.uploadFont);
+router.get('/admin/certificates/settings', authMiddleware, adminMiddleware, certificateController.getSettings);
+router.put('/admin/certificates/settings', authMiddleware, adminMiddleware, certificateController.updateSettings);
+router.get('/admin/certificates/template', authMiddleware, adminMiddleware, certificateController.getTemplate);
+router.get('/admin/certificates/preview', authMiddleware, adminMiddleware, certificateController.preview);
+router.get('/admin/certificates/preview/:participantId', authMiddleware, adminMiddleware, certificateController.preview);
+router.get('/admin/certificates/generate/:participantId', authMiddleware, adminMiddleware, certificateController.generateOne);
+router.post('/admin/certificates/generate-all', authMiddleware, adminMiddleware, certificateController.generateAll);
 
 // Public routes - Settings
 router.get('/settings/registration-status', settingsController.getRegistrationStatus);

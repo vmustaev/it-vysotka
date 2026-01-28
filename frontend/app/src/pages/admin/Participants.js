@@ -11,7 +11,8 @@ const Participants = () => {
     const [notification, setNotification] = useState({ type: null, message: '' });
     const [expandedTeams, setExpandedTeams] = useState(new Set()); // Для раскрывающихся команд
     const [teams, setTeams] = useState([]); // Список всех команд
-    const [activeTab, setActiveTab] = useState('participants'); // 'participants' или 'teams'
+    const [individualParticipants, setIndividualParticipants] = useState([]); // Индивидуальные участники
+    const [activeTab, setActiveTab] = useState('participants'); // 'participants', 'teams' или 'individual'
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -39,10 +40,11 @@ const Participants = () => {
         loadParticipants();
     }, [filters]);
 
-    // Загрузка статистики и команд один раз при монтировании
+    // Загрузка статистики, команд и индивидуальных участников один раз при монтировании
     useEffect(() => {
         loadStats();
         loadTeams();
+        loadIndividualParticipants();
     }, []);
 
     const loadParticipants = async () => {
@@ -87,6 +89,21 @@ const Participants = () => {
             setStats(response.data.data);
         } catch (e) {
             console.error('Ошибка загрузки статистики:', e);
+        }
+    };
+
+    // Загрузка индивидуальных участников
+    const loadIndividualParticipants = async () => {
+        try {
+            const response = await ParticipantsService.getAll({ 
+                participation_format: 'individual',
+                limit: 1000, // Загружаем всех индивидуальных участников
+                sortBy: 'last_name',
+                sortOrder: 'ASC'
+            });
+            setIndividualParticipants(response.data.data.participants);
+        } catch (e) {
+            console.error('Ошибка загрузки индивидуальных участников:', e);
         }
     };
 
@@ -254,6 +271,12 @@ const Participants = () => {
                 >
                     Команды
                 </button>
+                <button 
+                    className={`tab-button ${activeTab === 'individual' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('individual')}
+                >
+                    Индивидуальные
+                </button>
             </div>
 
             {/* Контент вкладок */}
@@ -341,25 +364,35 @@ const Participants = () => {
                         <table className="participants-table">
                             <thead>
                                 <tr>
+                                    <th style={{ width: '30px', textAlign: 'center', padding: '8px 0px 8px 12px' }}></th>
                                     <th onClick={() => handleSort('last_name')}>
                                         ФИО {filters.sortBy === 'last_name' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
-                                    <th onClick={() => handleSort('email')}>
+                                    <th onClick={() => handleSort('email')} style={{ maxWidth: '200px' }}>
                                         Email {filters.sortBy === 'email' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
                                     <th>Телефон</th>
                                     <th onClick={() => handleSort('grade')}>
                                         Класс {filters.sortBy === 'grade' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
-                                    <th>Язык</th>
-                                    <th>Формат участия</th>
-                                    <th>Команда</th>
-                                    <th>Статус</th>
+                                    <th>Дата рождения</th>
+                                    <th>Город</th>
+                                    <th>Школа</th>
+                                    <th>Команда / Формат</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {participants.map((participant) => (
                                     <tr key={participant.id}>
+                                        <td style={{ textAlign: 'center', padding: '8px 0px 8px 12px', width: '30px' }}>
+                                            <span style={{
+                                                display: 'inline-block',
+                                                width: '10px',
+                                                height: '10px',
+                                                borderRadius: '50%',
+                                                backgroundColor: participant.isActivated ? '#10b981' : '#ef4444'
+                                            }} title={participant.isActivated ? 'Активирован' : 'Не активирован'}></span>
+                                        </td>
                                         <td>
                                             <div className="participant-name">
                                                 {participant.last_name} {participant.first_name}
@@ -368,27 +401,23 @@ const Participants = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{participant.email}</td>
-                                        <td>{participant.phone}</td>
+                                        <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {participant.email}
+                                        </td>
+                                        <td>{participant.phone || '-'}</td>
                                         <td>{participant.grade}</td>
-                                        <td>{participant.programming_language}</td>
-                                        <td>
-                                            <span className={`badge ${participant.participation_format === 'individual' ? 'badge-info' : 'badge-primary'}`}>
-                                                {participant.participation_format === 'individual' ? 'Индивидуальное' : 'Командное'}
-                                            </span>
+                                        <td>{participant.birthday || '-'}</td>
+                                        <td>{participant.city || '-'}</td>
+                                        <td style={{ fontSize: 'var(--font-size-sm)' }}>
+                                            {participant.school || '-'}
                                         </td>
                                         <td>
-                                            {participant.Team ? (
+                                            {participant.participation_format === 'individual' ? (
+                                                <span className="badge badge-info">Индивидуальный</span>
+                                            ) : participant.Team ? (
                                                 <span className="badge badge-team">{participant.Team.name}</span>
                                             ) : (
-                                                <span className="badge badge-no-team">Без команды</span>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {participant.isActivated ? (
-                                                <span className="badge badge-success">Активирован</span>
-                                            ) : (
-                                                <span className="badge badge-warning">Не активирован</span>
+                                                <span className="badge badge-no-team">Нет команды</span>
                                             )}
                                         </td>
                                     </tr>
@@ -447,11 +476,10 @@ const Participants = () => {
                                     <table className="teams-table">
                                         <thead>
                                             <tr>
-                                                <th style={{ width: '40px' }}></th>
                                                 <th>Название команды</th>
-                                                <th style={{ width: '120px' }}>Участников</th>
-                                                <th style={{ width: '150px' }}>Школа</th>
-                                                <th style={{ width: '100px' }}>Язык</th>
+                                                <th>Участников</th>
+                                                <th>Школа</th>
+                                                <th>Эссе</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -459,50 +487,52 @@ const Participants = () => {
                                                 const isExpanded = expandedTeams.has(team.id);
                                                 const leader = team.members.find(m => m.isLead) || team.members[0];
                                                 const school = leader?.school || 'Неизвестно';
-                                                const languages = [...new Set(team.members.map(m => m.programming_language).filter(Boolean))];
+                                                const essayUrl = leader?.essayUrl;
                                                 
                                                 return (
                                                     <React.Fragment key={team.id}>
                                                         <tr 
                                                             className={`team-row ${isExpanded ? 'expanded' : ''}`}
-                                                            onClick={() => toggleTeamExpand(team.id)}
-                                                            style={{ cursor: 'pointer' }}
                                                         >
-                                                            <td>
-                                                                <span className="team-expand-icon" style={{ 
-                                                                    display: 'inline-block',
-                                                                    transition: 'transform 0.2s',
-                                                                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
-                                                                }}>
-                                                                    ▶
-                                                                </span>
-                                                            </td>
-                                                            <td>
+                                                            <td 
+                                                                style={{ cursor: 'pointer' }}
+                                                                onClick={() => toggleTeamExpand(team.id)}
+                                                            >
                                                                 <strong>{team.name}</strong>
                                                             </td>
-                                                            <td>
+                                                            <td 
+                                                                onClick={() => toggleTeamExpand(team.id)}
+                                                                style={{ cursor: 'pointer' }}
+                                                            >
                                                                 <span className="badge badge-team">
                                                                     {team.members.length} {team.members.length === 1 ? 'участник' : team.members.length < 5 ? 'участника' : 'участников'}
                                                                 </span>
                                                             </td>
-                                                            <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                            <td 
+                                                                onClick={() => toggleTeamExpand(team.id)}
+                                                                style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', cursor: 'pointer' }}
+                                                            >
                                                                 {school}
                                                             </td>
-                                                            <td>
-                                                                {languages.length > 0 ? (
-                                                                    <span className="badge" style={{ 
-                                                                        background: 'var(--bg-secondary)', 
-                                                                        color: 'var(--text-primary)',
-                                                                        border: '1px solid var(--border-color)'
-                                                                    }}>
-                                                                        {languages.join(', ')}
-                                                                    </span>
-                                                                ) : '-'}
+                                                            <td onClick={(e) => e.stopPropagation()}>
+                                                                {essayUrl ? (
+                                                                    <a 
+                                                                        href={essayUrl} 
+                                                                        target="_blank" 
+                                                                        rel="noopener noreferrer"
+                                                                        className="btn btn-sm btn-outline"
+                                                                        style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                                                                    >
+                                                                        Эссе
+                                                                    </a>
+                                                                ) : (
+                                                                    <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>-</span>
+                                                                )}
                                                             </td>
                                                         </tr>
                                                         {isExpanded && (
                                                             <tr className="team-members-row">
-                                                                <td colSpan="5">
+                                                                <td colSpan="4">
                                                                     <div className="team-members-expanded">
                                                                         <div className="team-members-grid">
                                                                             {team.members.map((member) => (
@@ -524,27 +554,20 @@ const Participants = () => {
                                                                                                 </svg>
                                                                                                 {member.email || '-'}
                                                                                             </div>
-                                                                                            <div className="team-member-card-detail">
-                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                                                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                                                                                    <circle cx="12" cy="7" r="4"/>
-                                                                                                </svg>
-                                                                                                {member.grade ? `${member.grade} класс` : '-'}
-                                                                                            </div>
-                                                                                            <div className="team-member-card-detail">
-                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                                                                                                    <polyline points="16 18 22 12 16 6"/>
-                                                                                                    <polyline points="8 6 2 12 8 18"/>
-                                                                                                </svg>
-                                                                                                {member.programming_language || '-'}
-                                                                                            </div>
-                                                                                            <div className="team-member-card-detail">
-                                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                                                                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                                                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                                                                                </svg>
-                                                                                                {member.school || '-'}
-                                                                                            </div>
+                                                                            <div className="team-member-card-detail">
+                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                                                                    <circle cx="12" cy="7" r="4"/>
+                                                                                </svg>
+                                                                                {member.grade ? `${member.grade} класс` : '-'}
+                                                                            </div>
+                                                                            <div className="team-member-card-detail">
+                                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                                                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                                                                </svg>
+                                                                                {member.school || '-'}
+                                                                            </div>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -560,6 +583,86 @@ const Participants = () => {
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {activeTab === 'individual' && (
+                    <>
+                        {individualParticipants.length === 0 ? (
+                            <div className="admin-placeholder">
+                                <div className="admin-placeholder-icon">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </div>
+                                <h2>Индивидуальные участники не найдены</h2>
+                                <p>Пока нет участников с индивидуальным форматом участия</p>
+                            </div>
+                        ) : (
+                            <div className="participants-table-container">
+                                <table className="participants-table">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: '30px', textAlign: 'center', padding: '8px 0px 8px 12px' }}></th>
+                                            <th>ФИО</th>
+                                            <th style={{ maxWidth: '200px' }}>Email</th>
+                                            <th>Телефон</th>
+                                            <th>Класс</th>
+                                            <th>Дата рождения</th>
+                                            <th>Город</th>
+                                            <th>Школа</th>
+                                            <th style={{ width: '100px' }}>Эссе</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {individualParticipants.map((participant) => (
+                                            <tr key={participant.id}>
+                                                <td style={{ textAlign: 'center', padding: '8px 0px 8px 12px', width: '30px' }}>
+                                                    <span style={{
+                                                        display: 'inline-block',
+                                                        width: '10px',
+                                                        height: '10px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: participant.isActivated ? '#10b981' : '#ef4444'
+                                                    }} title={participant.isActivated ? 'Активирован' : 'Не активирован'}></span>
+                                                </td>
+                                                <td>
+                                                    <div className="participant-name">
+                                                        {participant.last_name} {participant.first_name} {participant.second_name}
+                                                    </div>
+                                                </td>
+                                                <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {participant.email}
+                                                </td>
+                                                <td>{participant.phone || '-'}</td>
+                                                <td>{participant.grade} класс</td>
+                                                <td>{participant.birthday || '-'}</td>
+                                                <td>{participant.city || '-'}</td>
+                                                <td style={{ fontSize: 'var(--font-size-sm)' }}>
+                                                    {participant.school || '-'}
+                                                </td>
+                                                <td>
+                                                    {participant.essayUrl ? (
+                                                        <a 
+                                                            href={participant.essayUrl} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-sm btn-outline"
+                                                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                                                        >
+                                                            Эссе
+                                                        </a>
+                                                    ) : (
+                                                        <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>-</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </>
