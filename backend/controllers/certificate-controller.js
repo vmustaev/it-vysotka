@@ -108,9 +108,10 @@ class CertificateController {
             const result = await certificateService.generateCertificate(participantId);
             
             // Отправляем PDF файл
+            const filename = `certificate_${result.participant.fullName.replace(/\s+/g, '_')}.pdf`;
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="certificate.pdf"; filename*=UTF-8''${encodeURIComponent(result.filename)}`);
-            res.send(result.buffer);
+            res.setHeader('Content-Disposition', `attachment; filename="certificate.pdf"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+            res.send(Buffer.from(result.pdfBytes));
         } catch (e) {
             next(e);
         }
@@ -141,8 +142,8 @@ class CertificateController {
             
             // Отправляем PDF для предпросмотра
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `inline; filename="preview.pdf"; filename*=UTF-8''${encodeURIComponent('preview_' + result.filename)}`);
-            res.send(result.buffer);
+            res.setHeader('Content-Disposition', 'inline; filename="preview.pdf"');
+            res.send(Buffer.from(result.pdfBytes));
         } catch (e) {
             next(e);
         }
@@ -200,7 +201,7 @@ class CertificateController {
             // Отправляем PDF файл
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.filename)}"; filename*=UTF-8''${encodeURIComponent(result.filename)}`);
-            res.send(result.buffer);
+            res.send(Buffer.from(result.pdfBytes));
         } catch (e) {
             next(e);
         }

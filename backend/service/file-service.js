@@ -10,7 +10,6 @@ class FileService {
             // Генерируем уникальное имя файла
             const fileExtension = path.extname(fileData.originalname);
             const savedFilename = `${uuidv4()}${fileExtension}`;
-            const filepath = savedFilename;
             const fullPath = path.join(__dirname, '../files', savedFilename);
 
             // Сохраняем файл
@@ -29,7 +28,6 @@ class FileService {
             const file = await FileModel.create({
                 filename: fileData.originalname,
                 savedFilename,
-                filepath,
                 fileType,
                 mimetype: fileData.mimetype,
                 size: fileData.size,

@@ -9,13 +9,11 @@ const SeatingAssignmentSchema = sequelize.define('SeatingAssignment', {
     },
     teamId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: null
+        allowNull: true
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: null
+        allowNull: true
     },
     roomId: {
         type: DataTypes.INTEGER,

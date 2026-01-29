@@ -101,7 +101,8 @@ class ParticipantsController {
                     'isActivated',
                     'role',
                     'birthday',
-                    'essayUrl'
+                    'essayUrl',
+                    'certificateId'
                     // Исключаем: password
                 ]
             });

@@ -58,14 +58,7 @@ const UserSchema = sequelize.define('User', {
     },
     teamId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: null,
-        references: {
-            model: 'teams',
-            key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        allowNull: true
     },
     isLead: {
         type: DataTypes.BOOLEAN,
@@ -87,10 +80,9 @@ const UserSchema = sequelize.define('User', {
         allowNull: true,
         defaultValue: null
     },
-    certificateUrl: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        defaultValue: null
+    certificateId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     essayUrl: {
         type: DataTypes.TEXT,

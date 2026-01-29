@@ -15,7 +15,7 @@ const TeamModel = require('./models/team-model');
 const RoomModel = require('./models/room-model');
 const SeatingAssignmentModel = require('./models/seating-assignment-model');
 const SettingsModel = require('./models/settings-model');
-const CertificateModel = require('./models/certificate-model');
+// CertificateModel удален - настройки сертификатов теперь в settings
 const FileModel = require('./models/file-model');
 
 // Настройка связей между моделями
@@ -33,6 +33,9 @@ UserModel.hasOne(SeatingAssignmentModel, { foreignKey: 'userId', as: 'SeatingAss
 // Связи для файлов
 FileModel.belongsTo(UserModel, { foreignKey: 'uploadedBy', as: 'Uploader' });
 UserModel.hasMany(FileModel, { foreignKey: 'uploadedBy', as: 'UploadedFiles' });
+
+// Связь User -> Certificate File
+UserModel.belongsTo(FileModel, { foreignKey: 'certificateId', as: 'Certificate' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -96,7 +99,7 @@ const start = async () => {
     try {
         await sequelize.authenticate();
         console.log('Database connected...');
-        await sequelize.sync({ force: false });
+        await sequelize.sync({ alter: false });
         
         const importSchools = require('./scripts/import-schools');
         try {

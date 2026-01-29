@@ -474,7 +474,7 @@ const Profile = () => {
                 <div className="profile-section">
                     <h2 className="profile-section-title">Результаты</h2>
                     <div className="profile-card">
-                        {profile.place || profile.certificateUrl ? (
+                        {profile.place || profile.certificateId ? (
                             <>
                                 {profile.place && (
                                     <div className="profile-row">
@@ -484,7 +484,7 @@ const Profile = () => {
                                         </span>
                                     </div>
                                 )}
-                                {profile.certificateUrl && (
+                                {profile.certificateId && (
                                     <div className="profile-row">
                                         <span className="profile-label">Сертификат:</span>
                                         <span className="profile-value">

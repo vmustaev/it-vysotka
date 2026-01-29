@@ -164,13 +164,13 @@ class UserController {
     async setUserResult(req, res, next) {
         try {
             const { userId } = req.params;
-            const { place, certificateUrl } = req.body;
+            const { place, certificateId } = req.body;
             
             if (!userId) {
                 return next(ApiError.BadRequest('ID пользователя не указан'));
             }
             
-            const result = await userService.setUserResult(parseInt(userId), place, certificateUrl);
+            const result = await userService.setUserResult(parseInt(userId), place, certificateId);
             return res.json(result);
         } catch (e) {
             next(e);

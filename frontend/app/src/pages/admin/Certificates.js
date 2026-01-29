@@ -454,7 +454,7 @@ const Certificates = () => {
                                                     <span>
                                                         {participant.last_name} {participant.first_name} {participant.second_name || ''}
                                                     </span>
-                                                    {participant.certificateUrl && (
+                                                    {participant.certificateId && (
                                                         <span style={{ 
                                                             color: 'var(--success)', 
                                                             fontSize: '0.875rem',

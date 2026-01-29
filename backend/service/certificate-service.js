@@ -2,26 +2,39 @@ const { PDFDocument, rgb } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
 const fs = require('fs').promises;
 const path = require('path');
-const Certificate = require('../models/certificate-model');
+const { v4: uuidv4 } = require('uuid');
 const User = require('../models/user-model');
+const FileModel = require('../models/file-model');
+const Setting = require('../models/settings-model');
 const ApiError = require('../exceptions/api-error');
 
 class CertificateService {
     
+    // Получение настройки из settings
+    async getSetting(key, defaultValue = null) {
+        const setting = await Setting.findOne({ where: { key } });
+        return setting ? setting.value : defaultValue;
+    }
+
+    // Установка настройки в settings
+    async setSetting(key, value) {
+        const [setting] = await Setting.findOrCreate({
+            where: { key },
+            defaults: { value: String(value) }
+        });
+        setting.value = String(value);
+        await setting.save();
+        return setting;
+    }
+
     // Загрузка шаблона сертификата
     async uploadTemplate(file, settings) {
         try {
-            // Сохраняем файл в папке files
-            const uploadsDir = path.join(__dirname, '..', 'files', 'certificates');
+            // Сохраняем файл в общей папке files
+            const uploadsDir = path.join(__dirname, '..', 'files');
             
-            // Создаем папку, если её нет
-            try {
-                await fs.access(uploadsDir);
-            } catch {
-                await fs.mkdir(uploadsDir, { recursive: true });
-            }
-
-            const templatePath = path.join(uploadsDir, `template_${Date.now()}.pdf`);
+            const savedFilename = `template_${uuidv4()}.pdf`;
+            const templatePath = path.join(uploadsDir, savedFilename);
             await fs.writeFile(templatePath, file.buffer);
 
             // Получаем размеры страницы из PDF
@@ -30,40 +43,49 @@ class CertificateService {
             const firstPage = pages[0];
             const { width, height } = firstPage.getSize();
 
-            // Сохраняем fontPath из старой записи перед удалением
-            let existingFontPath = null;
-            const oldCertificates = await Certificate.findAll({ where: {} });
-            
-            if (oldCertificates.length > 0) {
-                existingFontPath = oldCertificates[0].fontPath;
-            }
-
-            // Удаляем старые шаблоны (только файлы шаблонов, не шрифты!)
-            for (const oldCert of oldCertificates) {
+            // Удаляем старый файл шаблона из файловой системы, если он есть
+            const oldTemplateId = await this.getSetting('certificate_template_id');
+            if (oldTemplateId) {
                 try {
-                    // Удаляем только файл шаблона, не шрифт
-                    await fs.unlink(oldCert.templatePath);
+                    const oldFile = await FileModel.findByPk(oldTemplateId);
+                    if (oldFile) {
+                        const oldPath = path.join(__dirname, '..', 'files', oldFile.savedFilename);
+                        await fs.unlink(oldPath);
+                        await oldFile.destroy();
+                    }
                 } catch (unlinkError) {
                     console.log('Не удалось удалить старый файл шаблона:', unlinkError.message);
                 }
-                // Удаляем запись из БД
-                await oldCert.destroy();
             }
 
-            // Создаем новую запись с сохраненным fontPath
-            const certificate = await Certificate.create({
+            // Создаем запись в таблице files
+            const fileRecord = await FileModel.create({
+                filename: file.originalname || 'certificate_template.pdf',
+                savedFilename: savedFilename,
+                filepath: savedFilename,
+                fileType: 'certificates',
+                mimetype: file.mimetype || 'application/pdf',
+                size: file.size,
+                description: 'Шаблон сертификата',
+                isActive: true,
+                uploadedBy: null
+            });
+
+            // Сохраняем настройки в settings
+            await this.setSetting('certificate_template_id', fileRecord.id);
+            await this.setSetting('certificate_text_x', settings.textX || Math.round(width / 2));
+            await this.setSetting('certificate_text_y', settings.textY || Math.round(height / 2));
+            await this.setSetting('certificate_font_size', settings.fontSize || 110);
+            await this.setSetting('certificate_font_color', settings.fontColor || '#023664');
+
+            // Возвращаем информацию
+            return {
+                templateId: fileRecord.id,
                 templatePath: templatePath,
                 textX: settings.textX || Math.round(width / 2),
                 textY: settings.textY || Math.round(height / 2),
                 fontSize: settings.fontSize || 110,
                 fontColor: settings.fontColor || '#023664',
-                fontPath: existingFontPath, // Используем сохраненный fontPath
-                isActive: true
-            });
-
-            // Возвращаем сертификат с информацией о размерах
-            return {
-                ...certificate.toJSON(),
                 templateWidth: width,
                 templateHeight: height
             };
@@ -76,33 +98,43 @@ class CertificateService {
     // Загрузка шрифта
     async uploadFont(file) {
         try {
-            const uploadsDir = path.join(__dirname, '..', 'files', 'fonts');
-            
-            // Создаем папку, если её нет
-            try {
-                await fs.access(uploadsDir);
-            } catch {
-                await fs.mkdir(uploadsDir, { recursive: true });
-            }
+            // Сохраняем файл в общей папке files
+            const uploadsDir = path.join(__dirname, '..', 'files');
 
-            const fontPath = path.join(uploadsDir, `font_${Date.now()}.ttf`);
+            const savedFilename = `font_${uuidv4()}.ttf`;
+            const fontPath = path.join(uploadsDir, savedFilename);
             await fs.writeFile(fontPath, file.buffer);
 
-            // Обновляем активный сертификат
-            const activeCertificate = await Certificate.findOne({ where: { isActive: true } });
-            if (activeCertificate) {
-                // Удаляем старый файл шрифта, если он есть
-                if (activeCertificate.fontPath) {
-                    try {
-                        await fs.unlink(activeCertificate.fontPath);
-                    } catch (unlinkError) {
-                        console.log('Не удалось удалить старый файл шрифта:', unlinkError.message);
+            // Удаляем старый файл шрифта из файловой системы, если он есть
+            const oldFontId = await this.getSetting('certificate_font_id');
+            if (oldFontId) {
+                try {
+                    const oldFile = await FileModel.findByPk(oldFontId);
+                    if (oldFile) {
+                        const oldPath = path.join(__dirname, '..', 'files', oldFile.savedFilename);
+                        await fs.unlink(oldPath);
+                        await oldFile.destroy();
                     }
+                } catch (unlinkError) {
+                    console.log('Не удалось удалить старый файл шрифта:', unlinkError.message);
                 }
-                
-                activeCertificate.fontPath = fontPath;
-                await activeCertificate.save();
             }
+
+            // Создаем запись в таблице files
+            const fileRecord = await FileModel.create({
+                filename: file.originalname || 'certificate_font.ttf',
+                savedFilename: savedFilename,
+                filepath: savedFilename,
+                fileType: 'certificates',
+                mimetype: file.mimetype || 'font/ttf',
+                size: file.size,
+                description: 'Шрифт для сертификатов',
+                isActive: true,
+                uploadedBy: null
+            });
+
+            // Сохраняем ID файла шрифта
+            await this.setSetting('certificate_font_id', fileRecord.id);
 
             return fontPath;
         } catch (e) {
@@ -113,43 +145,112 @@ class CertificateService {
 
     // Получение активного шаблона
     async getActiveTemplate() {
-        const certificate = await Certificate.findOne({ where: { isActive: true } });
-        if (!certificate) {
+        const templateId = await this.getSetting('certificate_template_id');
+        if (!templateId) {
             throw ApiError.BadRequest('Шаблон сертификата не загружен');
         }
-        return certificate;
+        
+        // Получаем файл шаблона из файловой системы
+        const templateFile = await FileModel.findByPk(templateId);
+        if (!templateFile) {
+            throw ApiError.BadRequest('Файл шаблона не найден');
+        }
+        
+        const templatePath = path.join(__dirname, '..', 'files', templateFile.savedFilename);
+        
+        // Получаем файл шрифта, если он есть
+        let fontPath = null;
+        const fontId = await this.getSetting('certificate_font_id');
+        if (fontId) {
+            const fontFile = await FileModel.findByPk(fontId);
+            if (fontFile) {
+                fontPath = path.join(__dirname, '..', 'files', fontFile.savedFilename);
+            }
+        }
+        
+        return {
+            templateId: templateFile.id,
+            templatePath,
+            textX: parseFloat(await this.getSetting('certificate_text_x', 0)),
+            textY: parseFloat(await this.getSetting('certificate_text_y', 0)),
+            fontSize: parseInt(await this.getSetting('certificate_font_size', 110)),
+            fontColor: await this.getSetting('certificate_font_color', '#023664'),
+            fontId: fontId ? parseInt(fontId) : null,
+            fontPath
+        };
+    }
+
+    // Получение настроек для фронтенда
+    async getSettings() {
+        const templateId = await this.getSetting('certificate_template_id');
+        if (!templateId) {
+            throw ApiError.BadRequest('Шаблон сертификата не загружен');
+        }
+
+        // Получаем размеры шаблона
+        const templateFile = await FileModel.findByPk(templateId);
+        if (!templateFile) {
+            throw ApiError.BadRequest('Файл шаблона не найден');
+        }
+
+        const templatePath = path.join(__dirname, '..', 'files', templateFile.savedFilename);
+        const templateBytes = await fs.readFile(templatePath);
+        const pdfDoc = await PDFDocument.load(templateBytes);
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+        const { width, height } = firstPage.getSize();
+
+        const fontId = await this.getSetting('certificate_font_id');
+
+        return {
+            textX: parseFloat(await this.getSetting('certificate_text_x', 0)),
+            textY: parseFloat(await this.getSetting('certificate_text_y', 0)),
+            fontSize: parseInt(await this.getSetting('certificate_font_size', 110)),
+            fontColor: await this.getSetting('certificate_font_color', '#023664'),
+            templateWidth: width,
+            templateHeight: height,
+            fontPath: fontId ? 'loaded' : null
+        };
     }
 
     // Обновление настроек позиции текста
     async updateSettings(settings) {
-        const certificate = await this.getActiveTemplate();
+        if (settings.textX !== undefined) {
+            await this.setSetting('certificate_text_x', settings.textX);
+        }
+        if (settings.textY !== undefined) {
+            await this.setSetting('certificate_text_y', settings.textY);
+        }
+        if (settings.fontSize !== undefined) {
+            await this.setSetting('certificate_font_size', settings.fontSize);
+        }
+        if (settings.fontColor !== undefined) {
+            await this.setSetting('certificate_font_color', settings.fontColor);
+        }
         
-        if (settings.textX !== undefined) certificate.textX = settings.textX;
-        if (settings.textY !== undefined) certificate.textY = settings.textY;
-        if (settings.fontSize !== undefined) certificate.fontSize = settings.fontSize;
-        if (settings.fontColor !== undefined) certificate.fontColor = settings.fontColor;
-
-        await certificate.save();
-        return certificate;
+        return await this.getActiveTemplate();
     }
 
-    // Генерация одного сертификата для участника (без сохранения)
-    async generateCertificate(participantId, saveToFile = false) {
+    // Генерация сертификата для участника
+    async generateCertificate(participantId) {
         try {
-            // Получаем участника
+            // Получаем данные участника
             const participant = await User.findByPk(participantId);
             if (!participant) {
                 throw ApiError.BadRequest('Участник не найден');
             }
 
-            // Получаем активный шаблон
+            // Получаем настройки сертификата
             const certificate = await this.getActiveTemplate();
 
-            // Загружаем шаблон PDF
+            // ФИО участника (только фамилия и имя)
+            const fullName = `${participant.last_name} ${participant.first_name}`.trim();
+
+            // Загружаем шаблон
             const templateBytes = await fs.readFile(certificate.templatePath);
             const pdfDoc = await PDFDocument.load(templateBytes);
 
-            // Регистрируем fontkit для поддержки кастомных шрифтов
+            // Регистрируем fontkit
             pdfDoc.registerFontkit(fontkit);
 
             // Загружаем шрифт
@@ -159,237 +260,232 @@ class CertificateService {
                     const fontBytes = await fs.readFile(certificate.fontPath);
                     font = await pdfDoc.embedFont(fontBytes);
                 } catch (fontError) {
-                    console.error('Ошибка загрузки кастомного шрифта:', fontError);
-                    // Используем стандартный шрифт как fallback
-                    font = await pdfDoc.embedFont('Helvetica-Bold');
+                    console.error('Ошибка загрузки шрифта:', fontError);
+                    throw ApiError.BadRequest('Ошибка загрузки шрифта. Пожалуйста, загрузите файл шрифта.');
                 }
             } else {
-                // Используем стандартный шрифт
-                font = await pdfDoc.embedFont('Helvetica-Bold');
+                throw ApiError.BadRequest('Файл шрифта не загружен');
             }
 
             // Получаем первую страницу
             const pages = pdfDoc.getPages();
             const firstPage = pages[0];
-
-            // Формируем ФИО участника (только фамилия и имя)
-            const fullName = `${participant.last_name} ${participant.first_name}`.trim();
-
-            // Преобразуем цвет из HEX в RGB
-            const hexColor = certificate.fontColor.replace('#', '');
-            const r = parseInt(hexColor.substr(0, 2), 16) / 255;
-            const g = parseInt(hexColor.substr(2, 2), 16) / 255;
-            const b = parseInt(hexColor.substr(4, 2), 16) / 255;
-
-            // Получаем размеры страницы
-            const { width: pageWidth } = firstPage.getSize();
-
-            // Вычисляем ширину текста для центрирования по горизонтали
-            const textWidth = font.widthOfTextAtSize(fullName, certificate.fontSize);
-
-            // X - автоматически центр страницы
-            // Y - из настроек (вертикальная позиция) - это будет baseline текста
-            const x = (pageWidth / 2) - (textWidth / 2);
-            const y = certificate.textY;
+            
+            // Парсим цвет
+            const colorMatch = certificate.fontColor.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+            const color = colorMatch 
+                ? rgb(
+                    parseInt(colorMatch[1], 16) / 255,
+                    parseInt(colorMatch[2], 16) / 255,
+                    parseInt(colorMatch[3], 16) / 255
+                  )
+                : rgb(0, 0.21, 0.39); // Цвет по умолчанию #023664
 
             // Добавляем текст на страницу
+            const textWidth = font.widthOfTextAtSize(fullName, certificate.fontSize);
             firstPage.drawText(fullName, {
-                x: x,
-                y: y,
+                x: certificate.textX - (textWidth / 2),
+                y: certificate.textY,
                 size: certificate.fontSize,
                 font: font,
-                color: rgb(r, g, b)
+                color: color
             });
 
             // Сохраняем PDF
             const pdfBytes = await pdfDoc.save();
-            const buffer = Buffer.from(pdfBytes);
 
-            // Если нужно сохранить в файл
-            let filePath = null;
-            if (saveToFile) {
-                const certificatesDir = path.join(__dirname, '..', 'files', 'generated-certificates');
-                
-                // Создаем папку, если её нет
-                try {
-                    await fs.access(certificatesDir);
-                } catch {
-                    await fs.mkdir(certificatesDir, { recursive: true });
-                }
-
-                const filename = `certificate_${participant.id}_${Date.now()}.pdf`;
-                filePath = path.join(certificatesDir, filename);
-                await fs.writeFile(filePath, buffer);
-            }
-
+            // Возвращаем информацию
             return {
-                buffer: buffer,
-                filePath: filePath,
-                filename: `certificate_${participant.id}_${participant.last_name}.pdf`,
                 participant: {
                     id: participant.id,
-                    fullName: fullName,
-                    email: participant.email
-                }
+                    fullName: fullName
+                },
+                pdfBytes: pdfBytes
             };
         } catch (e) {
             console.error('Ошибка генерации сертификата:', e);
-            throw ApiError.BadRequest('Ошибка генерации сертификата: ' + e.message);
+            throw ApiError.BadRequest(e.message || 'Ошибка генерации сертификата');
         }
     }
 
-    // Генерация и выдача сертификатов выбранным участникам
+    // Массовая выдача сертификатов всем участникам
     async issueСertificatesToParticipants(participantIds) {
-        try {
-            const results = [];
-            const errors = [];
-
-            for (const participantId of participantIds) {
-                try {
-                    // Генерируем сертификат и сохраняем в файл
-                    const result = await this.generateCertificate(participantId, true);
-                    
-                    // Обновляем certificateUrl у участника
-                    const participant = await User.findByPk(participantId);
-                    if (participant) {
-                        // Сохраняем относительный путь или URL
-                        const certificateUrl = `/api/certificates/download/${participantId}`;
-                        participant.certificateUrl = certificateUrl;
-                        await participant.save();
-
-                        results.push({
-                            participantId: participantId,
-                            fullName: result.participant.fullName,
-                            certificateUrl: certificateUrl
-                        });
-                    }
-                } catch (e) {
-                    console.error(`Ошибка выдачи сертификата участнику ${participantId}:`, e);
-                    errors.push({
-                        participantId: participantId,
-                        error: e.message
-                    });
-                }
-            }
-
-            return {
-                success: results.length,
-                failed: errors.length,
-                total: participantIds.length,
-                results: results,
-                errors: errors
-            };
-        } catch (e) {
-            console.error('Ошибка выдачи сертификатов:', e);
-            throw ApiError.BadRequest('Ошибка выдачи сертификатов');
-        }
-    }
-
-    // Получение сертификата участника по ID
-    async getParticipantCertificate(participantId) {
-        try {
-            const participant = await User.findByPk(participantId);
-            if (!participant) {
-                throw ApiError.BadRequest('Участник не найден');
-            }
-
-            if (!participant.certificateUrl) {
-                throw ApiError.BadRequest('Сертификат не был выдан этому участнику');
-            }
-
-            // Ищем файл сертификата
-            const certificatesDir = path.join(__dirname, '..', 'files', 'generated-certificates');
-            const files = await fs.readdir(certificatesDir);
-            
-            // Ищем файл, начинающийся с ID участника
-            const certificateFile = files.find(file => file.startsWith(`certificate_${participantId}_`));
-            
-            if (!certificateFile) {
-                // Если файл не найден, генерируем заново
-                console.log(`Файл сертификата не найден для участника ${participantId}, генерируем заново...`);
-                const result = await this.generateCertificate(participantId, true);
-                return {
-                    buffer: result.buffer,
-                    filename: result.filename
-                };
-            }
-
-            const filePath = path.join(certificatesDir, certificateFile);
-            const buffer = await fs.readFile(filePath);
-
-            return {
-                buffer: buffer,
-                filename: `certificate_${participant.last_name}_${participant.first_name}.pdf`
-            };
-        } catch (e) {
-            console.error('Ошибка получения сертификата:', e);
-            throw ApiError.BadRequest('Ошибка получения сертификата: ' + e.message);
-        }
-    }
-
-    // Генерация сертификатов для всех участников
-    async generateAllCertificates() {
-        try {
-            // Получаем всех активированных участников
-            const participants = await User.findAll({ 
-                where: { isActivated: true },
-                attributes: ['id', 'first_name', 'last_name', 'second_name', 'email']
-            });
-
-            const results = [];
-            const errors = [];
-
-            for (const participant of participants) {
-                try {
-                    const result = await this.generateCertificate(participant.id);
-                    results.push(result);
-                } catch (e) {
-                    errors.push({
-                        participantId: participant.id,
-                        error: e.message
-                    });
-                }
-            }
-
-            return {
-                success: results.length,
-                failed: errors.length,
-                total: participants.length,
-                errors: errors
-            };
-        } catch (e) {
-            console.error('Ошибка генерации всех сертификатов:', e);
-            throw ApiError.BadRequest('Ошибка генерации сертификатов');
-        }
-    }
-
-    // Получение настроек текущего шаблона
-    async getSettings() {
-        const certificate = await Certificate.findOne({ where: { isActive: true } });
+        const results = [];
         
-        if (!certificate) {
-            return null;
+        // Папка для сохранения сгенерированных сертификатов - общая папка files
+        const certificatesDir = path.join(__dirname, '..', 'files');
+
+        for (const participantId of participantIds) {
+            try {
+                const result = await this.generateCertificate(participantId);
+                const participant = await User.findByPk(participantId);
+
+                // Удаляем старый сертификат, если он есть
+                if (participant.certificateId) {
+                    try {
+                        const oldCertificate = await FileModel.findByPk(participant.certificateId);
+                        if (oldCertificate) {
+                            const oldPath = path.join(certificatesDir, oldCertificate.savedFilename);
+                            await fs.unlink(oldPath);
+                            await oldCertificate.destroy();
+                            console.log(`Удален старый сертификат для участника ${participantId}`);
+                        }
+                    } catch (deleteError) {
+                        console.log(`Не удалось удалить старый сертификат: ${deleteError.message}`);
+                    }
+                }
+
+                // Сохраняем PDF в файл
+                const certificateFile = `cert_${uuidv4()}.pdf`;
+                await fs.writeFile(
+                    path.join(certificatesDir, certificateFile),
+                    result.pdfBytes
+                );
+
+                // Создаем запись в таблице files
+                if (certificateFile) {
+                    const file = await FileModel.create({
+                        filename: `Сертификат_${participant.last_name}_${participant.first_name}.pdf`,
+                        savedFilename: certificateFile,
+                        filepath: certificateFile,
+                        fileType: 'certificates',
+                        mimetype: 'application/pdf',
+                        size: (await fs.stat(path.join(certificatesDir, certificateFile))).size,
+                        description: `Сертификат для ${participant.last_name} ${participant.first_name}`,
+                        isActive: true,
+                        uploadedBy: null
+                    });
+
+                    // Сохраняем ID файла в пользователе
+                    participant.certificateId = file.id;
+                    await participant.save();
+
+                    results.push({
+                        participantId: participantId,
+                        fullName: result.participant.fullName,
+                        certificateId: file.id
+                    });
+                }
+            } catch (e) {
+                console.error(`Ошибка выдачи сертификата участнику ${participantId}:`, e);
+                results.push({
+                    participantId: participantId,
+                    error: e.message
+                });
+            }
         }
 
-        // Получаем размеры шаблона из PDF
+        // Подсчитываем успешные и неудачные
+        const successCount = results.filter(r => !r.error).length;
+        const errorCount = results.filter(r => r.error).length;
+
+        return {
+            success: successCount,
+            error: errorCount,
+            total: results.length,
+            results: results
+        };
+    }
+
+    // Получение сертификата участника
+    async getParticipantCertificate(participantId) {
+        const participant = await User.findByPk(participantId, {
+            include: [{ model: FileModel, as: 'Certificate' }]
+        });
+
+        if (!participant) {
+            throw ApiError.BadRequest('Участник не найден');
+        }
+
+        if (!participant.certificateId) {
+            throw ApiError.BadRequest('Сертификат не был выдан этому участнику');
+        }
+
+        const certificateFile = participant.Certificate;
+        if (!certificateFile) {
+            throw ApiError.BadRequest('Файл сертификата не найден');
+        }
+
+        const certificatePath = path.join(__dirname, '..', 'files', certificateFile.savedFilename);
+        
         try {
+            const pdfBytes = await fs.readFile(certificatePath);
+            return {
+                participant: {
+                    id: participant.id,
+                    fullName: `${participant.last_name} ${participant.first_name}`.trim()
+                },
+                pdfBytes: pdfBytes,
+                filename: certificateFile.filename
+            };
+        } catch (e) {
+            console.error('Ошибка чтения файла сертификата:', e);
+            throw ApiError.BadRequest('Не удалось прочитать файл сертификата');
+        }
+    }
+
+    // Предпросмотр сертификата с тестовыми данными
+    async previewCertificate(testName = 'Иванов Иван Иванович') {
+        try {
+            // Получаем настройки сертификата
+            const certificate = await this.getActiveTemplate();
+
+            // Загружаем шаблон
             const templateBytes = await fs.readFile(certificate.templatePath);
             const pdfDoc = await PDFDocument.load(templateBytes);
+
+            // Регистрируем fontkit
+            pdfDoc.registerFontkit(fontkit);
+
+            // Загружаем шрифт
+            let font;
+            if (certificate.fontPath) {
+                try {
+                    const fontBytes = await fs.readFile(certificate.fontPath);
+                    font = await pdfDoc.embedFont(fontBytes);
+                } catch (fontError) {
+                    console.error('Ошибка загрузки шрифта:', fontError);
+                    throw ApiError.BadRequest('Ошибка загрузки шрифта. Пожалуйста, загрузите файл шрифта.');
+                }
+            } else {
+                throw ApiError.BadRequest('Файл шрифта не загружен');
+            }
+
+            // Получаем первую страницу
             const pages = pdfDoc.getPages();
             const firstPage = pages[0];
-            const { width, height } = firstPage.getSize();
+            
+            // Парсим цвет
+            const colorMatch = certificate.fontColor.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+            const color = colorMatch 
+                ? rgb(
+                    parseInt(colorMatch[1], 16) / 255,
+                    parseInt(colorMatch[2], 16) / 255,
+                    parseInt(colorMatch[3], 16) / 255
+                  )
+                : rgb(0, 0.21, 0.39);
+
+            // Добавляем текст на страницу
+            const textWidth = font.widthOfTextAtSize(testName, certificate.fontSize);
+            firstPage.drawText(testName, {
+                x: certificate.textX - (textWidth / 2),
+                y: certificate.textY,
+                size: certificate.fontSize,
+                font: font,
+                color: color
+            });
+
+            // Сохраняем PDF
+            const pdfBytes = await pdfDoc.save();
 
             return {
-                ...certificate.toJSON(),
-                templateWidth: width,
-                templateHeight: height
+                pdfBytes: pdfBytes
             };
         } catch (e) {
-            console.error('Ошибка получения размеров шаблона:', e);
-            return certificate;
+            console.error('Ошибка предпросмотра сертификата:', e);
+            throw ApiError.BadRequest(e.message || 'Ошибка предпросмотра сертификата');
         }
     }
 }
 
 module.exports = new CertificateService();
-

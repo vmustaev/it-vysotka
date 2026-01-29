@@ -9,19 +9,11 @@ const File = sequelize.define('File', {
     },
     filename: {
         type: DataTypes.STRING,
-        allowNull: false,
-        comment: 'Оригинальное имя файла'
+        allowNull: false
     },
     savedFilename: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        comment: 'Имя файла в файловой системе (уникальное)'
-    },
-    filepath: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        comment: 'Путь к файлу относительно папки files'
+        allowNull: false
     },
     fileType: {
         type: DataTypes.ENUM(
@@ -33,50 +25,41 @@ const File = sequelize.define('File', {
             'results',        // Результаты
             'other'           // Другое
         ),
-        allowNull: false,
-        comment: 'Тип файла/категория'
+        allowNull: false
     },
     mimetype: {
         type: DataTypes.STRING,
-        allowNull: false,
-        comment: 'MIME тип файла'
+        allowNull: false
     },
     size: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: 'Размер файла в байтах'
+        allowNull: false
     },
     description: {
         type: DataTypes.TEXT,
-        allowNull: true,
-        comment: 'Описание файла'
+        allowNull: true
     },
     isActive: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: true,
-        comment: 'Активен ли файл'
+        defaultValue: true
     },
     uploadedBy: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: 'ID пользователя, загрузившего файл'
+        allowNull: true
     },
     displayOrder: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        defaultValue: 0,
-        comment: 'Порядок отображения (для спонсоров)'
+        defaultValue: 0
     },
     subType: {
         type: DataTypes.STRING,
-        allowNull: true,
-        comment: 'Подтип файла (например: consent_minor, consent_adult для regulations)'
+        allowNull: true
     },
     year: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: 'Год (для заданий)'
+        allowNull: true
     }
 }, {
     tableName: 'files',

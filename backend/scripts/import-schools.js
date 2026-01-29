@@ -12,8 +12,8 @@ async function importSchools() {
         // Подключаемся к БД (если еще не подключены)
         await sequelize.authenticate();
         
-        // Синхронизируем модель (создаем таблицу если её нет)
-        await sequelize.sync({ force: false });
+        // Не используем sync, так как используем миграции
+        // await sequelize.sync({ force: false });
         
         // Проверяем, есть ли уже школы в базе
         const schoolCount = await School.count();

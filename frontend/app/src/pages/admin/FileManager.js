@@ -20,11 +20,22 @@ const FileManager = () => {
     const [editingFile, setEditingFile] = useState(null);
     const [stats, setStats] = useState([]);
 
+    // Типы для фильтра (можно просматривать все)
     const fileTypes = [
         { value: '', label: 'Все типы' },
         { value: 'gallery', label: 'Галерея' },
         { value: 'sponsors', label: 'Спонсоры' },
         { value: 'certificates', label: 'Сертификаты' },
+        { value: 'tasks', label: 'Задания' },
+        { value: 'regulations', label: 'Положения' },
+        { value: 'results', label: 'Результаты' },
+        { value: 'other', label: 'Другое' }
+    ];
+
+    // Типы для загрузки (сертификаты загружаются только через раздел "Сертификаты")
+    const uploadableTypes = [
+        { value: 'gallery', label: 'Галерея' },
+        { value: 'sponsors', label: 'Спонсоры' },
         { value: 'tasks', label: 'Задания' },
         { value: 'regulations', label: 'Положения' },
         { value: 'results', label: 'Результаты' },
@@ -220,7 +231,7 @@ const FileManager = () => {
                             onChange={(e) => setUploadType(e.target.value)}
                             required
                         >
-                            {fileTypes.filter(t => t.value !== '').map(type => (
+                            {uploadableTypes.map(type => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>

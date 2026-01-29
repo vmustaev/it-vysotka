@@ -303,7 +303,7 @@ class UserService {
             participation_format: user.participation_format,
             role: user.role,
             place: user.place,
-            certificateUrl: user.certificateUrl,
+            certificateId: user.certificateId,
             essayUrl: user.essayUrl
         };
     }
@@ -398,7 +398,7 @@ class UserService {
         throw ApiError.BadRequest('Не удалось обновить ссылку на эссе');
     }
 
-    async setUserResult(userId, place, certificateUrl) {
+    async setUserResult(userId, place, certificateId) {
         const user = await UserModel.findByPk(userId);
         
         if (!user) {
@@ -409,8 +409,8 @@ class UserService {
             user.place = place;
         }
 
-        if (certificateUrl !== null && certificateUrl !== undefined) {
-            user.certificateUrl = certificateUrl;
+        if (certificateId !== null && certificateId !== undefined) {
+            user.certificateId = certificateId;
         }
 
         await user.save();
