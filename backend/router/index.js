@@ -60,6 +60,7 @@ router.get('/admin/participants', authMiddleware, adminMiddleware, participantsC
 router.get('/admin/participants/stats', authMiddleware, adminMiddleware, participantsController.getStats);
 router.get('/admin/participants/export', authMiddleware, adminMiddleware, participantsController.exportToExcel);
 router.get('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.getById);
+router.put('/admin/participants/:id/place', authMiddleware, adminMiddleware, participantsController.updatePlace);
 router.delete('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.deleteParticipant);
 
 // Admin routes - Teams

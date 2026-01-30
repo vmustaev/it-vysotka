@@ -13,6 +13,8 @@ const Participants = () => {
     const [teams, setTeams] = useState([]); // Список всех команд
     const [individualParticipants, setIndividualParticipants] = useState([]); // Индивидуальные участники
     const [activeTab, setActiveTab] = useState('participants'); // 'participants', 'teams' или 'individual'
+    const [editingPlace, setEditingPlace] = useState(null); // ID участника, чье место редактируется
+    const [placeValue, setPlaceValue] = useState(''); // Значение редактируемого места
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -163,6 +165,56 @@ const Participants = () => {
             }
             return newSet;
         });
+    };
+
+    // Начать редактирование места
+    const handleStartEditPlace = (participant) => {
+        setEditingPlace(participant.id);
+        setPlaceValue(participant.place || '');
+    };
+
+    // Сохранить место
+    const handleSavePlace = async (participantId) => {
+        try {
+            const place = placeValue.trim() === '' ? null : parseInt(placeValue);
+            
+            if (place !== null && (isNaN(place) || place < 1 || place > 3)) {
+                setNotification({ type: 'error', message: 'Место должно быть 1, 2, 3 или пусто' });
+                return;
+            }
+
+            await ParticipantsService.updatePlace(participantId, place);
+            
+            // Обновляем список участников
+            setParticipants(prev => prev.map(p => 
+                p.id === participantId ? { ...p, place } : p
+            ));
+
+            // Обновляем индивидуальных участников если это активная вкладка
+            if (activeTab === 'individual') {
+                setIndividualParticipants(prev => prev.map(p => 
+                    p.id === participantId ? { ...p, place } : p
+                ));
+            }
+
+            setNotification({ 
+                type: 'success', 
+                message: place ? `Место ${place} назначено` : 'Место снято'
+            });
+            setEditingPlace(null);
+            setPlaceValue('');
+        } catch (e) {
+            setNotification({ 
+                type: 'error', 
+                message: e.response?.data?.message || 'Ошибка обновления места' 
+            });
+        }
+    };
+
+    // Отменить редактирование места
+    const handleCancelEditPlace = () => {
+        setEditingPlace(null);
+        setPlaceValue('');
     };
 
     return (
@@ -371,14 +423,10 @@ const Participants = () => {
                                     <th onClick={() => handleSort('email')} style={{ maxWidth: '200px' }}>
                                         Email {filters.sortBy === 'email' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
-                                    <th>Телефон</th>
-                                    <th onClick={() => handleSort('grade')}>
-                                        Класс {filters.sortBy === 'grade' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
-                                    </th>
-                                    <th>Дата рождения</th>
-                                    <th>Город</th>
+                                    <th>Класс</th>
                                     <th>Школа</th>
                                     <th>Команда / Формат</th>
+                                    <th style={{ width: '100px', textAlign: 'center' }}>Место</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -404,10 +452,7 @@ const Participants = () => {
                                         <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {participant.email}
                                         </td>
-                                        <td>{participant.phone || '-'}</td>
                                         <td>{participant.grade}</td>
-                                        <td>{participant.birthday || '-'}</td>
-                                        <td>{participant.city || '-'}</td>
                                         <td style={{ fontSize: 'var(--font-size-sm)' }}>
                                             {participant.school || '-'}
                                         </td>
@@ -418,6 +463,73 @@ const Participants = () => {
                                                 <span className="badge badge-team">{participant.Team.name}</span>
                                             ) : (
                                                 <span className="badge badge-no-team">Нет команды</span>
+                                            )}
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {editingPlace === participant.id ? (
+                                                <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max="3"
+                                                        value={placeValue}
+                                                        onChange={(e) => setPlaceValue(e.target.value)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') handleSavePlace(participant.id);
+                                                            if (e.key === 'Escape') handleCancelEditPlace();
+                                                        }}
+                                                        placeholder="1-3"
+                                                        style={{ 
+                                                            width: '50px', 
+                                                            padding: '4px 8px',
+                                                            fontSize: 'var(--font-size-sm)',
+                                                            border: '1px solid var(--border-color)',
+                                                            borderRadius: 'var(--border-radius-sm)'
+                                                        }}
+                                                        autoFocus
+                                                    />
+                                                    <button
+                                                        onClick={() => handleSavePlace(participant.id)}
+                                                        className="btn btn-sm btn-primary"
+                                                        style={{ padding: '4px 8px', minWidth: 'auto' }}
+                                                        title="Сохранить"
+                                                    >
+                                                        ✓
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelEditPlace}
+                                                        className="btn btn-sm btn-outline"
+                                                        style={{ padding: '4px 8px', minWidth: 'auto' }}
+                                                        title="Отмена"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div 
+                                                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                                    onClick={() => handleStartEditPlace(participant)}
+                                                >
+                                                    {participant.place ? (
+                                                        <span className="badge" style={{
+                                                            background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                                       participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                                       'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
+                                                            color: participant.place === 1 ? '#b8860b' :
+                                                                   participant.place === 2 ? '#696969' :
+                                                                   '#8b4513',
+                                                            fontWeight: 'bold',
+                                                            padding: '4px 12px',
+                                                            fontSize: 'var(--font-size-sm)'
+                                                        }}>
+                                                            {participant.place} место
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                            Назначить
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
                                         </td>
                                     </tr>
@@ -609,12 +721,10 @@ const Participants = () => {
                                             <th style={{ width: '30px', textAlign: 'center', padding: '8px 0px 8px 12px' }}></th>
                                             <th>ФИО</th>
                                             <th style={{ maxWidth: '200px' }}>Email</th>
-                                            <th>Телефон</th>
                                             <th>Класс</th>
-                                            <th>Дата рождения</th>
-                                            <th>Город</th>
                                             <th>Школа</th>
-                                            <th style={{ width: '100px' }}>Эссе</th>
+                                            <th style={{ width: '80px', textAlign: 'center' }}>Эссе</th>
+                                            <th style={{ width: '100px', textAlign: 'center' }}>Место</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -637,14 +747,11 @@ const Participants = () => {
                                                 <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                     {participant.email}
                                                 </td>
-                                                <td>{participant.phone || '-'}</td>
                                                 <td>{participant.grade} класс</td>
-                                                <td>{participant.birthday || '-'}</td>
-                                                <td>{participant.city || '-'}</td>
                                                 <td style={{ fontSize: 'var(--font-size-sm)' }}>
                                                     {participant.school || '-'}
                                                 </td>
-                                                <td>
+                                                <td style={{ textAlign: 'center' }}>
                                                     {participant.essayUrl ? (
                                                         <a 
                                                             href={participant.essayUrl} 
@@ -657,6 +764,73 @@ const Participants = () => {
                                                         </a>
                                                     ) : (
                                                         <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>-</span>
+                                                    )}
+                                                </td>
+                                                <td style={{ textAlign: 'center' }}>
+                                                    {editingPlace === participant.id ? (
+                                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                max="3"
+                                                                value={placeValue}
+                                                                onChange={(e) => setPlaceValue(e.target.value)}
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === 'Enter') handleSavePlace(participant.id);
+                                                                    if (e.key === 'Escape') handleCancelEditPlace();
+                                                                }}
+                                                                placeholder="1-3"
+                                                                style={{ 
+                                                                    width: '50px', 
+                                                                    padding: '4px 8px',
+                                                                    fontSize: 'var(--font-size-sm)',
+                                                                    border: '1px solid var(--border-color)',
+                                                                    borderRadius: 'var(--border-radius-sm)'
+                                                                }}
+                                                                autoFocus
+                                                            />
+                                                            <button
+                                                                onClick={() => handleSavePlace(participant.id)}
+                                                                className="btn btn-sm btn-primary"
+                                                                style={{ padding: '4px 8px', minWidth: 'auto' }}
+                                                                title="Сохранить"
+                                                            >
+                                                                ✓
+                                                            </button>
+                                                            <button
+                                                                onClick={handleCancelEditPlace}
+                                                                className="btn btn-sm btn-outline"
+                                                                style={{ padding: '4px 8px', minWidth: 'auto' }}
+                                                                title="Отмена"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div 
+                                                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                                            onClick={() => handleStartEditPlace(participant)}
+                                                        >
+                                                            {participant.place ? (
+                                                                <span className="badge" style={{
+                                                                    background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                                               participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                                               'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
+                                                                    color: participant.place === 1 ? '#b8860b' :
+                                                                           participant.place === 2 ? '#696969' :
+                                                                           '#8b4513',
+                                                                    fontWeight: 'bold',
+                                                                    padding: '4px 12px',
+                                                                    fontSize: 'var(--font-size-sm)'
+                                                                }}>
+                                                                    {participant.place}
+                                                                </span>
+                                                            ) : (
+                                                                <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                                    —
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>

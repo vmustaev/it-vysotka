@@ -480,7 +480,25 @@ const Profile = () => {
                                     <div className="profile-row">
                                         <span className="profile-label">Место:</span>
                                         <span className="profile-value">
-                                            <span className="place-badge">{profile.place}</span>
+                                            <span 
+                                                className="place-badge" 
+                                                style={{
+                                                    background: profile.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                               profile.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                               profile.place === 3 ? 'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)' :
+                                                               'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                                                    color: profile.place === 1 ? '#b8860b' :
+                                                           profile.place === 2 ? '#696969' :
+                                                           profile.place === 3 ? '#8b4513' :
+                                                           '#ffffff',
+                                                    boxShadow: profile.place === 1 ? '0 4px 20px rgba(255, 215, 0, 0.5)' :
+                                                              profile.place === 2 ? '0 4px 20px rgba(192, 192, 192, 0.5)' :
+                                                              profile.place === 3 ? '0 4px 20px rgba(205, 127, 50, 0.5)' :
+                                                              '0 4px 12px rgba(251, 191, 36, 0.3)'
+                                                }}
+                                            >
+                                                🏆 {profile.place} место
+                                            </span>
                                         </span>
                                     </div>
                                 )}

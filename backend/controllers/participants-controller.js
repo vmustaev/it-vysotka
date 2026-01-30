@@ -102,7 +102,8 @@ class ParticipantsController {
                     'role',
                     'birthday',
                     'essayUrl',
-                    'certificateId'
+                    'certificateId',
+                    'place'
                     // Исключаем: password
                 ]
             });
@@ -414,6 +415,45 @@ class ParticipantsController {
             return res.json({
                 success: true,
                 message: 'Участник успешно удален'
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Обновить место участника
+     */
+    async updatePlace(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { place } = req.body;
+
+            const participant = await UserModel.findOne({
+                where: { id, role: 'participant' }
+            });
+
+            if (!participant) {
+                return next(ApiError.BadRequest('Участник не найден'));
+            }
+
+            // Валидация места (может быть null, 1, 2 или 3)
+            if (place !== null && place !== '' && (isNaN(place) || place < 1 || place > 3)) {
+                return next(ApiError.BadRequest('Место должно быть 1, 2, 3 или пусто'));
+            }
+
+            // Если place пустое или null, устанавливаем null
+            const validPlace = (place === null || place === '') ? null : parseInt(place);
+
+            await participant.update({ place: validPlace });
+
+            return res.json({
+                success: true,
+                message: validPlace ? `Место ${validPlace} успешно назначено` : 'Место успешно снято',
+                data: {
+                    id: participant.id,
+                    place: participant.place
+                }
             });
         } catch (e) {
             next(e);

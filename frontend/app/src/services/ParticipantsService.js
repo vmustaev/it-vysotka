@@ -38,5 +38,12 @@ export default class ParticipantsService {
     static async deleteParticipant(id) {
         return $api.delete(`/admin/participants/${id}`);
     }
+
+    /**
+     * Обновить место участника
+     */
+    static async updatePlace(id, place) {
+        return $api.put(`/admin/participants/${id}/place`, { place });
+    }
 }
 
