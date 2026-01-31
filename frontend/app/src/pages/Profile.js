@@ -20,6 +20,7 @@ const Profile = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [essayUrl, setEssayUrl] = useState('');
     const [isEditingEssay, setIsEditingEssay] = useState(false);
+    const [isAccordionOpen, setIsAccordionOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -414,249 +415,145 @@ const Profile = () => {
                     )}
                 </div>
 
+                <div className="profile-sections-grid">
                 {/* User Info Section */}
                 <div className="profile-section">
                     <h2 className="profile-section-title">Личная информация</h2>
                     <div className="profile-card">
-                        <div className="profile-row">
-                            <span className="profile-label">ФИО:</span>
-                            <span className="profile-value">
-                                {profile.last_name} {profile.first_name} {profile.second_name}
-                            </span>
-                        </div>
-                        <div className="profile-row">
-                            <span className="profile-label">Email:</span>
-                            <span className="profile-value">{profile.email}</span>
-                        </div>
-                        {profile.role === 'admin' && (
+                        {/* Основные поля - всегда видимые */}
+                        <div className="profile-main-info">
                             <div className="profile-row">
-                                <span className="profile-label">Роль:</span>
+                                <span className="profile-label">ФИО:</span>
                                 <span className="profile-value">
-                                    <span className="admin-badge">Администратор</span>
+                                    {profile.last_name} {profile.first_name} {profile.second_name}
                                 </span>
                             </div>
-                        )}
-                        <div className="profile-row">
-                            <span className="profile-label">Формат участия:</span>
-                            <div className="profile-value">
-                                <div className="profile-radio-group">
-                                    <label className="profile-radio">
-                                        <input
-                                            type="radio"
-                                            name="participation_format"
-                                            value="individual"
-                                            checked={profile.participation_format === 'individual'}
-                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            disabled={actionLoading}
-                                        />
-                                        <span className="profile-radio-mark"></span>
-                                        <span className="profile-radio-text">Индивидуальное</span>
-                                    </label>
-                                    <label className="profile-radio">
-                                        <input
-                                            type="radio"
-                                            name="participation_format"
-                                            value="team"
-                                            checked={profile.participation_format === 'team'}
-                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            disabled={actionLoading}
-                                        />
-                                        <span className="profile-radio-mark"></span>
-                                        <span className="profile-radio-text">Командное</span>
-                                    </label>
-                                </div>
+                            <div className="profile-row">
+                                <span className="profile-label">Email:</span>
+                                <span className="profile-value">{profile.email}</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Results Section - всегда показываем */}
-                <div className="profile-section">
-                    <h2 className="profile-section-title">Результаты</h2>
-                    <div className="profile-card">
-                        {profile.place || profile.certificateId ? (
-                            <>
-                                {profile.place && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Место:</span>
-                                        <span className="profile-value">
-                                            <span 
-                                                className="place-badge" 
-                                                style={{
-                                                    background: profile.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
-                                                               profile.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
-                                                               profile.place === 3 ? 'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)' :
-                                                               'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-                                                    color: profile.place === 1 ? '#b8860b' :
-                                                           profile.place === 2 ? '#696969' :
-                                                           profile.place === 3 ? '#8b4513' :
-                                                           '#ffffff',
-                                                    boxShadow: profile.place === 1 ? '0 4px 20px rgba(255, 215, 0, 0.5)' :
-                                                              profile.place === 2 ? '0 4px 20px rgba(192, 192, 192, 0.5)' :
-                                                              profile.place === 3 ? '0 4px 20px rgba(205, 127, 50, 0.5)' :
-                                                              '0 4px 12px rgba(251, 191, 36, 0.3)'
-                                                }}
-                                            >
-                                                🏆 {profile.place} место
-                                            </span>
-                                        </span>
-                                    </div>
-                                )}
-                                {profile.certificateId && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Сертификат:</span>
-                                        <span className="profile-value">
-                                            <button 
-                                                onClick={handleDownloadCertificate}
-                                                disabled={actionLoading}
-                                                className="certificate-link"
-                                                style={{ 
-                                                    background: 'none', 
-                                                    border: 'none', 
-                                                    padding: 0,
-                                                    cursor: actionLoading ? 'not-allowed' : 'pointer',
-                                                    opacity: actionLoading ? 0.6 : 1
-                                                }}
-                                            >
-                                                {actionLoading ? (
-                                                    <>
-                                                        <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                                                        </svg>
-                                                        Скачивание...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                            <polyline points="14 2 14 8 20 8"/>
-                                                            <line x1="16" y1="13" x2="8" y2="13"/>
-                                                            <line x1="16" y1="17" x2="8" y2="17"/>
-                                                            <polyline points="10 9 9 9 8 9"/>
-                                                        </svg>
-                                                        Скачать сертификат
-                                                    </>
-                                                )}
-                                            </button>
-                                        </span>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="results-empty">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="results-empty-icon">
-                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                                </svg>
-                                <p className="results-empty-text">Результаты будут доступны после завершения чемпионата</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
-                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
-                    <div className="profile-section">
-                        <div className="profile-section-header">
-                            <h2 className="profile-section-title">Эссе</h2>
-                            {!isEditingEssay && (
-                                <button
-                                    className="btn btn-secondary btn-sm btn-with-icon"
-                                    onClick={() => setIsEditingEssay(true)}
-                                    disabled={actionLoading}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
-                                    {profile.essayUrl ? 'Изменить' : 'Добавить'}
-                                </button>
-                            )}
-                        </div>
-                        
-                        <div className="profile-card">
-                            {!isEditingEssay ? (
+                            {profile.phone && (
                                 <div className="profile-row">
-                                    <span className="profile-label">Ссылка на эссе:</span>
-                                    <span className="profile-value">
-                                        {profile.essayUrl ? (
-                                            <a 
-                                                href={profile.essayUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="essay-link"
-                                            >
-                                                {profile.essayUrl}
-                                            </a>
-                                        ) : (
-                                            <span className="empty-value">Не указано</span>
-                                        )}
-                                    </span>
-                                </div>
-                            ) : (
-                                <div className="essay-edit-form">
-                                    <div className="form-group">
-                                        <label className="form-label">Ссылка на эссе</label>
-                                        <input
-                                            type="url"
-                                            className="form-input"
-                                            value={essayUrl}
-                                            onChange={(e) => setEssayUrl(e.target.value)}
-                                            placeholder="https://..."
-                                            disabled={actionLoading}
-                                            autoFocus
-                                        />
-                                        <small className="form-hint">
-                                            Вставьте ссылку на ваше эссе. Убедитесь, что доступ открыт для просмотра.
-                                        </small>
-                                    </div>
-                                    <div className="form-actions">
-                                        <button
-                                            type="button"
-                                            className="btn btn-primary btn-with-icon"
-                                            onClick={handleSaveEssay}
-                                            disabled={actionLoading}
-                                        >
-                                            {actionLoading ? (
-                                                <>
-                                                    <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                                                    </svg>
-                                                    Сохранение...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <polyline points="20 6 9 17 4 12"/>
-                                                    </svg>
-                                                    Сохранить
-                                                </>
-                                            )}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline btn-with-icon"
-                                            onClick={handleCancelEssay}
-                                            disabled={actionLoading}
-                                        >
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="18" y1="6" x2="6" y2="18"/>
-                                                <line x1="6" y1="6" x2="18" y2="18"/>
-                                            </svg>
-                                            Отмена
-                                        </button>
-                                    </div>
+                                    <span className="profile-label">Телефон:</span>
+                                    <span className="profile-value">{profile.phone}</span>
                                 </div>
                             )}
+                            <div className="profile-row">
+                                <span className="profile-label">Формат участия:</span>
+                                <div className="profile-value">
+                                    <div className="profile-radio-group">
+                                        <label className="profile-radio">
+                                            <input
+                                                type="radio"
+                                                name="participation_format"
+                                                value="individual"
+                                                checked={profile.participation_format === 'individual'}
+                                                onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                                disabled={actionLoading}
+                                            />
+                                            <span className="profile-radio-mark"></span>
+                                            <span className="profile-radio-text">Индивидуальное</span>
+                                        </label>
+                                        <label className="profile-radio">
+                                            <input
+                                                type="radio"
+                                                name="participation_format"
+                                                value="team"
+                                                checked={profile.participation_format === 'team'}
+                                                onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                                disabled={actionLoading}
+                                            />
+                                            <span className="profile-radio-mark"></span>
+                                            <span className="profile-radio-text">Командное</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Дополнительные поля - в аккордеоне на мобильных */}
+                        <div className="profile-additional-info">
+                            {/* Кнопка аккордеона - только на мобильных */}
+                            <button
+                                className="profile-accordion-toggle"
+                                onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+                                type="button"
+                            >
+                                <span>Дополнительная информация</span>
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className={isAccordionOpen ? 'accordion-icon-open' : 'accordion-icon-closed'}
+                                >
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+
+                            {/* Контент аккордеона */}
+                            <div className={`profile-accordion-content ${isAccordionOpen ? 'accordion-open' : ''}`}>
+                                {profile.school && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Школа:</span>
+                                        <span className="profile-value">{profile.school}</span>
+                                    </div>
+                                )}
+                                {profile.grade && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Класс:</span>
+                                        <span className="profile-value">{profile.grade} класс</span>
+                                    </div>
+                                )}
+                                {profile.city && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Город:</span>
+                                        <span className="profile-value">{profile.city}</span>
+                                    </div>
+                                )}
+                                {profile.region && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Регион:</span>
+                                        <span className="profile-value">{profile.region}</span>
+                                    </div>
+                                )}
+                                {profile.programming_language && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Язык программирования:</span>
+                                        <span className="profile-value">{profile.programming_language}</span>
+                                    </div>
+                                )}
+                                {profile.birthday && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Дата рождения:</span>
+                                        <span className="profile-value">
+                                            {new Date(profile.birthday).toLocaleDateString('ru-RU', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </span>
+                                    </div>
+                                )}
+                                {profile.role === 'admin' && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Роль:</span>
+                                        <span className="profile-value">
+                                            <span className="admin-badge">Администратор</span>
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
 
                 {/* Team Section - показываем только для командного формата */}
                 {profile.participation_format === 'team' && (
                     <div className="profile-section">
-                        <div className="profile-section-header">
-                            <h2 className="profile-section-title">Моя команда</h2>
-                        </div>
+                        <h2 className="profile-section-title">Моя команда</h2>
 
                     {!team ? (
                         <div className="team-empty">
@@ -883,6 +780,187 @@ const Profile = () => {
                     )}
                     </div>
                 )}
+
+                {/* Results Section - всегда показываем */}
+                <div className="profile-section">
+                    <h2 className="profile-section-title">Результаты</h2>
+                    <div className="profile-card">
+                        {profile.place || profile.certificateId ? (
+                            <>
+                                {profile.place && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Место:</span>
+                                        <span className="profile-value">
+                                            <span 
+                                                className="place-badge" 
+                                                style={{
+                                                    background: profile.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                               profile.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                               profile.place === 3 ? 'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)' :
+                                                               'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                                                    color: profile.place === 1 ? '#b8860b' :
+                                                           profile.place === 2 ? '#696969' :
+                                                           profile.place === 3 ? '#8b4513' :
+                                                           '#ffffff',
+                                                    boxShadow: profile.place === 1 ? '0 4px 20px rgba(255, 215, 0, 0.5)' :
+                                                              profile.place === 2 ? '0 4px 20px rgba(192, 192, 192, 0.5)' :
+                                                              profile.place === 3 ? '0 4px 20px rgba(205, 127, 50, 0.5)' :
+                                                              '0 4px 12px rgba(251, 191, 36, 0.3)'
+                                                }}
+                                            >
+                                                🏆 {profile.place} место
+                                            </span>
+                                        </span>
+                                    </div>
+                                )}
+                                {profile.certificateId && (
+                                    <div className="profile-row">
+                                        <span className="profile-label">Сертификат:</span>
+                                        <span className="profile-value">
+                                            <button 
+                                                onClick={handleDownloadCertificate}
+                                                disabled={actionLoading}
+                                                className="certificate-link"
+                                                style={{ 
+                                                    background: 'none', 
+                                                    border: 'none', 
+                                                    padding: 0,
+                                                    cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                                    opacity: actionLoading ? 0.6 : 1
+                                                }}
+                                            >
+                                                {actionLoading ? (
+                                                    <>
+                                                        <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                                        </svg>
+                                                        Скачивание...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                            <polyline points="14 2 14 8 20 8"/>
+                                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                                            <polyline points="10 9 9 9 8 9"/>
+                                                        </svg>
+                                                        Скачать сертификат
+                                                    </>
+                                                )}
+                                            </button>
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="results-empty">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="results-empty-icon">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                </svg>
+                                <p className="results-empty-text">Результаты будут доступны после завершения чемпионата</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
+                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
+                    <div className="profile-section">
+                        <h2 className="profile-section-title">Эссе</h2>
+                        
+                        <div className="profile-card">
+                            {!isEditingEssay ? (
+                                <div className="profile-row">
+                                    <span className="profile-label">Ссылка на эссе:</span>
+                                    <span className="profile-value" style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'space-between' }}>
+                                        <span style={{ flex: 1, minWidth: 0 }}>
+                                            {profile.essayUrl ? (
+                                                <a 
+                                                    href={profile.essayUrl} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="essay-link"
+                                                >
+                                                    {profile.essayUrl}
+                                                </a>
+                                            ) : (
+                                                <span className="empty-value">Не указано</span>
+                                            )}
+                                        </span>
+                                        <button
+                                            className="btn btn-secondary btn-sm btn-with-icon"
+                                            onClick={() => setIsEditingEssay(true)}
+                                            disabled={actionLoading}
+                                            style={{ flexShrink: 0 }}
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                            {profile.essayUrl ? 'Изменить' : 'Добавить'}
+                                        </button>
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="essay-edit-form">
+                                    <div className="form-group">
+                                        <label className="form-label">Ссылка на эссе</label>
+                                        <input
+                                            type="url"
+                                            className="form-input"
+                                            value={essayUrl}
+                                            onChange={(e) => setEssayUrl(e.target.value)}
+                                            placeholder="https://..."
+                                            disabled={actionLoading}
+                                            autoFocus
+                                        />
+                                        <small className="form-hint">
+                                            Вставьте ссылку на ваше эссе. Убедитесь, что доступ открыт для просмотра.
+                                        </small>
+                                    </div>
+                                    <div className="form-actions">
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary btn-with-icon"
+                                            onClick={handleSaveEssay}
+                                            disabled={actionLoading}
+                                        >
+                                            {actionLoading ? (
+                                                <>
+                                                    <svg className="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                                    </svg>
+                                                    Сохранение...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <polyline points="20 6 9 17 4 12"/>
+                                                    </svg>
+                                                    Сохранить
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline btn-with-icon"
+                                            onClick={handleCancelEssay}
+                                            disabled={actionLoading}
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                            Отмена
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                </div>
             </div>
 
             <ConfirmDialog

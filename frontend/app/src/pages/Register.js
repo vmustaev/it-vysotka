@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 import SearchableSelect from '../components/SearchableSelect';
 import SettingsService from '../services/SettingsService';
 import Toast from '../components/Toast';
+import InfoModal from '../components/InfoModal';
 import $api from '../http';
 import '../styles/register-closed.css';
 import '../styles/register.css';
@@ -24,13 +25,14 @@ const RegisterPage = observer(() => {
         programming_language: '',
         phone: '',
         grade: '',
-        participation_format: 'individual'
+        participation_format: ''
     });
 
     const [parentConsent, setParentConsent] = useState(false);
 
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState({ type: null, message: '' });
+    const [infoModal, setInfoModal] = useState({ isOpen: false, message: '' });
     const [isLoading, setIsLoading] = useState(false);
     const { store } = useContext(Context);
     const navigate = useNavigate();
@@ -201,6 +203,35 @@ const RegisterPage = observer(() => {
         }
     };
 
+    const handleParticipationFormatChange = (e) => {
+        const value = e.target.value;
+        
+        setFormData(prev => ({
+            ...prev,
+            participation_format: value
+        }));
+        
+        if (errors.participation_format) {
+            setErrors(prev => ({
+                ...prev,
+                participation_format: []
+            }));
+        }
+        
+        // Показываем модальное окно с разными текстами
+        let message = '';
+        if (value === 'individual') {
+            message = 'Вы выбрали индивидуальное участие. После активации аккаунта в профиле вам необходимо будет указать ссылку на эссе.';
+        } else if (value === 'team') {
+            message = 'Вы выбрали командное участие. После активации аккаунта в профиле вам необходимо создать команду или присоединиться к команде по ссылке. Лидеру необходимо прикрепить эссе.';
+        }
+        
+        setInfoModal({
+            isOpen: true,
+            message: message
+        });
+    };
+
     const handleRegionChange = (value) => {
         setFormData(prev => ({
             ...prev,
@@ -351,6 +382,12 @@ const RegisterPage = observer(() => {
                     onClose={() => setNotification({ type: null, message: '' })}
                 />
             )}
+
+            <InfoModal
+                isOpen={infoModal.isOpen}
+                message={infoModal.message}
+                onClose={() => setInfoModal({ isOpen: false, message: '' })}
+            />
             
             <div className="register-content">
                 <div className="register-hero">
@@ -612,7 +649,7 @@ const RegisterPage = observer(() => {
                                             name="participation_format"
                                             value="individual"
                                             checked={formData.participation_format === 'individual'}
-                                            onChange={handleChange}
+                                            onChange={handleParticipationFormatChange}
                                         />
                                         <span className="register-radio-mark"></span>
                                         <span className="register-radio-label">Индивидуальное</span>
@@ -623,7 +660,7 @@ const RegisterPage = observer(() => {
                                             name="participation_format"
                                             value="team"
                                             checked={formData.participation_format === 'team'}
-                                            onChange={handleChange}
+                                            onChange={handleParticipationFormatChange}
                                         />
                                         <span className="register-radio-mark"></span>
                                         <span className="register-radio-label">Командное</span>

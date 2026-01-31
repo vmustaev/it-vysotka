@@ -8,9 +8,10 @@
 }
 
 .profile-content {
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
     width: 100%;
+    padding: 0 20px;
 }
 
 /* Hero Section */
@@ -37,14 +38,52 @@
 
 /* Sections */
 .profile-section {
-    margin-bottom: 32px;
+    margin-bottom: 0;
+    break-inside: avoid;
+}
+
+/* На мобильных добавляем отступ между секциями */
+@media (max-width: 1023px) {
+    .profile-section {
+        margin-bottom: 32px;
+    }
+    
+    .profile-section:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Sections Grid Container - 2x2 Layout */
+.profile-sections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    width: 100%;
+}
+
+/* Desktop: строгий 2x2 grid */
+@media (min-width: 1024px) {
+    .profile-sections-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 24px;
+        align-items: stretch;
+    }
+    
+    /* Все секции занимают ровно 1 ячейку */
+    .profile-section {
+        grid-column: span 1;
+        grid-row: span 1;
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .profile-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 12px;
 }
 
 .profile-section-title {
@@ -52,17 +91,21 @@
     font-weight: 700;
     color: #ffffff;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    margin-bottom: 20px;
 }
 
-/* Profile Card */
+/* Profile Card - одинаковая высота для всех */
 .profile-card {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(96, 165, 250, 0.3);
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1;
 }
 
 .profile-row {
@@ -77,11 +120,75 @@
     border-bottom: none;
 }
 
+/* Аккордеон для дополнительной информации */
+.profile-main-info {
+    /* Основные поля всегда видны */
+}
+
+.profile-additional-info {
+    /* На десктопе - всегда видно, аккордеон скрыт */
+}
+
+.profile-accordion-toggle {
+    display: none; /* По умолчанию скрыто на десктопе */
+}
+
+.profile-accordion-content {
+    /* На десктопе всегда видно */
+}
+
+/* На мобильных - показываем аккордеон */
+@media (max-width: 1023px) {
+    .profile-accordion-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 16px 0;
+        margin-top: 16px;
+        border-top: 1px solid #e2e8f0;
+        background: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f172a;
+        transition: all 0.2s ease;
+    }
+
+    .profile-accordion-toggle:hover {
+        color: #3b82f6;
+    }
+
+    .accordion-icon-closed,
+    .accordion-icon-open {
+        transition: transform 0.3s ease;
+        color: #64748b;
+    }
+
+    .accordion-icon-open {
+        transform: rotate(180deg);
+    }
+
+    .profile-accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .profile-accordion-content.accordion-open {
+        max-height: 1000px;
+        transition: max-height 0.5s ease-in;
+    }
+}
+
 .profile-label {
     font-size: 14px;
     font-weight: 600;
     color: #64748b;
-    min-width: 180px;
+    min-width: 140px;
     flex-shrink: 0;
 }
 
@@ -92,27 +199,93 @@
     word-break: break-word;
 }
 
+/* Аккордеон для дополнительной информации */
+.profile-main-info {
+    /* Основные поля всегда видны */
+}
+
+.profile-additional-info {
+    /* На десктопе - всегда видно, аккордеон скрыт */
+}
+
+.profile-accordion-toggle {
+    display: none; /* По умолчанию скрыто на десктопе */
+}
+
+.profile-accordion-content {
+    /* На десктопе всегда видно */
+}
+
+/* На мобильных - показываем аккордеон */
+@media (max-width: 1023px) {
+    .profile-accordion-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 16px 0;
+        margin-top: 16px;
+        border-top: 1px solid #e2e8f0;
+        background: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f172a;
+        transition: all 0.2s ease;
+    }
+
+    .profile-accordion-toggle:hover {
+        color: #3b82f6;
+    }
+
+    .accordion-icon-closed,
+    .accordion-icon-open {
+        transition: transform 0.3s ease;
+        color: #64748b;
+    }
+
+    .accordion-icon-open {
+        transform: rotate(180deg);
+    }
+
+    .profile-accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .profile-accordion-content.accordion-open {
+        max-height: 1000px;
+        transition: max-height 0.5s ease-in;
+    }
+}
+
 /* Badges */
 .admin-badge {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 6px 16px;
     background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     color: #ffffff;
     border-radius: 100px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .place-badge {
     display: inline-block;
-    padding: 6px 16px;
+    padding: 8px 20px;
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     color: #ffffff;
     border-radius: 100px;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .team-status-badge {
@@ -127,25 +300,27 @@
 
 .lead-badge {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 4px 12px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #ffffff;
     border-radius: 100px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     margin-left: 8px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .current-user-badge {
     display: inline-block;
-    padding: 2px 8px;
-    background: #10b981;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #ffffff;
     border-radius: 100px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     margin-left: 8px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 /* Links */
@@ -176,6 +351,19 @@
 .results-empty {
     text-align: center;
     padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.results-empty-icon {
+    color: #cbd5e1;
+    margin-bottom: 16px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.6;
 }
 
 .results-empty-icon {
@@ -187,12 +375,33 @@
     color: #64748b;
     font-size: 15px;
     margin: 0;
+    line-height: 1.6;
 }
 
 /* Radio Group in Profile */
 .profile-radio-group {
     display: flex;
     gap: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-radio {
+    min-width: 200px;
+    flex: 1 1 auto;
+}
+
+/* Если места не хватает - кнопки в столбик */
+@media (max-width: 1023px) {
+    .profile-radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .profile-radio {
+        width: 100%;
+        min-width: 100%;
+        flex: 1 1 100%;
+    }
 }
 
 .profile-radio {
@@ -200,11 +409,13 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    padding: 12px 20px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    flex: 1 1 auto;
+    background: #ffffff;
+    min-width: 200px;
 }
 
 .profile-radio:hover {
@@ -243,26 +454,35 @@
 }
 
 .profile-radio-text {
-    font-size: 15px;
+    font-size: 14px;
     color: #334155;
     font-weight: 500;
+    word-break: break-word;
+    white-space: normal;
 }
 
-/* Team Section */
+/* Team Section - одинаковая высота */
 .team-empty {
     text-align: center;
     padding: 48px 32px;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(96, 165, 250, 0.3);
-    border-radius: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex: 1;
 }
 
 .empty-message {
     font-size: 16px;
     color: #64748b;
     margin-bottom: 24px;
+    font-weight: 500;
 }
 
 .team-create-form,
@@ -285,12 +505,12 @@
 .form-input {
     width: 100%;
     padding: 12px 16px;
-    font-size: 15px;
+    font-size: 14px;
     color: #0f172a;
     background: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.2s ease;
     outline: none;
 }
 
@@ -312,34 +532,38 @@
     flex-wrap: wrap;
 }
 
-/* Team Info Card */
+/* Team Info Card - одинаковая высота */
 .team-info-card {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(96, 165, 250, 0.3);
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1;
 }
 
 .team-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .team-name {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #0f172a;
     margin: 0;
 }
 
 .team-invite {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .team-invite h4 {
@@ -382,9 +606,8 @@
     align-items: center;
     padding: 16px;
     background: #f8fafc;
-    border: 2px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
-    transition: all 0.3s ease;
 }
 
 .member-card-current {
@@ -393,7 +616,7 @@
 }
 
 .member-card-lead {
-    border-left: 4px solid #3b82f6;
+    border-left: 3px solid #3b82f6;
 }
 
 .member-info {
@@ -427,13 +650,13 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 14px;
     font-weight: 600;
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
 }
 
@@ -445,8 +668,7 @@
 
 .btn-primary:hover:not(:disabled) {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .btn-secondary {
@@ -479,12 +701,11 @@
 
 .btn-danger:hover:not(:disabled) {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .btn-sm {
-    padding: 8px 16px;
+    padding: 10px 18px;
     font-size: 13px;
 }
 
@@ -507,6 +728,17 @@
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+/* Планшеты - тоже одна колонка */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .profile-section {
+        margin-bottom: 32px;
+    }
+    
+    .profile-section:last-child {
+        margin-bottom: 0;
     }
 }
 
@@ -558,6 +790,7 @@
 
     .profile-section-title {
         font-size: 20px;
+        margin-bottom: 16px;
     }
 
     .team-header {
@@ -588,15 +821,6 @@
         width: 100%;
         justify-content: center;
     }
-
-    .profile-radio-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .profile-radio {
-        width: 100%;
-    }
 }
 
 @media (max-width: 480px) {
@@ -620,5 +844,10 @@
 
     .team-name {
         font-size: 20px;
+    }
+    
+    .profile-section-title {
+        font-size: 18px;
+        margin-bottom: 16px;
     }
 }
