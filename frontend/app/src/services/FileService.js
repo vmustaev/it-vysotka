@@ -112,7 +112,7 @@ class FileService {
      * @returns {string}
      */
     getFileUrl(savedFilename) {
-        return `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/files/${savedFilename}`;
+        return `${process.env.REACT_APP_API_URL}/files/${savedFilename}`;
     }
 }
 

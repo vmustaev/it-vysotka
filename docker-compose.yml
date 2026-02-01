@@ -29,6 +29,8 @@ services:
   frontend:
     build:
       context: ./frontend/app
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
     restart: always
   
   nginx:
