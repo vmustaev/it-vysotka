@@ -99,12 +99,14 @@ const Results = () => {
                                 <p style={{ marginTop: 'var(--spacing-md)' }}>Загрузка результатов...</p>
                             </div>
                         ) : results.length === 0 ? (
-                            <div style={{ 
-                                textAlign: 'center', 
-                                padding: 'var(--spacing-xxl)',
-                                color: 'var(--text-secondary)'
-                            }}>
-                                <p>Результаты для выбранного года пока не добавлены</p>
+                            <div className="empty-state">
+                                <div className="empty-state-icon">
+                                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M6 9l6 6 6-6"/>
+                                        <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+                                    </svg>
+                                </div>
+                                <h3 className="empty-state-title">Результаты пока не добавлены</h3>
                             </div>
                         ) : (
                             <div className="winners-grid">
