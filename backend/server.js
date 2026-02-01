@@ -43,15 +43,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(cookieParser());
-
-// CORS configuration
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || process.env.CORS_ORIGIN || '*',
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
-
+app.use(cors());
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/api', router);
 app.use(errorMiddleware);
@@ -68,6 +60,7 @@ async function ensureAdminExists() {
         });
         
         if (adminExists) {
+            console.log('✅ Администратор уже существует');
             return;
         }
         
@@ -90,6 +83,13 @@ async function ensureAdminExists() {
             grade: 11,
             participation_format: 'individual'
         });
+        
+        console.log('\n========================================');
+        console.log('✅ АДМИНИСТРАТОР УСПЕШНО СОЗДАН!');
+        console.log(`📧 Email: ${adminEmail}`);
+        console.log(`🔑 Пароль: ${adminPassword}`);
+        console.log('⚠️  ОБЯЗАТЕЛЬНО смените пароль после первого входа!');
+        console.log('========================================\n');
         
     } catch (error) {
         console.error('❌ Ошибка при создании администратора:', error);
