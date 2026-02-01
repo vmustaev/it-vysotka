@@ -52,11 +52,29 @@ const TasksSection = ({ variant = 'default' }) => {
     };
 
     if (loading) {
-        return <div className="tasks-loading">Загрузка заданий...</div>;
+        return (
+            <div className="tasks-loading">
+                <div className="loading-spinner"></div>
+                <p>Загрузка заданий...</p>
+            </div>
+        );
     }
 
     if (tasks.length === 0) {
-        return <div className="tasks-empty">Задания пока не доступны</div>;
+        return (
+            <div className="tasks-empty">
+                <div className="empty-state-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                <h3 className="empty-state-title">Задания пока не доступны</h3>
+            </div>
+        );
     }
 
     // Вариант для страницы Results
@@ -113,9 +131,6 @@ const TasksSection = ({ variant = 'default' }) => {
         <div className="tasks-section">
             <div className="tasks-container">
                 <h2 className="tasks-title">Задания чемпионата</h2>
-                <p className="tasks-subtitle">
-                    Ознакомьтесь с заданиями прошлых чемпионатов для подготовки
-                </p>
 
                 {availableYears.length > 0 && (
                     <div className="year-filter">

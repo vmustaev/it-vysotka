@@ -17,6 +17,7 @@ const SeatingAssignmentModel = require('./models/seating-assignment-model');
 const SettingsModel = require('./models/settings-model');
 // CertificateModel удален - настройки сертификатов теперь в settings
 const FileModel = require('./models/file-model');
+const ChampionshipResultModel = require('./models/championship-result-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });

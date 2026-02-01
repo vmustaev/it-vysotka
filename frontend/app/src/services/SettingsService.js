@@ -21,5 +21,12 @@ export default class SettingsService {
     static async getRegistrationStatus() {
         return $api.get('/settings/registration-status');
     }
+
+    /**
+     * Очистить данные для нового года (админ)
+     */
+    static async clearDataForNewYear() {
+        return $api.post('/admin/settings/clear-data');
+    }
 }
 

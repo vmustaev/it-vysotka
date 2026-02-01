@@ -371,7 +371,10 @@ const Profile = () => {
         return (
             <div className="page profile-page">
                 <div className="page-content">
-                    <div className="loading">Загрузка профиля...</div>
+                    <div className="profile-loading">
+                        <div className="loading-spinner"></div>
+                        <p className="loading-text">Загрузка профиля...</p>
+                    </div>
                 </div>
             </div>
         );
@@ -391,9 +394,12 @@ const Profile = () => {
 
     if (!profile) {
         return (
-            <div className="page">
+            <div className="page profile-page">
                 <div className="page-content">
-                    <div className="loading">Загрузка профиля...</div>
+                    <div className="profile-loading">
+                        <div className="loading-spinner"></div>
+                        <p className="loading-text">Загрузка профиля...</p>
+                    </div>
                 </div>
             </div>
         );
@@ -422,59 +428,59 @@ const Profile = () => {
                     <div className="profile-card">
                         {/* Основные поля - всегда видимые */}
                         <div className="profile-main-info">
-                            <div className="profile-row">
-                                <span className="profile-label">ФИО:</span>
-                                <span className="profile-value">
-                                    {profile.last_name} {profile.first_name} {profile.second_name}
-                                </span>
-                            </div>
-                            <div className="profile-row">
-                                <span className="profile-label">Email:</span>
-                                <span className="profile-value">{profile.email}</span>
-                            </div>
+                        <div className="profile-row">
+                            <span className="profile-label">ФИО:</span>
+                            <span className="profile-value">
+                                {profile.last_name} {profile.first_name} {profile.second_name}
+                            </span>
+                        </div>
+                        <div className="profile-row">
+                            <span className="profile-label">Email:</span>
+                            <span className="profile-value">{profile.email}</span>
+                        </div>
                             {profile.phone && (
-                                <div className="profile-row">
+                            <div className="profile-row">
                                     <span className="profile-label">Телефон:</span>
                                     <span className="profile-value">{profile.phone}</span>
-                                </div>
-                            )}
-                            <div className="profile-row">
-                                <span className="profile-label">Формат участия:</span>
-                                <div className="profile-value">
-                                    <div className="profile-radio-group">
-                                        <label className="profile-radio">
-                                            <input
-                                                type="radio"
-                                                name="participation_format"
-                                                value="individual"
-                                                checked={profile.participation_format === 'individual'}
-                                                onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                                disabled={actionLoading}
-                                            />
-                                            <span className="profile-radio-mark"></span>
-                                            <span className="profile-radio-text">Индивидуальное</span>
-                                        </label>
-                                        <label className="profile-radio">
-                                            <input
-                                                type="radio"
-                                                name="participation_format"
-                                                value="team"
-                                                checked={profile.participation_format === 'team'}
-                                                onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                                disabled={actionLoading}
-                                            />
-                                            <span className="profile-radio-mark"></span>
-                                            <span className="profile-radio-text">Командное</span>
-                                        </label>
-                                    </div>
-                                </div>
+                            </div>
+                        )}
+                        <div className="profile-row">
+                            <span className="profile-label">Формат участия:</span>
+                            <div className="profile-value">
+                                <div className="profile-radio-group">
+                                    <label className="profile-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="individual"
+                                            checked={profile.participation_format === 'individual'}
+                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                            disabled={actionLoading}
+                                        />
+                                        <span className="profile-radio-mark"></span>
+                                        <span className="profile-radio-text">Индивидуальное</span>
+                                    </label>
+                                    <label className="profile-radio">
+                                        <input
+                                            type="radio"
+                                            name="participation_format"
+                                            value="team"
+                                            checked={profile.participation_format === 'team'}
+                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                            disabled={actionLoading}
+                                        />
+                                        <span className="profile-radio-mark"></span>
+                                        <span className="profile-radio-text">Командное</span>
+                                    </label>
                             </div>
                         </div>
+                    </div>
+                </div>
 
                         {/* Дополнительные поля - в аккордеоне на мобильных */}
                         <div className="profile-additional-info">
                             {/* Кнопка аккордеона - только на мобильных */}
-                            <button
+                                            <button 
                                 className="profile-accordion-toggle"
                                 onClick={() => setIsAccordionOpen(!isAccordionOpen)}
                                 type="button"
@@ -490,8 +496,8 @@ const Profile = () => {
                                     className={isAccordionOpen ? 'accordion-icon-open' : 'accordion-icon-closed'}
                                 >
                                     <polyline points="6 9 12 15 18 9" />
-                                </svg>
-                            </button>
+                                                        </svg>
+                                            </button>
 
                             {/* Контент аккордеона */}
                             <div className={`profile-accordion-content ${isAccordionOpen ? 'accordion-open' : ''}`}>
@@ -505,30 +511,30 @@ const Profile = () => {
                                     <div className="profile-row">
                                         <span className="profile-label">Класс:</span>
                                         <span className="profile-value">{profile.grade} класс</span>
-                                    </div>
-                                )}
+                            </div>
+                        )}
                                 {profile.city && (
                                     <div className="profile-row">
                                         <span className="profile-label">Город:</span>
                                         <span className="profile-value">{profile.city}</span>
-                                    </div>
+                    </div>
                                 )}
                                 {profile.region && (
                                     <div className="profile-row">
                                         <span className="profile-label">Регион:</span>
                                         <span className="profile-value">{profile.region}</span>
-                                    </div>
+                </div>
                                 )}
                                 {profile.programming_language && (
                                     <div className="profile-row">
                                         <span className="profile-label">Язык программирования:</span>
                                         <span className="profile-value">{profile.programming_language}</span>
-                                    </div>
+                        </div>
                                 )}
                                 {profile.birthday && (
-                                    <div className="profile-row">
+                                <div className="profile-row">
                                         <span className="profile-label">Дата рождения:</span>
-                                        <span className="profile-value">
+                                    <span className="profile-value">
                                             {new Date(profile.birthday).toLocaleDateString('ru-RU', {
                                                 year: 'numeric',
                                                 month: 'long',
@@ -542,18 +548,18 @@ const Profile = () => {
                                         <span className="profile-label">Роль:</span>
                                         <span className="profile-value">
                                             <span className="admin-badge">Администратор</span>
-                                        </span>
-                                    </div>
+                                    </span>
+                                </div>
                                 )}
-                            </div>
+                                    </div>
+                                </div>
                         </div>
                     </div>
-                </div>
 
                 {/* Team Section - показываем только для командного формата */}
                 {profile.participation_format === 'team' && (
                     <div className="profile-section">
-                        <h2 className="profile-section-title">Моя команда</h2>
+                            <h2 className="profile-section-title">Моя команда</h2>
 
                     {!team ? (
                         <div className="team-empty">

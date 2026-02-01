@@ -96,6 +96,69 @@ class SettingsService {
 
         return true;
     }
+
+    /**
+     * Очистить данные для нового года
+     * Удаляет: пользователей (кроме админов), команды, рассадку, токены
+     * НЕ трогает: школы, файлы, настройки, аудитории, результаты чемпионата
+     */
+    async clearDataForNewYear() {
+        const sequelize = require('../db');
+        const UserModel = require('../models/user-model');
+        const TeamModel = require('../models/team-model');
+        const SeatingAssignmentModel = require('../models/seating-assignment-model');
+        const TokenModel = require('../models/token-model');
+
+        const transaction = await sequelize.transaction();
+
+        try {
+            // 1. Удаляем рассадку (сначала, чтобы не было проблем с внешними ключами)
+            await SeatingAssignmentModel.destroy({ 
+                where: {},
+                transaction 
+            });
+
+            // 2. Обнуляем teamId у всех участников перед удалением команд
+            await UserModel.update(
+                { teamId: null, isLead: false },
+                { 
+                    where: { role: 'participant' },
+                    transaction 
+                }
+            );
+
+            // 3. Удаляем команды
+            await TeamModel.destroy({ 
+                where: {},
+                transaction 
+            });
+
+            // 4. Удаляем токены участников (токены админов тоже можно удалить, они перелогинятся)
+            await TokenModel.destroy({ 
+                where: {},
+                transaction 
+            });
+
+            // 5. Удаляем пользователей (кроме админов)
+            const deletedUsersCount = await UserModel.destroy({ 
+                where: {
+                    role: 'participant'
+                },
+                transaction 
+            });
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                message: 'Данные успешно очищены',
+                deletedUsers: deletedUsersCount
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw ApiError.BadRequest(`Ошибка при очистке данных: ${error.message}`);
+        }
+    }
 }
 
 module.exports = new SettingsService();

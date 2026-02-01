@@ -9,6 +9,7 @@ const seatingController = require('../controllers/seating-controller');
 const settingsController = require('../controllers/settings-controller');
 const certificateController = require('../controllers/certificate-controller');
 const fileController = require('../controllers/file-controller');
+const resultsController = require('../controllers/results-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
@@ -86,6 +87,7 @@ router.post('/admin/seating/remove', authMiddleware, adminMiddleware, seatingCon
 // Admin routes - Settings
 router.get('/admin/settings', authMiddleware, adminMiddleware, settingsController.getSettings);
 router.put('/admin/settings', authMiddleware, adminMiddleware, settingsController.updateSettings);
+router.post('/admin/settings/clear-data', authMiddleware, adminMiddleware, settingsController.clearDataForNewYear);
 
 // Admin routes - User results
 router.put('/admin/users/:userId/result', authMiddleware, adminMiddleware, userController.setUserResult);
@@ -118,5 +120,15 @@ router.delete('/admin/files/:id', authMiddleware, adminMiddleware, fileControlle
 
 // Public routes - Files (получение файлов по типу)
 router.get('/files/type/:type', fileController.getByType);
+
+// Public routes - Results
+router.get('/results/years', resultsController.getYears);
+router.get('/results/year/:year', resultsController.getResultsByYear);
+
+// Admin routes - Results
+router.get('/admin/results', authMiddleware, adminMiddleware, resultsController.getAllResults);
+router.post('/admin/results', authMiddleware, adminMiddleware, resultsController.createResult);
+router.put('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.updateResult);
+router.delete('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.deleteResult);
 
 module.exports = router;

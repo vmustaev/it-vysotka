@@ -482,3 +482,153 @@
     }
 }
 
+/* Информация о чемпионате */
+.section-title-main {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.championship-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.championship-info-block {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.info-block-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.info-block-text {
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.info-block-text strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.info-block-list {
+    margin: 16px 0 0 0;
+    padding-left: 24px;
+    list-style-type: disc;
+}
+
+.info-block-list li {
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.info-block-list li:last-child {
+    margin-bottom: 0;
+}
+
+.info-block-list li strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .section-title-main {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    .championship-info {
+        gap: 20px;
+    }
+
+    .championship-info-block {
+        padding: 24px 20px;
+    }
+
+    .info-block-title {
+        font-size: 18px;
+    }
+
+    .info-block-text,
+    .info-block-list li {
+        font-size: 14px;
+    }
+}
+
+/* Недоступные документы */
+.document-unavailable {
+    margin-top: 16px;
+}
+
+.document-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.document-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(37, 99, 235, 0.2);
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.document-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(241, 245, 249, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 10px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.document-empty svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+    color: #64748b;
+}
+
+@media (max-width: 768px) {
+    .document-empty {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .document-empty svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+

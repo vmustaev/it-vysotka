@@ -2,7 +2,7 @@
 
 /* Навигация */
 .navbar {
-  background: rgb(145, 189, 247);
+  background: rgb(60, 121, 201);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--border-radius-lg);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);

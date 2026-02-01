@@ -148,12 +148,113 @@
     font-size: 1.2rem;
 }
 
-.tasks-loading,
-.tasks-empty {
+.tasks-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 60px 20px;
-    color: #666;
-    font-size: 1.2rem;
+    padding: 80px 20px;
+    min-height: 400px;
+}
+
+.tasks-loading .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(37, 99, 235, 0.2);
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 24px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.tasks-loading p {
+    font-size: 18px;
+    color: #334155;
+    margin: 0;
+}
+
+.tasks-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 20px;
+    min-height: 400px;
+}
+
+.tasks-empty .empty-state-icon {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.1);
+    border: 2px solid rgba(37, 99, 235, 0.2);
+    border-radius: 50%;
+    margin-bottom: 32px;
+    color: #2563eb;
+}
+
+.tasks-empty .empty-state-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.tasks-empty .empty-state-message {
+    font-size: 16px;
+    color: #64748b;
+    max-width: 500px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Для темного фона (страница AboutChampionship) */
+.about-championship-page .tasks-empty .empty-state-title {
+    color: #ffffff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.about-championship-page .tasks-empty .empty-state-message {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.about-championship-page .tasks-empty .empty-state-icon {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+    .tasks-loading,
+    .tasks-empty {
+        padding: 60px 20px;
+        min-height: 300px;
+    }
+
+    .tasks-empty .empty-state-icon {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 24px;
+    }
+
+    .tasks-empty .empty-state-title {
+        font-size: 24px;
+    }
+
+    .tasks-empty .empty-state-message {
+        font-size: 15px;
+    }
 }
 
 /* Адаптивность */

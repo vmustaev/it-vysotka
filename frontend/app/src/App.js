@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Context } from "./index";
 import { observer } from "mobx-react-lite";
 import Navbar from "./components/Navbar";
@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AboutChampionship from "./pages/AboutChampionship";
 import Regulations from "./pages/Regulations";
 import Gallery from "./pages/Gallery";
 import Results from "./pages/Results";
@@ -28,17 +29,20 @@ import Certificates from "./pages/admin/Certificates";
 import Settings from "./pages/admin/Settings";
 import Logs from "./pages/admin/Logs";
 import FileManager from "./pages/admin/FileManager";
+import ResultsManagement from "./pages/admin/ResultsManagement";
 
 const App = observer(() => {
     const { store } = useContext(Context);
+    const location = useLocation();
 
     useEffect(() => {
         store.checkAuth();
     }, []); // Вызываем только один раз при монтировании
 
-    if (store.isLoading) {
-        return <div className="loading">Загрузка...</div>;
-    }
+    // Скролл в начало при смене маршрута (мгновенно, без анимации)
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }, [location.pathname]);
 
     return (
         <div style={{
@@ -53,6 +57,7 @@ const App = observer(() => {
 
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/about" element={<AboutChampionship />} />
                 <Route path="/regulations" element={<Regulations />} />
                 <Route path="/consent" element={<Consent />} />
                 <Route path="/gallery" element={<Gallery />} />
@@ -77,7 +82,6 @@ const App = observer(() => {
 
                 {/* Profile - только для обычных участников */}
                 <Route path="/profile" element={
-                    store.isLoading ? <div className="loading">Загрузка...</div> : 
                     !store.isAuth ? <Navigate to="/login" /> :
                     store.user.role === 'admin' ? <Navigate to="/admin" /> :
                     <Profile />
@@ -96,6 +100,7 @@ const App = observer(() => {
                     <Route path="cms" element={<CMS />} />
                     <Route path="certificates" element={<Certificates />} />
                     <Route path="settings" element={<Settings />} />
+                    <Route path="results" element={<ResultsManagement />} />
                     <Route path="logs" element={<Logs />} />
                     <Route path="files" element={<FileManager />} />
                 </Route>

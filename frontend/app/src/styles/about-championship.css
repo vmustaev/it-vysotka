@@ -1,0 +1,164 @@
+@import './variables.css';
+
+/* About Championship Page */
+.about-championship-page {
+    min-height: 100vh;
+    padding: 120px 40px 80px;
+    background: transparent;
+}
+
+.about-championship-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Hero Section */
+.about-hero {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.about-title {
+    font-size: clamp(48px, 7vw, 80px);
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 24px;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.about-subtitle {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Section */
+.about-section {
+    margin-bottom: 80px;
+}
+
+.section-title-main {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 40px;
+    font-size: 16px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Championship Info */
+.championship-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.championship-info-block {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.info-block-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.info-block-text {
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.info-block-text strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.info-block-list {
+    margin: 16px 0 0 0;
+    padding-left: 24px;
+    list-style-type: disc;
+}
+
+.info-block-list li {
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.info-block-list li:last-child {
+    margin-bottom: 0;
+}
+
+.info-block-list li strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-championship-page {
+        padding: 100px 24px 60px;
+    }
+
+    .about-hero {
+        margin-bottom: 60px;
+    }
+
+    .about-title {
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+
+    .about-subtitle {
+        font-size: 18px;
+    }
+
+    .section-title-main {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    .championship-info {
+        gap: 20px;
+    }
+
+    .championship-info-block {
+        padding: 24px 20px;
+    }
+
+    .info-block-title {
+        font-size: 18px;
+    }
+
+    .info-block-text,
+    .info-block-list li {
+        font-size: 14px;
+    }
+}
+

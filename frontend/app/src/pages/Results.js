@@ -1,9 +1,66 @@
-import React, { useState } from 'react';
-import TasksSection from '../components/TasksSection';
+import React, { useState, useEffect } from 'react';
+import ResultsService from '../services/ResultsService';
 import '../styles/results.css';
 
 const Results = () => {
-    const [activeResultsTab, setActiveResultsTab] = useState('2025');
+    const [years, setYears] = useState([]);
+    const [activeResultsTab, setActiveResultsTab] = useState(null);
+    const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadYears();
+    }, []);
+
+    useEffect(() => {
+        if (activeResultsTab) {
+            loadResults(activeResultsTab);
+        }
+    }, [activeResultsTab]);
+
+    const loadYears = async () => {
+        try {
+            const response = await ResultsService.getYears();
+            const yearsData = response.data.data;
+            setYears(yearsData);
+            if (yearsData.length > 0) {
+                setActiveResultsTab(yearsData[0].toString());
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки годов:', e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadResults = async (year) => {
+        try {
+            setLoading(true);
+            const response = await ResultsService.getResultsByYear(year);
+            setResults(response.data.data);
+        } catch (e) {
+            console.error('Ошибка загрузки результатов:', e);
+            setResults([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getPlaceName = (place) => {
+        const placeNames = {
+            1: 'Первое место',
+            2: 'Второе место',
+            3: 'Третье место'
+        };
+        return placeNames[place] || `${place}-е место`;
+    };
+
+    const getPlaceClass = (place) => {
+        if (place === 1) return 'winner-gold';
+        if (place === 2) return 'winner-silver';
+        if (place === 3) return 'winner-bronze';
+        return '';
+    };
 
     return (
         <div className="results-page">
@@ -13,223 +70,79 @@ const Results = () => {
                     <h1 className="results-title">
                         Результаты IT-ВыСотка
                     </h1>
-                    <p className="results-subtitle">
-                        Поздравляем победителей и участников чемпионата
-                    </p>
                 </div>
 
                 {/* Секция результатов */}
                 <div className="results-section">
-                    <h2 className="section-title-main">Победители чемпионата</h2>
-                    
-                    <div className="year-tabs">
-                        <button 
-                            className={`year-tab ${activeResultsTab === '2025' ? 'active' : ''}`}
-                            onClick={() => setActiveResultsTab('2025')}
-                        >
-                            2025
-                        </button>
-                        <button 
-                            className={`year-tab ${activeResultsTab === '2024' ? 'active' : ''}`}
-                            onClick={() => setActiveResultsTab('2024')}
-                        >
-                            2024
-                        </button>
-                    </div>
+                    {years.length > 0 && (
+                        <div className="year-tabs">
+                            {years.map(year => (
+                                <button 
+                                    key={year}
+                                    className={`year-tab ${activeResultsTab === year.toString() ? 'active' : ''}`}
+                                    onClick={() => setActiveResultsTab(year.toString())}
+                                >
+                                    {year}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <div className="winners-content">
-                        {activeResultsTab === '2025' && (
-                            <div className="winners-grid">
-                                <div className="winner-card winner-gold">
-                                    <div className="medal-badge medal-gold">
-                                        <span className="medal-icon">1</span>
-                                    </div>
-                                    <h3 className="winner-place">Первое место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Камалетдинов Карим Тимурович, Лещенко Даниил Анатольевич, 
-                                                Шагалиев Дамир Зинурович, Габитов Шамиль, Фазлетдинов Галим, 
-                                                Галимов Эдгар Ильдарович, Кидрасов Данияр Рашитович
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">МБОУ Гимназия № 64, ГБОУ РИЛИ</p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="winner-card winner-silver">
-                                    <div className="medal-badge medal-silver">
-                                        <span className="medal-icon">2</span>
-                                    </div>
-                                    <h3 className="winner-place">Второе место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Валиуллин Альберт Рустемович, Зиганшин Джалиль Ильгамович, 
-                                                Юмаев Гайсар Ильгизович, Калимуллин Булат Равилевич, 
-                                                Касимцев Елисей Игоревич, Рахматуллин Тимур Романович, 
-                                                Акбалин Флюр Рустемович, Абдулганиев Азат Артурович, 
-                                                Актуганов Руслан Дмитриевич, Фаузиев Булат Вадимович, 
-                                                Аллаяров Аскар Ришатович, Камалов Айдар Маратович, 
-                                                Рахимкулов Азамат Ратмирович, Васюткин Артём Вениаминович, 
-                                                Габбасов Ранис Русланович, Лукманов Артём Русланович, 
-                                                Назаров Алексей Николаевич, Спирин Ярослав Александрович
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">ГБОУ РИЛИ, Лицей №83 им. Пинского М. С. УГНТУ, МАОУ Лицей №153, МБОУ Школа № 157</p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="winner-card winner-bronze">
-                                    <div className="medal-badge medal-bronze">
-                                        <span className="medal-icon">3</span>
-                                    </div>
-                                    <h3 className="winner-place">Третье место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Гарифуллина Ильнара Маратовна, Лутфурахманов Тимур Артурович, 
-                                                Сагутдинов Артемий Владимирович, Архипов Илья Юрьевич, 
-                                                Зайнетдинов Артур Айратович, Трофимов Кирилл Максимович, 
-                                                Хисаев Виталий Эдуардович, Насибуллин Урал Марселевич, 
-                                                Валиев Данир Айнурович, Кудрявцев Илья Денисович, 
-                                                Новолодский Дмитрий Александрович, Курбангалиев Амир Ринатович, 
-                                                Матвеев Дмитрий Михайлович, Худайбердин Марат Русланович, 
-                                                Никитенко Станислав Владимирович, Васимирская София Александровна, 
-                                                Зинатуллин Арсен Ирекович, Якупов Арсен Эдуардович, 
-                                                Назарова Полина Олеговна, Сулейманов Дамир Азатович, 
-                                                Файрушин Данияр Айратович
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">МАОУ Лицей №153, МАОУ школа №110, МАОУ Гимназия №82 УГНТУ, МБОУ Школа №109, МАОУ Школа № 130, МАОУ Лицей № 123, МАОУ Гимназия №16, МАОУ Гимназия №115, Лицей №83 им. Пинского М. С. УГНТУ</p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа</p>
-                                        </div>
-                                    </div>
-                                </div>
+                        {loading ? (
+                            <div style={{ 
+                                textAlign: 'center', 
+                                padding: 'var(--spacing-xxl)',
+                                color: 'var(--text-secondary)'
+                            }}>
+                                <div className="spinner" style={{ margin: '0 auto' }}></div>
+                                <p style={{ marginTop: 'var(--spacing-md)' }}>Загрузка результатов...</p>
                             </div>
-                        )}
-
-                        {activeResultsTab === '2024' && (
+                        ) : results.length === 0 ? (
+                            <div style={{ 
+                                textAlign: 'center', 
+                                padding: 'var(--spacing-xxl)',
+                                color: 'var(--text-secondary)'
+                            }}>
+                                <p>Результаты для выбранного года пока не добавлены</p>
+                            </div>
+                        ) : (
                             <div className="winners-grid">
-                                <div className="winner-card winner-gold">
-                                    <div className="medal-badge medal-gold">
-                                        <span className="medal-icon">1</span>
-                                    </div>
-                                    <h3 className="winner-place">Первое место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Равиль Хуснутдинов, Артур Нуртдинов, Максим Лапшин, Карам Сулейманов, 
-                                                Азат Низамутдинов, Флюр Акбалин, Самат Нуртдинов, Вадим Ахундов
-                                            </p>
+                                {results
+                                    .sort((a, b) => a.place - b.place)
+                                    .map(result => (
+                                        <div 
+                                            key={result.id} 
+                                            className={`winner-card ${getPlaceClass(result.place)}`}
+                                        >
+                                            <div className={`medal-badge ${
+                                                result.place === 1 ? 'medal-gold' :
+                                                result.place === 2 ? 'medal-silver' :
+                                                'medal-bronze'
+                                            }`}>
+                                                <span className="medal-icon">{result.place}</span>
+                                            </div>
+                                            <h3 className="winner-place">{getPlaceName(result.place)}</h3>
+                                            <div className="winner-info">
+                                                <div className="info-row">
+                                                    <span className="info-label">Участники:</span>
+                                                    <p className="info-text">{result.participants}</p>
+                                                </div>
+                                                <div className="info-row">
+                                                    <span className="info-label">Учебное заведение:</span>
+                                                    <p className="info-text">{result.schools}</p>
+                                                </div>
+                                                <div className="info-row">
+                                                    <span className="info-label">Город:</span>
+                                                    <p className="info-text">{result.cities}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">Республиканский инженерный лицей-интернат</p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="winner-card winner-silver">
-                                    <div className="medal-badge medal-silver">
-                                        <span className="medal-icon">2</span>
-                                    </div>
-                                    <h3 className="winner-place">Второе место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Марсель Истяков, Данияр Кидрасов, Гайсар Юмаев, 
-                                                Джалиль Зиганшин, Альберт Валиуллин, Дмитрий Чековинский, 
-                                                Дамир Бадретдинов, Линар Каримов, Азат Абдулганиев, 
-                                                Руслан Актуганов, Тигран Асланян, Дамир Галиев, 
-                                                Данияр Файрушин, Матвей Ветошкин, Роман Коптюх, 
-                                                Тимур Кадыров, Артемий Иванов, Максим Гордиенко, 
-                                                Станислав Никитенко
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">РИЛИ, гимназия №115, лицей №83 им. Пинского М. С. УГНТУ, лицей №123</p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="winner-card winner-bronze">
-                                    <div className="medal-badge medal-bronze">
-                                        <span className="medal-icon">3</span>
-                                    </div>
-                                    <h3 className="winner-place">Третье место</h3>
-                                    <div className="winner-info">
-                                        <div className="info-row">
-                                            <span className="info-label">Участники:</span>
-                                            <p className="info-text">
-                                                Ранис Габбасов, Марат Худайбердин, Михаил Копачёв, 
-                                                Даниил Морозов, Иван Майоров, Лев Шураков, 
-                                                Артём Лукманов, Ярослав Спирин, Артём Кадиков, 
-                                                Илья Архипов, Артур Зайнетдинов, Никита Лахтионов, 
-                                                Алексей Михин, Максим Никулин, Никита Емелёв, 
-                                                Александр Торовин, Дмитрий Матвеев, Ильнара Гарифуллина, 
-                                                Тимур Лутфурахманов, Никита Дронов, Ксения Демакова, 
-                                                Артемий Сагутдинов, Станислав Бурский, Егор Апканиев, 
-                                                Артур Ясавиев
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Учебное заведение:</span>
-                                            <p className="info-text">
-                                                Гимназия №115, школа №131, школа №157, школа №110, РЖД лицей №1, 
-                                                лицей №1 (г. Салават), лицей №107, лицей №155, лицей №6 имени Сафина Н. Д., лицей №68
-                                            </p>
-                                        </div>
-                                        <div className="info-row">
-                                            <span className="info-label">Город:</span>
-                                            <p className="info-text">г. Уфа, г. Котлас Архангельской области, г. Салават</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                    ))}
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Секция заданий - загружается из файловой системы */}
-                <div className="tasks-section">
-                    <h2 className="section-title-main">Задания чемпионата</h2>
-                    <TasksSection variant="results" />
-                </div>
-
             </div>
         </div>
     );

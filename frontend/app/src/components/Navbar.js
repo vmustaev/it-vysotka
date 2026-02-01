@@ -61,6 +61,7 @@ const Navbar = observer(() => {
                 <div className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
                     <div className="navbar-links">
                         <Link to="/" className="navbar-link" onClick={closeMobileMenu}>Главная</Link>
+                        <Link to="/about" className="navbar-link" onClick={closeMobileMenu}>О чемпионате</Link>
                         <Link to="/regulations" className="navbar-link" onClick={closeMobileMenu}>Регламент</Link>
                         <Link to="/gallery" className="navbar-link" onClick={closeMobileMenu}>Галерея</Link>
                         <Link to="/results" className="navbar-link" onClick={closeMobileMenu}>Результаты</Link>

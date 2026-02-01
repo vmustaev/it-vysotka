@@ -61,6 +61,22 @@ class SettingsController {
             next(e);
         }
     }
+
+    /**
+     * Очистить данные для нового года (админ)
+     */
+    async clearDataForNewYear(req, res, next) {
+        try {
+            const result = await settingsService.clearDataForNewYear();
+            return res.json({
+                success: true,
+                data: result,
+                message: result.message
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new SettingsController();

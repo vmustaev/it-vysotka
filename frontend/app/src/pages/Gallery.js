@@ -37,8 +37,11 @@ const Gallery = () => {
                     <div className="content-page-header">
                         <h1 className="content-page-title">Фотографии с чемпионата "IT-высотка"</h1>
                     </div>
-                    <div className="content-section" style={{ textAlign: 'center', padding: '60px 20px' }}>
-                        <div style={{ fontSize: '1.2rem', color: '#666' }}>Загрузка фотографий...</div>
+                    <div className="content-section">
+                        <div className="loading-state">
+                            <div className="loading-spinner"></div>
+                            <p className="loading-text">Загрузка фотографий...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,8 +60,15 @@ const Gallery = () => {
                 
                 <div className="content-section">
                     {images.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666' }}>
-                            Фотографий пока нет
+                        <div className="empty-state">
+                            <div className="empty-state-icon">
+                                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </div>
+                            <h3 className="empty-state-title">Фотографий пока нет</h3>
                         </div>
                     ) : (
                         <div className="gallery-grid">
