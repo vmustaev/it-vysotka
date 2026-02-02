@@ -870,8 +870,8 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
-                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
+                {/* Essay Section - только для индивидуальных участников или лидеров команд, и только после даты открытия эссе */}
+                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && profile.essay_visible && (
                     <div className="profile-section">
                         <h2 className="profile-section-title">Эссе</h2>
                         

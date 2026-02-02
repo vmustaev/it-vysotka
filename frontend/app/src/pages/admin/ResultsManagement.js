@@ -196,13 +196,6 @@ const ResultsManagement = () => {
                                 <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-lg)' }}>
                                     Результаты пока не добавлены
                                 </p>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => handleOpenModal()}
-                                    style={{ marginTop: 'var(--spacing-md)' }}
-                                >
-                                    Добавить первый результат
-                                </button>
                             </div>
                         </div>
                     ) : (

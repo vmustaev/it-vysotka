@@ -27,7 +27,6 @@ import Seating from "./pages/admin/Seating";
 import CMS from "./pages/admin/CMS";
 import Certificates from "./pages/admin/Certificates";
 import Settings from "./pages/admin/Settings";
-import Logs from "./pages/admin/Logs";
 import FileManager from "./pages/admin/FileManager";
 import ResultsManagement from "./pages/admin/ResultsManagement";
 
@@ -101,7 +100,6 @@ const App = observer(() => {
                     <Route path="certificates" element={<Certificates />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="results" element={<ResultsManagement />} />
-                    <Route path="logs" element={<Logs />} />
                     <Route path="files" element={<FileManager />} />
                 </Route>
 

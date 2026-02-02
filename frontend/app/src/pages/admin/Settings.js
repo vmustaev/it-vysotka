@@ -7,7 +7,8 @@ const Settings = () => {
     const [settings, setSettings] = useState({
         registration_start: '',
         registration_end: '',
-        championship_datetime: ''
+        championship_datetime: '',
+        essay_close_date: ''
     });
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -48,7 +49,8 @@ const Settings = () => {
             setSettings({
                 registration_start: formatDateForInput(data.registration_start),
                 registration_end: formatDateForInput(data.registration_end),
-                championship_datetime: formatDateTimeForInput(data.championship_datetime)
+                championship_datetime: formatDateTimeForInput(data.championship_datetime),
+                essay_close_date: formatDateForInput(data.essay_close_date)
             });
         } catch (e) {
             setNotification({ 
@@ -109,7 +111,8 @@ const Settings = () => {
             const dataToSend = {
                 registration_start: settings.registration_start || null,
                 registration_end: settings.registration_end || null,
-                championship_datetime: convertToISO(settings.championship_datetime)
+                championship_datetime: convertToISO(settings.championship_datetime),
+                essay_close_date: settings.essay_close_date || null
             };
 
             await SettingsService.updateSettings(dataToSend);
@@ -133,7 +136,8 @@ const Settings = () => {
             ...prev,
             registration_start: '',
             registration_end: '',
-            championship_datetime: ''
+            championship_datetime: '',
+            essay_close_date: ''
         }));
     };
 
@@ -282,6 +286,20 @@ const Settings = () => {
                                         type="datetime-local"
                                         name="championship_datetime"
                                         value={settings.championship_datetime}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="Не установлено"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        Дата закрытия эссе
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="essay_close_date"
+                                        value={settings.essay_close_date}
                                         onChange={handleChange}
                                         className="form-input"
                                         placeholder="Не установлено"

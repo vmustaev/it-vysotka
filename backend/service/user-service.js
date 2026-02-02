@@ -1,4 +1,5 @@
 const UserModel = require('../models/user-model');
+const SettingsModel = require('../models/settings-model');
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const tokenService = require('./token-service');
@@ -291,6 +292,16 @@ class UserService {
             throw ApiError.BadRequest('Пользователь не найден');
         }
 
+        // Эссе видно от начала регистрации до даты закрытия эссе
+        const [regStartSetting, essayCloseSetting] = await Promise.all([
+            SettingsModel.findOne({ where: { key: 'registration_start' } }),
+            SettingsModel.findOne({ where: { key: 'essay_close_date' } })
+        ]);
+        const now = new Date();
+        const regStarted = !regStartSetting?.value || now >= new Date(regStartSetting.value);
+        const essayNotClosed = !essayCloseSetting?.value || now <= new Date(essayCloseSetting.value);
+        const essay_visible = regStarted && essayNotClosed;
+
         // isLead убран - получать из team.members, чтобы избежать дублирования данных
         return {
             id: user.id,
@@ -311,7 +322,8 @@ class UserService {
             role: user.role,
             place: user.place,
             certificateId: user.certificateId,
-            essayUrl: user.essayUrl
+            essayUrl: user.essayUrl,
+            essay_visible
         };
     }
 

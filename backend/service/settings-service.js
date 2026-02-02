@@ -23,6 +23,9 @@ class SettingsService {
         if (!settingsObj.championship_datetime) {
             settingsObj.championship_datetime = null;
         }
+        if (!settingsObj.essay_close_date) {
+            settingsObj.essay_close_date = null;
+        }
 
         return settingsObj;
     }
@@ -31,7 +34,7 @@ class SettingsService {
      * Обновить настройки
      */
     async updateSettings(settingsData) {
-        const { registration_start, registration_end, championship_datetime } = settingsData;
+        const { registration_start, registration_end, championship_datetime, essay_close_date } = settingsData;
 
         // Валидация дат регистрации
         if (registration_start && registration_end) {
@@ -59,6 +62,13 @@ class SettingsService {
             await SettingsModel.upsert({
                 key: 'championship_datetime',
                 value: championship_datetime || null
+            });
+        }
+
+        if (essay_close_date !== undefined) {
+            await SettingsModel.upsert({
+                key: 'essay_close_date',
+                value: essay_close_date || null
             });
         }
 
