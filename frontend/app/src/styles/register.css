@@ -22,17 +22,17 @@
 .register-title {
     font-size: clamp(36px, 5vw, 56px);
     font-weight: 800;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 16px;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 2px 16px rgba(255, 255, 255, 0.5);
 }
 
 .register-subtitle {
     font-size: 18px;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    color: #1e40af;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Form Card */
@@ -77,7 +77,7 @@
 .register-section-title {
     font-size: 20px;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e3a8a;
     margin-bottom: 8px;
     padding-bottom: 12px;
     border-bottom: 2px solid #e2e8f0;
@@ -93,7 +93,7 @@
 .register-label {
     font-size: 14px;
     font-weight: 600;
-    color: #475569;
+    color: #1e3a8a;
     letter-spacing: 0.01em;
 }
 
@@ -114,7 +114,7 @@
     width: 100%;
     padding: 14px 16px;
     font-size: 15px;
-    color: #0f172a;
+    color: #1e3a8a;
     background: #ffffff;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
@@ -208,7 +208,7 @@
 
 .register-radio-label {
     font-size: 15px;
-    color: #334155;
+    color: #1e3a8a;
     font-weight: 500;
 }
 
@@ -264,7 +264,7 @@
 
 .register-checkbox-label {
     font-size: 14px;
-    color: #334155;
+    color: #1e3a8a;
     line-height: 1.6;
 }
 
@@ -316,7 +316,7 @@
 
 .register-login-link {
     font-size: 15px;
-    color: #64748b;
+    color: #1e3a8a;
     margin: 0;
 }
 

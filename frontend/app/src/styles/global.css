@@ -59,20 +59,20 @@ body {
 .page-title {
   font-size: clamp(40px, 6vw, 64px);
   font-weight: 900;
-  color: #ffffff;
+  color: #1e3a8a;
   margin-bottom: 20px;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
 }
 
 .page-subtitle {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #1e40af;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .section {
@@ -83,7 +83,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
-  color: var(--text-primary);
+  color: #1e3a8a;
   margin-bottom: var(--spacing-md);
 }
 
@@ -113,7 +113,7 @@ h6 {
 
 p {
   margin-bottom: var(--spacing-md);
-  color: var(--text-secondary);
+  color: #1e3a8a;
 }
 
 a {

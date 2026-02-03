@@ -19,19 +19,19 @@
 .consent-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 20px;
     line-height: 1.2;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
 }
 
 .consent-subtitle {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: #1e40af;
     line-height: 1.75;
     max-width: 800px;
     margin: 0 auto;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .consent-content {

@@ -17,6 +17,7 @@ import ResetPasswordRequest from "./pages/ResetPasswordRequest";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Consent from "./pages/Consent";
+import ParticipantConsent from "./pages/ParticipantConsent";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -45,7 +46,7 @@ const App = observer(() => {
 
     return (
         <div style={{
-            backgroundImage: 'linear-gradient(rgba(37, 99, 235, 0.5), rgba(59, 130, 246, 0.4)), url(/assets/img/background.png)',
+            backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(59, 130, 246, 0.4)), url(/assets/img/background_new.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
@@ -59,6 +60,7 @@ const App = observer(() => {
                 <Route path="/about" element={<AboutChampionship />} />
                 <Route path="/regulations" element={<Regulations />} />
                 <Route path="/consent" element={<Consent />} />
+                <Route path="/participant-consent" element={<ParticipantConsent />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/results" element={<Results />} />
                 <Route path="/contacts" element={<Contacts />} />

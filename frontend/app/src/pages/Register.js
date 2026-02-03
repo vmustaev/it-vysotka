@@ -29,6 +29,7 @@ const RegisterPage = observer(() => {
     });
 
     const [parentConsent, setParentConsent] = useState(false);
+    const [participantConsent, setParticipantConsent] = useState(false);
 
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState({ type: null, message: '' });
@@ -84,6 +85,28 @@ const RegisterPage = observer(() => {
             month: 'long',
             day: 'numeric'
         });
+    };
+
+    const calculateAge = (birthday) => {
+        if (!birthday) return null;
+        const today = new Date();
+        const birthDate = new Date(birthday);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const isMinor = () => {
+        const age = calculateAge(formData.birthday);
+        return age !== null && age < 18;
+    };
+
+    const isAdult = () => {
+        const age = calculateAge(formData.birthday);
+        return age !== null && age >= 18;
     };
 
     useEffect(() => {
@@ -216,6 +239,25 @@ const RegisterPage = observer(() => {
                 [name]: []
             }));
         }
+        // Сбрасываем согласия при изменении даты рождения
+        if (name === 'birthday') {
+            setParentConsent(false);
+            setParticipantConsent(false);
+            if (errors.parentConsent) {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors.parentConsent;
+                    return newErrors;
+                });
+            }
+            if (errors.participantConsent) {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors.participantConsent;
+                    return newErrors;
+                });
+            }
+        }
     };
 
     const handleParticipationFormatChange = (e) => {
@@ -313,10 +355,24 @@ const RegisterPage = observer(() => {
                 phoneToSend = '7' + phoneToSend;
             }
             
+            // Проверяем согласие в зависимости от возраста
+            const age = calculateAge(formData.birthday);
+            if (age !== null && age < 18 && !parentConsent) {
+                setErrors({ parentConsent: ['Необходимо согласие родителя'] });
+                setIsLoading(false);
+                return;
+            }
+            if (age !== null && age >= 18 && !participantConsent) {
+                setErrors({ participantConsent: ['Необходимо ваше согласие'] });
+                setIsLoading(false);
+                return;
+            }
+
             const dataToSend = {
                 ...formData,
                 phone: phoneToSend ? `+${phoneToSend}` : '',
-                parentConsent: parentConsent
+                parentConsent: age !== null && age < 18 ? parentConsent : false,
+                participantConsent: age !== null && age >= 18 ? participantConsent : false
             };
             
             await store.registration(dataToSend);
@@ -690,41 +746,81 @@ const RegisterPage = observer(() => {
                                 )}
                             </div>
 
-                            <div className="register-checkbox-group">
-                                <label className="register-checkbox">
-                                    <input
-                                        type="checkbox"
-                                        checked={parentConsent}
-                                        onChange={(e) => {
-                                            setParentConsent(e.target.checked);
-                                            if (errors.parentConsent) {
-                                                setErrors(prev => {
-                                                    const newErrors = { ...prev };
-                                                    delete newErrors.parentConsent;
-                                                    return newErrors;
-                                                });
-                                            }
-                                        }}
-                                    />
-                                    <span className="register-checkbox-mark"></span>
-                                    <span className="register-checkbox-label">
-                                        Являюсь родителем (законным представителем) участника и согласен на{' '}
-                                        <a 
-                                            href="/consent" 
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            обработку его персональных данных
-                                        </a>
-                                    </span>
-                                </label>
-                                {errors.parentConsent && (
-                                    <div className="register-error">
-                                        {errors.parentConsent[0]}
-                                    </div>
-                                )}
-                            </div>
+                            {formData.birthday && isMinor() && (
+                                <div className="register-checkbox-group">
+                                    <label className="register-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={parentConsent}
+                                            onChange={(e) => {
+                                                setParentConsent(e.target.checked);
+                                                if (errors.parentConsent) {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.parentConsent;
+                                                        return newErrors;
+                                                    });
+                                                }
+                                            }}
+                                        />
+                                        <span className="register-checkbox-mark"></span>
+                                        <span className="register-checkbox-label">
+                                            Являюсь родителем (законным представителем) участника и согласен на{' '}
+                                            <a 
+                                                href="/consent" 
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                обработку его персональных данных
+                                            </a>
+                                        </span>
+                                    </label>
+                                    {errors.parentConsent && (
+                                        <div className="register-error">
+                                            {errors.parentConsent[0]}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {formData.birthday && isAdult() && (
+                                <div className="register-checkbox-group">
+                                    <label className="register-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={participantConsent}
+                                            onChange={(e) => {
+                                                setParticipantConsent(e.target.checked);
+                                                if (errors.participantConsent) {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.participantConsent;
+                                                        return newErrors;
+                                                    });
+                                                }
+                                            }}
+                                        />
+                                        <span className="register-checkbox-mark"></span>
+                                        <span className="register-checkbox-label">
+                                            Согласен на{' '}
+                                            <a 
+                                                href="/participant-consent" 
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                обработку моих персональных данных
+                                            </a>
+                                        </span>
+                                    </label>
+                                    {errors.participantConsent && (
+                                        <div className="register-error">
+                                            {errors.participantConsent[0]}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="register-actions">

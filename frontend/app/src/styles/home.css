@@ -79,9 +79,10 @@ body {
     font-weight: 900;
     line-height: 0.95;
     letter-spacing: -0.04em;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 40px;
     max-width: 1000px;
+    text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
 }
 
 @keyframes titleFadeIn {
@@ -111,7 +112,7 @@ body {
 .event-info-label {
     font-size: 13px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: #1e40af;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -119,18 +120,18 @@ body {
 .event-info-value {
     font-size: 20px;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e3a8a;
     letter-spacing: -0.01em;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .hero-description {
     font-size: 22px;
     max-width: 720px;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.95);
+    color: #1e3a8a;
     margin-bottom: 48px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(2px);
 }
 
@@ -236,7 +237,7 @@ body {
     position: relative;
 }
 
-/* Info section - асимметричная сетка */
+/* Info section - группировка по столбцам */
 .info-section {
     margin-bottom: 160px;
 }
@@ -251,40 +252,40 @@ body {
 }
 
 .info-item {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.15) 100%);
+    background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
     padding: 40px;
     transition: all 0.3s ease;
     position: relative;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border-radius: 20px;
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    box-shadow: none;
+    border-radius: 24px;
 }
 
 .info-item:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(37, 99, 235, 0.25) 100%);
-    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-8px);
     z-index: 1;
-    box-shadow: 0 20px 40px -12px rgba(37, 99, 235, 0.4);
-    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: rgba(96, 165, 250, 0.4);
 }
 
 .home-page .info-label {
     font-size: 13px;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e40af;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 12px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
 }
 
 .home-page .info-value {
     font-size: 22px;
     font-weight: 800;
-    color: #ffffff;
+    color: #1e3a8a;
     line-height: 1.4;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Benefits section */
@@ -309,14 +310,14 @@ body {
 .section-heading {
     font-size: clamp(40px, 6vw, 72px);
     font-weight: 900;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 80px;
     letter-spacing: -0.03em;
     line-height: 1.1;
     max-width: 100%;
     position: relative;
     z-index: 1;
-    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 4px 24px rgba(255, 255, 255, 0.5);
     text-align: center;
 }
 
@@ -382,18 +383,18 @@ body {
 .benefit-title {
     font-size: 28px;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 12px;
     letter-spacing: -0.01em;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.5);
 }
 
 .benefit-text {
     font-size: 17px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #1e3a8a;
     line-height: 1.6;
     font-weight: 400;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Sponsors section */
@@ -434,14 +435,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(96, 165, 250, 0.3);
+    border: 2px solid rgba(30, 58, 138, 0.2);
     border-radius: 24px;
-    padding: 40px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -450,13 +451,14 @@ body {
 }
 
 .sponsor-item img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 90%;
     width: auto;
     height: auto;
     object-fit: contain;
     position: relative;
     z-index: 1;
+    transform: scale(1.2);
 }
 
 /* Пустое состояние партнеров */
@@ -471,25 +473,30 @@ body {
 }
 
 .sponsors-empty-icon {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(30, 58, 138, 0.15);
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(30, 58, 138, 0.3);
     border-radius: 50%;
     margin-bottom: 32px;
-    color: rgba(255, 255, 255, 0.7);
+    color: #1e3a8a;
+}
+
+.sponsors-empty-icon svg {
+    width: 80px;
+    height: 80px;
 }
 
 .sponsors-empty-title {
     font-size: 24px;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e3a8a;
     margin-bottom: 12px;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.5);
 }
 
 .sponsors-empty-message {
@@ -660,13 +667,22 @@ body {
     }
 
     .sponsors-empty-icon {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
         margin-bottom: 24px;
+        background: rgba(30, 58, 138, 0.15);
+        border-color: rgba(30, 58, 138, 0.3);
+        color: #1e3a8a;
+    }
+
+    .sponsors-empty-icon svg {
+        width: 70px;
+        height: 70px;
     }
 
     .sponsors-empty-title {
         font-size: 20px;
+        color: #1e3a8a;
     }
 
     .sponsors-empty-message {
@@ -674,8 +690,12 @@ body {
     }
 
     .sponsor-item {
-        padding: 28px;
+        padding: 16px;
         border-radius: 16px;
+    }
+
+    .sponsor-item img {
+        transform: scale(1.3);
     }
 }
 

@@ -37,15 +37,18 @@ const Home = () => {
         }
     };
 
-    const infoData = [
-        {
-            title: 'Языки программирования',
-            content: 'C++, Python, Java'
-        },
-        {
-            title: 'Продолжительность',
-            content: '4 часа'
-        },
+    // Вся информация в одном массиве для отображения по столбцам
+    const allInfoData = [
+        ...(registrationData?.championship_datetime ? [
+            {
+                title: 'Дата и время',
+                content: `${new Date(registrationData.championship_datetime).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })} в ${new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`
+            },
+            {
+                title: 'Место проведения',
+                content: 'г. Уфа, ул. Космонавтов, 1 (УГНТУ)'
+            }
+        ] : []),
         {
             title: 'Формат проведения',
             content: 'Очный'
@@ -55,8 +58,12 @@ const Home = () => {
             content: '1-3 человека'
         },
         {
-            title: 'Платформа для проведения',
-            content: 'Яндекс.Контест'
+            title: 'Продолжительность',
+            content: '4 часа'
+        },
+        {
+            title: 'Языки программирования',
+            content: 'C++, Python, Java'
         }
     ];
 
@@ -108,10 +115,6 @@ const Home = () => {
                             <div className="hero-completed-badge">
                                 Чемпионат успешно завершён
                             </div>
-                            <p className="hero-completed-text">
-                                Спасибо всем участникам за проявленные знания и упорство. 
-                                Результаты уже доступны — посмотрите, как выступили команды!
-                            </p>
                             <Link to="/results" className="hero-cta hero-cta-results">
                                 Посмотреть результаты
                                 <span className="cta-arrow">→</span>
@@ -124,26 +127,12 @@ const Home = () => {
             <div className="content-wrapper">
                 <section className="info-section">
                     <div className="info-grid">
-                        {infoData.map((item, index) => (
+                        {allInfoData.map((item, index) => (
                             <div key={index} className="info-item">
                                 <div className="info-label">{item.title}</div>
                                 <div className="info-value">{item.content}</div>
                             </div>
                         ))}
-                        {registrationData?.championship_datetime && (
-                            <>
-                                <div className="info-item">
-                                    <div className="info-label">Время начала</div>
-                                    <div className="info-value">
-                                        {new Date(registrationData.championship_datetime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                </div>
-                                <div className="info-item">
-                                    <div className="info-label">Место проведения</div>
-                                    <div className="info-value">г. Уфа, ул. Космонавтов, 1</div>
-                                </div>
-                            </>
-                        )}
                     </div>
                 </section>
 

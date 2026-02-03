@@ -2,10 +2,10 @@
 
 /* Навигация */
 .navbar {
-  background: rgb(60, 121, 201);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  border: 2px solid rgba(15, 23, 42, 0.1);
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: var(--spacing-sm);
   z-index: var(--z-sticky);
@@ -56,13 +56,12 @@
 }
 
 .navbar-link {
-  color: rgba(255, 255, 255, 0.85);
+  color: #1e3a8a;
   font-weight: var(--font-weight-semibold);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
   position: relative;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
   min-height: 36px;
   display: inline-flex;
@@ -70,15 +69,15 @@
 }
 
 .navbar-link:hover {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.2);
+  color: #1e40af;
+  background-color: rgba(37, 99, 235, 0.1);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-link.active {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.15);
+  color: #1e40af;
+  background-color: rgba(37, 99, 235, 0.15);
 }
 
 /* Специальные стили для ссылок авторизации */
@@ -98,12 +97,12 @@
 }
 
 .navbar-link-user:hover {
-  color: #ffffff;
-  background-color: rgba(96, 165, 250, 0.3);
+  color: #1e40af;
+  background-color: rgba(37, 99, 235, 0.1);
 }
 
 .navbar-link-logout {
-  color: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -112,24 +111,24 @@
 }
 
 .navbar-link-logout:hover {
-  color: #ffffff;
-  background-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .navbar-link-register {
-  color: #ffffff;
+  color: #1e3a8a;
   font-weight: var(--font-weight-semibold);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px solid rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .navbar-link-register:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
-  border-color: rgba(255, 255, 255, 0.5);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-color: rgba(37, 99, 235, 0.5);
+  color: #1e40af;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
 }
 
 .navbar-actions {
@@ -185,32 +184,34 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: #ffffff !important;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+  font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   border-color: transparent;
   color: #ffffff !important;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.5);
 }
 
 .btn-secondary {
   background: #ffffff;
-  color: #0f172a !important;
-  border-color: #e2e8f0;
+  color: #1e3a8a !important;
+  border: 2px solid #2563eb;
+  font-weight: 600;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a !important;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #2563eb;
+  color: #1e40af !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 /* Специальные стили для кнопок в навбаре */
@@ -272,10 +273,10 @@
   display: block;
   width: 25px;
   height: 3px;
-  background: #ffffff;
+  background: #1e3a8a;
   border-radius: 2px;
   transition: all var(--transition-base);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-burger.active span {
@@ -341,13 +342,15 @@
 
 .btn-outline {
   background: transparent;
-  border: 2px solid #3b82f6;
-  color: #3b82f6;
+  border: 2px solid #2563eb;
+  color: #1e3a8a;
+  font-weight: 600;
 }
 
 .btn-outline:hover:not(:disabled) {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-sm {
@@ -725,13 +728,13 @@
 .page-title {
   font-size: var(--font-size-4xl);
   margin-bottom: var(--spacing-md);
-  color: #ffffff;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  color: #1e3a8a;
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
 }
 
 .page-subtitle {
   font-size: var(--font-size-lg);
-  color: var(--text-secondary);
+  color: #1e40af;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -749,7 +752,7 @@
 .section-title {
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-lg);
-  color: var(--text-primary);
+  color: #1e3a8a;
 }
 
 /* Сетка */

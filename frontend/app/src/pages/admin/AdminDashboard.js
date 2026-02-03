@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Context } from "../../index";
 import ParticipantsService from '../../services/ParticipantsService';
 
@@ -107,7 +108,7 @@ const AdminDashboard = () => {
             <div className="admin-section">
                 <h2 className="admin-section-title">Быстрые действия</h2>
                 <div className="admin-quick-actions">
-                    <a href="/admin/participants" className="admin-quick-action-card">
+                    <Link to="/admin/participants" className="admin-quick-action-card">
                         <div className="admin-quick-action-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -120,9 +121,9 @@ const AdminDashboard = () => {
                             <h3>Управление участниками</h3>
                             <p>Просмотр и редактирование списка участников</p>
                         </div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/rooms" className="admin-quick-action-card">
+                    <Link to="/admin/rooms" className="admin-quick-action-card">
                         <div className="admin-quick-action-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -133,9 +134,9 @@ const AdminDashboard = () => {
                             <h3>Аудитории</h3>
                             <p>Добавление и управление аудиториями</p>
                         </div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/seating" className="admin-quick-action-card">
+                    <Link to="/admin/seating" className="admin-quick-action-card">
                         <div className="admin-quick-action-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <rect x="2" y="7" width="20" height="15" rx="2"/>
@@ -146,9 +147,9 @@ const AdminDashboard = () => {
                             <h3>Рассадка</h3>
                             <p>Автоматическая и ручная рассадка участников</p>
                         </div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/settings" className="admin-quick-action-card">
+                    <Link to="/admin/settings" className="admin-quick-action-card">
                         <div className="admin-quick-action-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <circle cx="12" cy="12" r="3"/>
@@ -159,7 +160,7 @@ const AdminDashboard = () => {
                             <h3>Настройки</h3>
                             <p>Управление регистрацией и системой</p>
                         </div>
-                    </a>
+                    </Link>
                 </div>
             </div>
 

@@ -20,30 +20,30 @@ const TasksSection = ({ variant = 'default' }) => {
         try {
             setLoading(true);
             
-            // Для варианта results сначала загружаем все задания чтобы получить годы
-            if (variant === 'results' && !selectedYear && availableYears.length === 0) {
-                const response = await FileService.getFilesByType('tasks', {});
-                const years = [...new Set(response.files.map(f => f.year).filter(y => y))];
+            // Сначала загружаем все задания чтобы получить годы
+            if (availableYears.length === 0) {
+                const allTasksResponse = await FileService.getFilesByType('tasks', {});
+                const years = [...new Set(allTasksResponse.files.map(f => f.year).filter(y => y))];
                 const sortedYears = years.sort((a, b) => b - a);
                 setAvailableYears(sortedYears);
                 
-                // Устанавливаем последний год по умолчанию
-                if (sortedYears.length > 0) {
+                // Устанавливаем последний год по умолчанию для default варианта
+                if (variant !== 'results' && sortedYears.length > 0 && selectedYear === null) {
+                    setSelectedYear(sortedYears[0]);
+                    return;
+                }
+                
+                // Для варианта results устанавливаем последний год по умолчанию
+                if (variant === 'results' && sortedYears.length > 0 && !selectedYear) {
                     setSelectedYear(sortedYears[0]);
                     return;
                 }
             }
             
+            // Загружаем задания с фильтром по году
             const filters = selectedYear ? { year: selectedYear } : {};
             const response = await FileService.getFilesByType('tasks', filters);
-            
             setTasks(response.files);
-
-            // Получаем уникальные годы для default варианта
-            if (variant !== 'results') {
-                const years = [...new Set(response.files.map(f => f.year).filter(y => y))];
-                setAvailableYears(years.sort((a, b) => b - a));
-            }
         } catch (error) {
             console.error('Ошибка при загрузке заданий:', error);
         } finally {
@@ -130,21 +130,13 @@ const TasksSection = ({ variant = 'default' }) => {
     return (
         <div className="tasks-section">
             <div className="tasks-container">
-                <h2 className="tasks-title">Задания чемпионата</h2>
-
                 {availableYears.length > 0 && (
-                    <div className="year-filter">
-                        <button 
-                            className={`year-btn ${!selectedYear ? 'active' : ''}`}
-                            onClick={() => setSelectedYear(null)}
-                        >
-                            Все годы
-                        </button>
+                    <div className="year-tabs">
                         {availableYears.map(year => (
                             <button
                                 key={year}
-                                className={`year-btn ${selectedYear === year ? 'active' : ''}`}
-                                onClick={() => setSelectedYear(year)}
+                                className={`year-tab ${selectedYear === year ? 'active' : ''}`}
+                                onClick={() => setSelectedYear(year === selectedYear ? null : year)}
                             >
                                 {year}
                             </button>
@@ -152,34 +144,34 @@ const TasksSection = ({ variant = 'default' }) => {
                     </div>
                 )}
 
-                <div className="tasks-grid">
-                    {tasks.map((task, index) => (
-                        <div key={task.id} className="task-card">
-                            <div className="task-icon">📄</div>
-                            {task.year && (
-                                <div className="task-year-badge">{task.year}</div>
-                            )}
-                            <h3 className="task-name">
-                                {task.description || task.filename}
-                            </h3>
-                            <p className="task-filename">{task.filename}</p>
-                            <div className="task-info">
-                                <span className="task-size">
-                                    {(task.size / 1024).toFixed(0)} КБ
-                                </span>
-                                <span className="task-type">PDF</span>
-                            </div>
-                            <a 
-                                href={task.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="task-download-btn"
-                            >
-                                <span>Скачать задание</span>
-                                <span className="download-icon">⬇</span>
-                            </a>
-                        </div>
-                    ))}
+                <div className="tasks-content">
+                    <div className="tasks-grid">
+                        {tasks.map((task, index) => {
+                            // Парсим description: первая строка = название, остальное = описание
+                            const lines = (task.description || '').split('\n').filter(l => l.trim());
+                            const title = lines[0] || task.filename;
+                            const description = lines.slice(1).join(' ') || '';
+                            
+                            return (
+                                <div key={task.id} className="task-card">
+                                    <div className="task-number">{String(index + 1).padStart(2, '0')}</div>
+                                    <h3 className="task-title">{title}</h3>
+                                    {description && (
+                                        <p className="task-description">{description}</p>
+                                    )}
+                                    <a 
+                                        href={task.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="task-button"
+                                    >
+                                        <span>Скачать задание</span>
+                                        <span className="button-arrow">→</span>
+                                    </a>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

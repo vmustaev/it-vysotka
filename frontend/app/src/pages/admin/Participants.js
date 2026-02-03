@@ -217,6 +217,35 @@ const Participants = () => {
         setPlaceValue('');
     };
 
+    // Удалить место
+    const handleDeletePlace = async (participantId) => {
+        try {
+            await ParticipantsService.updatePlace(participantId, null);
+            
+            // Обновляем список участников
+            setParticipants(prev => prev.map(p => 
+                p.id === participantId ? { ...p, place: null } : p
+            ));
+
+            // Обновляем индивидуальных участников если это активная вкладка
+            if (activeTab === 'individual') {
+                setIndividualParticipants(prev => prev.map(p => 
+                    p.id === participantId ? { ...p, place: null } : p
+                ));
+            }
+
+            setNotification({ 
+                type: 'success', 
+                message: 'Место удалено'
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при удалении места'
+            });
+        }
+    };
+
     return (
         <div className="admin-page">
             <div className="admin-page-header">
@@ -268,22 +297,22 @@ const Participants = () => {
                             </svg>
                         </div>
                         <div className="admin-stat-content">
-                            <div className="admin-stat-label">В командах</div>
-                            <div className="admin-stat-value">{stats.withTeam}</div>
-                            <div className="admin-stat-description">Без команды: {stats.withoutTeam}</div>
+                            <div className="admin-stat-label">Команды</div>
+                            <div className="admin-stat-value">{stats.totalTeams}</div>
                         </div>
                     </div>
 
                     <div className="admin-stat-card">
                         <div className="admin-stat-icon" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="8" r="7"/>
-                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
                             </svg>
                         </div>
                         <div className="admin-stat-content">
-                            <div className="admin-stat-label">Команды</div>
-                            <div className="admin-stat-value">{stats.totalTeams}</div>
+                            <div className="admin-stat-label">В командах</div>
+                            <div className="admin-stat-value">{stats.withTeam}</div>
+                            <div className="admin-stat-description">Без команды: {stats.withoutTeam}</div>
                         </div>
                     </div>
 
@@ -507,25 +536,55 @@ const Participants = () => {
                                                 </div>
                                             ) : (
                                                 <div 
-                                                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                                    onClick={() => handleStartEditPlace(participant)}
+                                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                                 >
                                                     {participant.place ? (
-                                                        <span className="badge" style={{
-                                                            background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
-                                                                       participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
-                                                                       'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
-                                                            color: participant.place === 1 ? '#b8860b' :
-                                                                   participant.place === 2 ? '#696969' :
-                                                                   '#8b4513',
-                                                            fontWeight: 'bold',
-                                                            padding: '4px 12px',
-                                                            fontSize: 'var(--font-size-sm)'
-                                                        }}>
-                                                            {participant.place} место
-                                                        </span>
+                                                        <>
+                                                            <span 
+                                                                className="badge" 
+                                                                style={{
+                                                                    background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                                               participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                                               'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
+                                                                    color: participant.place === 1 ? '#b8860b' :
+                                                                           participant.place === 2 ? '#696969' :
+                                                                           '#8b4513',
+                                                                    fontWeight: 'bold',
+                                                                    padding: '4px 12px',
+                                                                    fontSize: 'var(--font-size-sm)',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => handleStartEditPlace(participant)}
+                                                                title="Нажмите для редактирования"
+                                                            >
+                                                                {participant.place} место
+                                                            </span>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeletePlace(participant.id);
+                                                                }}
+                                                                className="btn btn-sm btn-outline"
+                                                                style={{ 
+                                                                    padding: '4px 8px', 
+                                                                    minWidth: 'auto',
+                                                                    color: '#dc2626',
+                                                                    borderColor: '#dc2626'
+                                                                }}
+                                                                title="Удалить место"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </>
                                                     ) : (
-                                                        <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                        <span 
+                                                            style={{ 
+                                                                color: 'var(--text-secondary)', 
+                                                                fontSize: 'var(--font-size-sm)',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => handleStartEditPlace(participant)}
+                                                        >
                                                             Назначить
                                                         </span>
                                                     )}
@@ -808,25 +867,55 @@ const Participants = () => {
                                                         </div>
                                                     ) : (
                                                         <div 
-                                                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                                            onClick={() => handleStartEditPlace(participant)}
+                                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                                         >
                                                             {participant.place ? (
-                                                                <span className="badge" style={{
-                                                                    background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
-                                                                               participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
-                                                                               'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
-                                                                    color: participant.place === 1 ? '#b8860b' :
-                                                                           participant.place === 2 ? '#696969' :
-                                                                           '#8b4513',
-                                                                    fontWeight: 'bold',
-                                                                    padding: '4px 12px',
-                                                                    fontSize: 'var(--font-size-sm)'
-                                                                }}>
-                                                                    {participant.place}
-                                                                </span>
+                                                                <>
+                                                                    <span 
+                                                                        className="badge" 
+                                                                        style={{
+                                                                            background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
+                                                                                       participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
+                                                                                       'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
+                                                                            color: participant.place === 1 ? '#b8860b' :
+                                                                                   participant.place === 2 ? '#696969' :
+                                                                                   '#8b4513',
+                                                                            fontWeight: 'bold',
+                                                                            padding: '4px 12px',
+                                                                            fontSize: 'var(--font-size-sm)',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onClick={() => handleStartEditPlace(participant)}
+                                                                        title="Нажмите для редактирования"
+                                                                    >
+                                                                        {participant.place}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleDeletePlace(participant.id);
+                                                                        }}
+                                                                        className="btn btn-sm btn-outline"
+                                                                        style={{ 
+                                                                            padding: '4px 8px', 
+                                                                            minWidth: 'auto',
+                                                                            color: '#dc2626',
+                                                                            borderColor: '#dc2626'
+                                                                        }}
+                                                                        title="Удалить место"
+                                                                    >
+                                                                        ✕
+                                                                    </button>
+                                                                </>
                                                             ) : (
-                                                                <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                                <span 
+                                                                    style={{ 
+                                                                        color: 'var(--text-secondary)', 
+                                                                        fontSize: 'var(--font-size-sm)',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => handleStartEditPlace(participant)}
+                                                                >
                                                                     —
                                                                 </span>
                                                             )}
