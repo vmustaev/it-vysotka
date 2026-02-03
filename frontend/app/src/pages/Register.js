@@ -44,6 +44,7 @@ const RegisterPage = observer(() => {
     const [isLoadingCities, setIsLoadingCities] = useState(false);
     const [isLoadingSchools, setIsLoadingSchools] = useState(false);
     const [registrationStatus, setRegistrationStatus] = useState({ isOpen: null });
+    const [essayCloseDate, setEssayCloseDate] = useState(null);
 
     useEffect(() => {
         checkRegistrationStatus();
@@ -64,11 +65,25 @@ const RegisterPage = observer(() => {
                 registration_start: response.data.data.registration_start,
                 registration_end: response.data.data.registration_end
             });
+            // Получаем дату закрытия эссе из того же ответа
+            if (response.data.data.essay_close_date) {
+                setEssayCloseDate(response.data.data.essay_close_date);
+            }
         } catch (e) {
             console.error('Error checking registration status:', e);
             // В случае ошибки считаем регистрацию открытой
             setRegistrationStatus({ isOpen: true });
         }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     };
 
     useEffect(() => {
@@ -220,10 +235,12 @@ const RegisterPage = observer(() => {
         
         // Показываем модальное окно с разными текстами
         let message = '';
+        const dateText = essayCloseDate ? ` до ${formatDate(essayCloseDate)}` : '';
+        
         if (value === 'individual') {
-            message = 'Вы выбрали индивидуальное участие. После активации аккаунта в профиле вам необходимо будет указать ссылку на эссе.';
+            message = `Вы выбрали индивидуальное участие. После активации аккаунта в личном кабинете вам необходимо будет указать ссылку на эссе${dateText}.`;
         } else if (value === 'team') {
-            message = 'Вы выбрали командное участие. После активации аккаунта в профиле вам необходимо создать команду или присоединиться к команде по ссылке. Лидеру необходимо прикрепить эссе.';
+            message = `Вы выбрали командное участие. После активации аккаунта в личном кабинете вам необходимо создать команду или присоединиться к команде по ссылке. Лидеру команды необходимо прикрепить эссе${dateText}.`;
         }
         
         setInfoModal({

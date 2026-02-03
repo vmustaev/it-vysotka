@@ -4,6 +4,7 @@ import { Context } from "../index";
 import TeamService from '../services/TeamService';
 import UserService from '../services/UserService';
 import CertificateService from '../services/CertificateService';
+import SettingsService from '../services/SettingsService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
 import '../styles/profile.css';
@@ -21,6 +22,7 @@ const Profile = () => {
     const [essayUrl, setEssayUrl] = useState('');
     const [isEditingEssay, setIsEditingEssay] = useState(false);
     const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+    const [essayCloseDate, setEssayCloseDate] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -55,8 +57,30 @@ const Profile = () => {
     useEffect(() => {
         if (store.isAuth) {
             loadProfile();
+            loadSettings();
         }
     }, [store.isAuth]);
+
+    const loadSettings = async () => {
+        try {
+            const response = await SettingsService.getRegistrationStatus();
+            if (response.data.data.essay_close_date) {
+                setEssayCloseDate(response.data.data.essay_close_date);
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки настроек:', e);
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
 
     // Инициализация essayUrl при загрузке профиля
     useEffect(() => {
@@ -876,6 +900,14 @@ const Profile = () => {
                         <h2 className="profile-section-title">Эссе</h2>
                         
                         <div className="profile-card">
+                            {essayCloseDate && (
+                                <div className="profile-row" style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
+                                    <span className="profile-label">Срок подачи:</span>
+                                    <span className="profile-value" style={{ fontWeight: 600, color: '#3b82f6' }}>
+                                        до {formatDate(essayCloseDate)}
+                                    </span>
+                                </div>
+                            )}
                             {!isEditingEssay ? (
                                 <div className="profile-row">
                                     <span className="profile-label">Ссылка на эссе:</span>
