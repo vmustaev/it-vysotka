@@ -41,9 +41,17 @@ UserModel.belongsTo(FileModel, { foreignKey: 'certificateId', as: 'Certificate' 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Настройка CORS
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+app.use(cors({
+    origin: corsOrigin,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/api', router);
 app.use(errorMiddleware);
