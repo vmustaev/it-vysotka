@@ -28,7 +28,7 @@ const Participants = () => {
         programming_language: '',
         hasTeam: '',
         participation_format: '',
-        sortBy: 'id',
+        sortBy: 'teamId',
         sortOrder: 'ASC'
     });
 
@@ -452,8 +452,8 @@ const Participants = () => {
                     className="form-select"
                 >
                     <option value="">Все классы</option>
-                    {[...Array(11)].map((_, i) => (
-                        <option key={i} value={i + 1}>{i + 1} класс</option>
+                    {[9, 10, 11].map((g) => (
+                        <option key={g} value={g}>{g} класс</option>
                     ))}
                 </select>
 
@@ -526,7 +526,9 @@ const Participants = () => {
                                     </th>
                                     <th>Класс</th>
                                     <th>Школа</th>
-                                    <th>Команда / Формат</th>
+                                    <th onClick={() => handleSort('teamId')}>
+                                        Команда / Формат {filters.sortBy === 'teamId' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
+                                    </th>
                                     <th style={{ width: '100px', textAlign: 'center' }}>Место</th>
                                 </tr>
                             </thead>

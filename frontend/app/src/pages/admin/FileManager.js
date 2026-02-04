@@ -334,6 +334,7 @@ const FileManager = () => {
                                 <option value="consent_adult">Согласие совершеннолетнего</option>
                                 <option value="regulations">Положение</option>
                                 <option value="booklet">Памятка</option>
+                                <option value="essay_requirements">Требования к эссе</option>
                             </select>
                         </div>
                     )}
@@ -515,6 +516,7 @@ const FileManager = () => {
                                                             file.subType === 'consent_adult' ? 'Согласие сов.' :
                                                             file.subType === 'regulations' ? 'Положение' :
                                                             file.subType === 'booklet' ? 'Памятка' :
+                                                            file.subType === 'essay_requirements' ? 'Требования к эссе' :
                                                             file.subType
                                                         }
                                                     </div>

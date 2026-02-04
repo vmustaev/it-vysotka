@@ -388,6 +388,23 @@
     font-style: italic;
 }
 
+.profile-essay-doc-link {
+    display: inline-block;
+    padding: 10px 18px;
+    background: #64748b;
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.profile-essay-doc-link:hover {
+    background: #475569;
+    color: #fff !important;
+}
+
 /* Results Empty State */
 .results-empty {
     text-align: center;

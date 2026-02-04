@@ -69,9 +69,14 @@ class ParticipantsController {
             }
 
             // Валидация сортировки
-            const allowedSortFields = ['id', 'last_name', 'email', 'grade', 'region', 'createdAt'];
+            const allowedSortFields = ['id', 'last_name', 'email', 'grade', 'region', 'createdAt', 'teamId'];
             const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'id';
             const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+            // Сортировка: по teamId — сначала группируем по команде, внутри команды по фамилии
+            const order = validSortBy === 'teamId'
+                ? [['teamId', validSortOrder], ['last_name', 'ASC']]
+                : [[validSortBy, validSortOrder]];
 
             // Получаем участников с командами
             // Ограничиваем только необходимыми полями для безопасности
@@ -79,7 +84,7 @@ class ParticipantsController {
                 where,
                 limit: parseInt(limit),
                 offset: parseInt(offset),
-                order: [[validSortBy, validSortOrder]],
+                order,
                 include: [{
                     model: TeamModel,
                     as: 'Team',

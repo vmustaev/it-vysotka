@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import TasksSection from '../components/TasksSection';
+import FileService from '../services/FileService';
 import '../styles/about-championship.css';
 
 const AboutChampionship = () => {
+    const [essayRequirementsDoc, setEssayRequirementsDoc] = useState(null);
+    const [loadingEssayDoc, setLoadingEssayDoc] = useState(true);
+
+    useEffect(() => {
+        const loadEssayDoc = async () => {
+            try {
+                const response = await FileService.getFilesByType('regulations');
+                const doc = response.files?.find(f => f.subType === 'essay_requirements') || null;
+                setEssayRequirementsDoc(doc);
+            } catch (e) {
+                console.error('Ошибка загрузки документа требований к эссе:', e);
+            } finally {
+                setLoadingEssayDoc(false);
+            }
+        };
+        loadEssayDoc();
+    }, []);
     return (
         <div className="about-championship-page">
             <div className="about-championship-content">
@@ -22,31 +40,28 @@ const AboutChampionship = () => {
                         <div className="championship-info-block">
                             <h3 className="info-block-title">Формат проведения</h3>
                             <p className="info-block-text">
-                                Чемпионат проводится в <strong>очном формате</strong>. 
-                                Соревнование командное: в состав команды входит от 1 до 3 человек.
+                                Чемпионат проводится в <strong>очном формате</strong>. Участвовать можно как индивидуально, так и в составе команды.
                             </p>
                         </div>
 
                         <div className="championship-info-block">
-                            <h3 className="info-block-title">Задания чемпионата</h3>
+                            <h3 className="info-block-title">Задания и эссе</h3>
                             <p className="info-block-text">
-                                Участникам будет предложено <strong>3 задачи</strong> на проверку углубленных знаний содержательной 
-                                линии «Программирование» по предмету «Информатика». Продолжительность тура составляет 4 астрономических часа.
+                                Чемпионат состоит из <strong>3 заданий</strong> и <strong>эссе</strong>. За задачи можно получить <strong>60 баллов</strong>, за эссе – <strong>40 баллов</strong>. Всего можно получить 100 баллов.
                             </p>
-                        </div>
-
-                        <div className="championship-info-block">
-                            <h3 className="info-block-title">Эссе</h3>
-                            <p className="info-block-text">
-                                <strong>Обязательное требование:</strong> после активации аккаунта необходимо прикрепить эссе.
+                            <p className="info-block-text" style={{ marginTop: '12px' }}>
+                                Участникам предлагаются три задачи, направленные на проверку углублённых знаний содержательной линии «Программирование» по предмету «Информатика». На решение задач отводится 2 часа, ещё 2 часа – на обсуждение и выступление с эссе.
                             </p>
-                            <ul className="info-block-list">
-                                <li><strong>Индивидуальные участники:</strong> прикрепить эссе в личном кабинете</li>
-                                <li><strong>Участники команд:</strong> эссе прикрепляет только <strong>лидер команды</strong> в личном кабинете</li>
-                            </ul>
-                            <p className="info-block-text" style={{ marginTop: '12px', fontSize: '0.95rem', color: '#64748b' }}>
-                                Ссылку на эссе необходимо указать в разделе "Эссе" вашего личного кабинета после активации аккаунта.
+                            <p className="info-block-text" style={{ marginTop: '12px' }}>
+                                Ссылку на эссе необходимо прикрепить в личном кабинете: участникам индивидуального формата – самостоятельно, участникам команд – у лидера команды.
                             </p>
+                            {essayRequirementsDoc ? (
+                                <a href={essayRequirementsDoc.url} target="_blank" rel="noopener noreferrer" className="about-essay-doc-link">
+                                    Требования к эссе
+                                </a>
+                            ) : !loadingEssayDoc ? null : (
+                                <p className="info-block-text" style={{ marginTop: '12px', color: '#94a3b8', fontSize: '0.9rem' }}>Загрузка...</p>
+                            )}
                         </div>
 
                         <div className="championship-info-block">

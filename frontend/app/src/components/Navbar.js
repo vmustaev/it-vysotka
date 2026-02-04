@@ -113,7 +113,7 @@ const Navbar = observer(() => {
                                 <Link to="/login" className="navbar-link navbar-link-auth" onClick={closeMobileMenu}>
                                     Войти
                                 </Link>
-                                <Link to="/register" className="navbar-link navbar-link-register" onClick={closeMobileMenu}>
+                                <Link to="/register" className="navbar-link navbar-link-auth" onClick={closeMobileMenu}>
                                     Регистрация
                                 </Link>
                             </>

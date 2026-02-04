@@ -120,6 +120,24 @@
     font-weight: 600;
 }
 
+.about-essay-doc-link {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #64748b;
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.about-essay-doc-link:hover {
+    background: #475569;
+    color: #fff !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .about-championship-page {

@@ -5,6 +5,7 @@ import TeamService from '../services/TeamService';
 import UserService from '../services/UserService';
 import CertificateService from '../services/CertificateService';
 import SettingsService from '../services/SettingsService';
+import FileService from '../services/FileService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
 import '../styles/profile.css';
@@ -23,6 +24,7 @@ const Profile = () => {
     const [isEditingEssay, setIsEditingEssay] = useState(false);
     const [isAccordionOpen, setIsAccordionOpen] = useState(false);
     const [essayCloseDate, setEssayCloseDate] = useState(null);
+    const [essayRequirementsDoc, setEssayRequirementsDoc] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -60,6 +62,20 @@ const Profile = () => {
             loadSettings();
         }
     }, [store.isAuth]);
+
+    // Документ «Требования к эссе» для блока Эссе
+    useEffect(() => {
+        const loadEssayDoc = async () => {
+            try {
+                const response = await FileService.getFilesByType('regulations');
+                const doc = response.files?.find(f => f.subType === 'essay_requirements') || null;
+                setEssayRequirementsDoc(doc);
+            } catch (e) {
+                console.error('Ошибка загрузки документа требований к эссе:', e);
+            }
+        };
+        loadEssayDoc();
+    }, []);
 
     const loadSettings = async () => {
         try {
@@ -894,8 +910,8 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Essay Section - только для индивидуальных участников или лидеров команд, и только после даты открытия эссе */}
-                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && profile.essay_visible && (
+                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
+                {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
                     <div className="profile-section">
                         <h2 className="profile-section-title">Эссе</h2>
                         
@@ -903,12 +919,25 @@ const Profile = () => {
                             {essayCloseDate && (
                                 <div className="profile-row" style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
                                     <span className="profile-label">Срок подачи:</span>
-                                    <span className="profile-value" style={{ fontWeight: 600, color: '#3b82f6' }}>
+                                    <span className="profile-value" style={{ fontWeight: 600, color: profile.essay_visible ? '#3b82f6' : '#dc2626' }}>
                                         до {formatDate(essayCloseDate)}
                                     </span>
                                 </div>
                             )}
-                            {!isEditingEssay ? (
+                            {!profile.essay_visible ? (
+                                <div className="profile-row">
+                                    <span className="profile-label">Ссылка на эссе:</span>
+                                    <div className="profile-value" style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+                                        {profile.essayUrl ? (
+                                            <a href={profile.essayUrl} target="_blank" rel="noopener noreferrer" className="essay-link" style={{ wordBreak: 'break-all' }}>
+                                                {profile.essayUrl}
+                                            </a>
+                                        ) : (
+                                            <span className="empty-value">Не указано</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : !isEditingEssay ? (
                                 <div className="profile-row">
                                     <span className="profile-label">Ссылка на эссе:</span>
                                     <div className="profile-value" style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'space-between', width: '100%' }}>
@@ -994,6 +1023,20 @@ const Profile = () => {
                                             Отмена
                                         </button>
                                     </div>
+                                </div>
+                            )}
+                            {essayRequirementsDoc && (
+                                <div style={{ marginTop: '12px' }}>
+                                    <a href={essayRequirementsDoc.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm btn-with-icon" style={{ display: 'inline-flex' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                        Требования к эссе
+                                    </a>
                                 </div>
                             )}
                         </div>
