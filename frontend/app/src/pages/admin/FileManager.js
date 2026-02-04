@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FileService from '../../services/FileService';
+import BackupService from '../../services/BackupService';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import '../../styles/file-manager.css';
@@ -8,6 +9,10 @@ const FileManager = () => {
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedType, setSelectedType] = useState('');
+    const [backups, setBackups] = useState([]);
+    const [loadingBackups, setLoadingBackups] = useState(false);
+    const [creatingBackup, setCreatingBackup] = useState(false);
+    const [confirmDeleteBackup, setConfirmDeleteBackup] = useState({ show: false, filename: null });
     const [uploadFiles, setUploadFiles] = useState([]);
     const [uploadType, setUploadType] = useState('gallery');
     const [uploadDescription, setUploadDescription] = useState('');
@@ -20,7 +25,7 @@ const FileManager = () => {
     const [editingFile, setEditingFile] = useState(null);
     const [stats, setStats] = useState([]);
 
-    // Типы для фильтра (можно просматривать все)
+    // Типы для фильтра (можно просматривать все) + вкладка Бэкапы
     const fileTypes = [
         { value: '', label: 'Все типы' },
         { value: 'gallery', label: 'Галерея' },
@@ -28,8 +33,7 @@ const FileManager = () => {
         { value: 'certificates', label: 'Сертификаты' },
         { value: 'tasks', label: 'Задания' },
         { value: 'regulations', label: 'Положения' },
-        { value: 'results', label: 'Результаты' },
-        { value: 'other', label: 'Другое' }
+        { value: 'backups', label: 'Бэкапы' }
     ];
 
     // Типы для загрузки (сертификаты загружаются только через раздел "Сертификаты")
@@ -37,15 +41,78 @@ const FileManager = () => {
         { value: 'gallery', label: 'Галерея' },
         { value: 'sponsors', label: 'Спонсоры' },
         { value: 'tasks', label: 'Задания' },
-        { value: 'regulations', label: 'Положения' },
-        { value: 'results', label: 'Результаты' },
-        { value: 'other', label: 'Другое' }
+        { value: 'regulations', label: 'Положения' }
     ];
 
     useEffect(() => {
-        loadFiles();
-        loadStats();
+        loadBackups(); // Загружаем количество бэкапов для отображения в табе
+    }, []);
+
+    useEffect(() => {
+        if (selectedType === 'backups') {
+            loadBackups();
+        } else {
+            loadFiles();
+            loadStats();
+        }
     }, [selectedType]);
+
+    const loadBackups = async () => {
+        try {
+            setLoadingBackups(true);
+            const response = await BackupService.getBackups();
+            setBackups(response.backups || []);
+        } catch (error) {
+            showToast('Ошибка при загрузке списка бэкапов', 'error');
+            console.error('Error loading backups:', error);
+        } finally {
+            setLoadingBackups(false);
+        }
+    };
+
+    const handleCreateBackup = async () => {
+        try {
+            setCreatingBackup(true);
+            await BackupService.createBackup();
+            showToast('Бэкап успешно создан', 'success');
+            loadBackups();
+        } catch (error) {
+            showToast(error.response?.data?.message || 'Ошибка при создании бэкапа', 'error');
+            console.error('Error creating backup:', error);
+        } finally {
+            setCreatingBackup(false);
+        }
+    };
+
+    const handleDownloadBackup = async (filename) => {
+        try {
+            const blob = await BackupService.downloadBackup(filename);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            showToast('Загрузка началась', 'success');
+        } catch (error) {
+            showToast('Ошибка при скачивании бэкапа', 'error');
+            console.error('Error downloading backup:', error);
+        }
+    };
+
+    const handleDeleteBackup = async (filename) => {
+        try {
+            await BackupService.deleteBackup(filename);
+            showToast('Бэкап удалён', 'success');
+            setConfirmDeleteBackup({ show: false, filename: null });
+            loadBackups();
+        } catch (error) {
+            showToast('Ошибка при удалении бэкапа', 'error');
+            console.error('Error deleting backup:', error);
+        }
+    };
 
     const loadFiles = async () => {
         try {
@@ -321,7 +388,10 @@ const FileManager = () => {
                         onClick={() => setSelectedType(type.value)}
                     >
                         {type.label}
-                        {type.value && stats.find(s => s.fileType === type.value) && (
+                        {type.value === 'backups' && (
+                            <span className="tab-count">{backups.length}</span>
+                        )}
+                        {type.value && type.value !== 'backups' && stats.find(s => s.fileType === type.value) && (
                             <span className="tab-count">
                                 {stats.find(s => s.fileType === type.value).count}
                             </span>
@@ -330,8 +400,60 @@ const FileManager = () => {
                 ))}
             </div>
 
-            {/* Список файлов */}
+            {/* Список файлов или Бэкапы */}
             <div className="files-section">
+                {selectedType === 'backups' ? (
+                    <>
+                        <div className="backups-header">
+                            <h3>Бэкапы базы данных ({backups.length})</h3>
+                            <p className="backups-info">Автоматические бэкапы создаются каждые 6 часов</p>
+                            <button 
+                                className="btn-create-backup" 
+                                onClick={handleCreateBackup}
+                                disabled={creatingBackup}
+                            >
+                                {creatingBackup ? 'Создание...' : 'Создать бэкап сейчас'}
+                            </button>
+                        </div>
+                        {loadingBackups ? (
+                            <div className="loading">Загрузка бэкапов...</div>
+                        ) : backups.length === 0 ? (
+                            <div className="no-files">
+                                Нет бэкапов. Нажмите «Создать бэкап сейчас» или дождитесь автоматического создания (каждые 6 часов).
+                            </div>
+                        ) : (
+                            <div className="backups-list">
+                                {backups.map((backup) => (
+                                    <div key={backup.filename} className="backup-card file-card">
+                                        <div className="file-icon">🗄️</div>
+                                        <div className="file-info">
+                                            <div className="file-name" title={backup.filename}>{backup.filename}</div>
+                                            <div className="file-size">{formatFileSize(backup.size)}</div>
+                                            <div className="file-date">
+                                                {new Date(backup.createdAt).toLocaleString('ru-RU')}
+                                            </div>
+                                        </div>
+                                        <div className="file-actions">
+                                            <button 
+                                                onClick={() => handleDownloadBackup(backup.filename)}
+                                                className="btn-view"
+                                            >
+                                                Скачать
+                                            </button>
+                                            <button 
+                                                onClick={() => setConfirmDeleteBackup({ show: true, filename: backup.filename })}
+                                                className="btn-delete"
+                                            >
+                                                Удалить
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <>
                 <h3>Файлы ({files.length})</h3>
                 {loading ? (
                     <div className="loading">Загрузка...</div>
@@ -456,6 +578,8 @@ const FileManager = () => {
                         ))}
                     </div>
                 )}
+                    </>
+                )}
             </div>
 
             {toast.show && (
@@ -479,6 +603,19 @@ const FileManager = () => {
                         setConfirmDialog({ show: false, fileId: null });
                     }}
                     onCancel={() => setConfirmDialog({ show: false, fileId: null })}
+                />
+            )}
+
+            {confirmDeleteBackup.show && (
+                <ConfirmDialog
+                    isOpen={true}
+                    title="Удаление бэкапа"
+                    message={`Удалить бэкап ${confirmDeleteBackup.filename}?`}
+                    confirmText="Удалить"
+                    cancelText="Отмена"
+                    danger={true}
+                    onConfirm={() => handleDeleteBackup(confirmDeleteBackup.filename)}
+                    onCancel={() => setConfirmDeleteBackup({ show: false, filename: null })}
                 />
             )}
         </div>

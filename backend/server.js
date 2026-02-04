@@ -2,8 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const cron = require('node-cron');
 const router = require('./router/index');
 const sequelize = require('./db');
+const backupService = require('./service/backup-service');
 const errorMiddleware = require('./middlewares/error-middleware');
 const path = require('path');
 
@@ -118,6 +120,17 @@ const start = async () => {
         }
         
         await ensureAdminExists();
+
+        // Бэкап БД каждые 6 часов (в 0:00, 6:00, 12:00, 18:00)
+        cron.schedule('0 */6 * * *', async () => {
+            try {
+                const backup = await backupService.createBackup();
+                console.log(`✅ Автоматический бэкап создан: ${backup.filename} (${(backup.size / 1024).toFixed(1)} KB)`);
+            } catch (err) {
+                console.error('❌ Ошибка автоматического бэкапа:', err.message);
+            }
+        });
+        console.log('📦 Планировщик бэкапов: каждые 6 часов');
         
         app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
     } catch (e) {

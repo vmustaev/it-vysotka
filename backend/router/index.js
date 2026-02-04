@@ -9,6 +9,7 @@ const seatingController = require('../controllers/seating-controller');
 const settingsController = require('../controllers/settings-controller');
 const certificateController = require('../controllers/certificate-controller');
 const fileController = require('../controllers/file-controller');
+const backupController = require('../controllers/backup-controller');
 const resultsController = require('../controllers/results-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
@@ -117,6 +118,12 @@ router.get('/admin/files/stats', authMiddleware, adminMiddleware, fileController
 router.get('/admin/files/:id', authMiddleware, adminMiddleware, fileController.getById);
 router.put('/admin/files/:id', authMiddleware, adminMiddleware, fileController.update);
 router.delete('/admin/files/:id', authMiddleware, adminMiddleware, fileController.delete);
+
+// Admin routes - Backups
+router.post('/admin/backups', authMiddleware, adminMiddleware, backupController.create);
+router.get('/admin/backups', authMiddleware, adminMiddleware, backupController.list);
+router.get('/admin/backups/download/:filename', authMiddleware, adminMiddleware, backupController.download);
+router.delete('/admin/backups/:filename', authMiddleware, adminMiddleware, backupController.delete);
 
 // Public routes - Files (получение файлов по типу)
 router.get('/files/type/:type', fileController.getByType);

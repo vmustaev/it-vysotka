@@ -419,6 +419,53 @@
     font-size: 1.1rem;
 }
 
+/* Бэкапы */
+.backups-header {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.backups-header h3 {
+    margin-bottom: 8px;
+}
+
+.backups-info {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+}
+
+.btn-create-backup {
+    padding: 10px 20px;
+    background: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-create-backup:hover:not(:disabled) {
+    background: #138496;
+}
+
+.btn-create-backup:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.backups-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.backup-card .file-icon {
+    background: #e3f2fd;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .files-grid {

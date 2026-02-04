@@ -1,6 +1,9 @@
 # Use Node.js image as base
 FROM node:20-alpine
 
+# Install postgresql-client for pg_dump
+RUN apk add --no-cache postgresql-client
+
 # Set working directory
 WORKDIR /app
 

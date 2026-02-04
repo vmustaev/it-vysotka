@@ -783,7 +783,6 @@ const Participants = () => {
                                             <th>Класс</th>
                                             <th>Школа</th>
                                             <th style={{ width: '80px', textAlign: 'center' }}>Эссе</th>
-                                            <th style={{ width: '100px', textAlign: 'center' }}>Место</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -823,103 +822,6 @@ const Participants = () => {
                                                         </a>
                                                     ) : (
                                                         <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>-</span>
-                                                    )}
-                                                </td>
-                                                <td style={{ textAlign: 'center' }}>
-                                                    {editingPlace === participant.id ? (
-                                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                max="3"
-                                                                value={placeValue}
-                                                                onChange={(e) => setPlaceValue(e.target.value)}
-                                                                onKeyDown={(e) => {
-                                                                    if (e.key === 'Enter') handleSavePlace(participant.id);
-                                                                    if (e.key === 'Escape') handleCancelEditPlace();
-                                                                }}
-                                                                placeholder="1-3"
-                                                                style={{ 
-                                                                    width: '50px', 
-                                                                    padding: '4px 8px',
-                                                                    fontSize: 'var(--font-size-sm)',
-                                                                    border: '1px solid var(--border-color)',
-                                                                    borderRadius: 'var(--border-radius-sm)'
-                                                                }}
-                                                                autoFocus
-                                                            />
-                                                            <button
-                                                                onClick={() => handleSavePlace(participant.id)}
-                                                                className="btn btn-sm btn-primary"
-                                                                style={{ padding: '4px 8px', minWidth: 'auto' }}
-                                                                title="Сохранить"
-                                                            >
-                                                                ✓
-                                                            </button>
-                                                            <button
-                                                                onClick={handleCancelEditPlace}
-                                                                className="btn btn-sm btn-outline"
-                                                                style={{ padding: '4px 8px', minWidth: 'auto' }}
-                                                                title="Отмена"
-                                                            >
-                                                                ✕
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div 
-                                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                                        >
-                                                            {participant.place ? (
-                                                                <>
-                                                                    <span 
-                                                                        className="badge" 
-                                                                        style={{
-                                                                            background: participant.place === 1 ? 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)' :
-                                                                                       participant.place === 2 ? 'linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)' :
-                                                                                       'linear-gradient(135deg, #cd7f32 0%, #e6a857 100%)',
-                                                                            color: participant.place === 1 ? '#b8860b' :
-                                                                                   participant.place === 2 ? '#696969' :
-                                                                                   '#8b4513',
-                                                                            fontWeight: 'bold',
-                                                                            padding: '4px 12px',
-                                                                            fontSize: 'var(--font-size-sm)',
-                                                                            cursor: 'pointer'
-                                                                        }}
-                                                                        onClick={() => handleStartEditPlace(participant)}
-                                                                        title="Нажмите для редактирования"
-                                                                    >
-                                                                        {participant.place}
-                                                                    </span>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleDeletePlace(participant.id);
-                                                                        }}
-                                                                        className="btn btn-sm btn-outline"
-                                                                        style={{ 
-                                                                            padding: '4px 8px', 
-                                                                            minWidth: 'auto',
-                                                                            color: '#dc2626',
-                                                                            borderColor: '#dc2626'
-                                                                        }}
-                                                                        title="Удалить место"
-                                                                    >
-                                                                        ✕
-                                                                    </button>
-                                                                </>
-                                                            ) : (
-                                                                <span 
-                                                                    style={{ 
-                                                                        color: 'var(--text-secondary)', 
-                                                                        fontSize: 'var(--font-size-sm)',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={() => handleStartEditPlace(participant)}
-                                                                >
-                                                                    —
-                                                                </span>
-                                                            )}
-                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>

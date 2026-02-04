@@ -46,3 +46,6 @@ files/*
 !files/generated-certificates/
 files/generated-certificates/*
 !files/generated-certificates/.gitkeep
+
+# Database backups
+backups/*.sql

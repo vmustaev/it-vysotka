@@ -23,6 +23,7 @@ services:
       DB_PORT: ${DB_PORT}
     volumes:
       - ./backend/files:/app/files
+      - ./backend/backups:/app/backups
     depends_on:
       - db
 
