@@ -45,5 +45,19 @@ export default class ParticipantsService {
     static async updatePlace(id, place) {
         return $api.put(`/admin/participants/${id}/place`, { place });
     }
+
+    /**
+     * Отправить письма-напоминания об эссе участникам без прикрепленного эссе
+     */
+    static async sendEssayReminders() {
+        return $api.post('/admin/participants/send-essay-reminders');
+    }
+
+    /**
+     * Отправить письма участникам с командным форматом без команды
+     */
+    static async sendTeamFormatWithoutTeamReminders() {
+        return $api.post('/admin/participants/send-team-format-without-team-reminders');
+    }
 }
 

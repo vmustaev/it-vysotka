@@ -64,6 +64,8 @@ router.get('/admin/participants/export', authMiddleware, adminMiddleware, partic
 router.get('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.getById);
 router.put('/admin/participants/:id/place', authMiddleware, adminMiddleware, participantsController.updatePlace);
 router.delete('/admin/participants/:id', authMiddleware, adminMiddleware, participantsController.deleteParticipant);
+router.post('/admin/participants/send-essay-reminders', authMiddleware, adminMiddleware, participantsController.sendEssayReminders);
+router.post('/admin/participants/send-team-format-without-team-reminders', authMiddleware, adminMiddleware, participantsController.sendTeamFormatWithoutTeamReminders);
 
 // Admin routes - Teams
 router.get('/admin/teams', authMiddleware, adminMiddleware, teamController.getAllTeams);

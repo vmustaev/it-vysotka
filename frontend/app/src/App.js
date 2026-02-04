@@ -44,6 +44,35 @@ const App = observer(() => {
         window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }, [location.pathname]);
 
+    // Пока идет проверка авторизации, не рендерим маршруты,
+    // чтобы избежать краткого перехода на /login при перезагрузке защищенных страниц
+    if (store.isLoading) {
+        return (
+            <div style={{
+                backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(59, 130, 246, 0.4)), url(/assets/img/background_new.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+                backgroundRepeat: 'no-repeat',
+                minHeight: '100vh'
+            }}>
+                <Navbar />
+                <div style={{
+                    minHeight: '60vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontSize: '18px',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                }}>
+                    Загрузка...
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
     return (
         <div style={{
             backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(59, 130, 246, 0.4)), url(/assets/img/background_new.png)',

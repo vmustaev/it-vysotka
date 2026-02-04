@@ -1,5 +1,7 @@
 const UserModel = require('../models/user-model');
 const TeamModel = require('../models/team-model');
+const SettingsModel = require('../models/settings-model');
+const mailService = require('../service/mail-service');
 const ApiError = require('../exceptions/api-error');
 const { Op } = require('sequelize');
 
@@ -453,6 +455,154 @@ class ParticipantsController {
                 data: {
                     id: participant.id,
                     place: participant.place
+                }
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Отправить письма-напоминания об эссе всем участникам без прикрепленного эссе
+     * (индивидуальные участники и лидеры команд)
+     */
+    async sendEssayReminders(req, res, next) {
+        try {
+            // Получаем дату закрытия эссе (если задана)
+            const essaySetting = await SettingsModel.findOne({
+                where: { key: 'essay_close_date' }
+            });
+
+            let essayDeadlineText = null;
+            if (essaySetting && essaySetting.value) {
+                const deadline = new Date(essaySetting.value);
+                if (!isNaN(deadline.getTime())) {
+                    const day = String(deadline.getDate()).padStart(2, '0');
+                    const month = String(deadline.getMonth() + 1).padStart(2, '0');
+                    const year = deadline.getFullYear();
+                    const hours = String(deadline.getHours()).padStart(2, '0');
+                    const minutes = String(deadline.getMinutes()).padStart(2, '0');
+                    essayDeadlineText = `${day}.${month}.${year} ${hours}:${minutes} (по местному времени)`;
+                }
+            }
+
+            // Ищем участников без эссе
+            const participants = await UserModel.findAll({
+                where: {
+                    role: 'participant',
+                    isActivated: true,
+                    [Op.or]: [
+                        { essayUrl: null },
+                        { essayUrl: '' }
+                    ],
+                    [Op.or]: [
+                        { participation_format: 'individual' },
+                        {
+                            participation_format: 'team',
+                            isLead: true
+                        }
+                    ]
+                },
+                attributes: ['id', 'email', 'participation_format', 'isLead']
+            });
+
+            if (!participants.length) {
+                return res.json({
+                    success: true,
+                    message: 'Нет участников без прикрепленного эссе, письма не отправлены',
+                    data: { sent: 0 }
+                });
+            }
+
+            const profileLink = `${process.env.URL}/profile`;
+            let sentCount = 0;
+            const errors = [];
+
+            for (const participant of participants) {
+                if (!participant.email) {
+                    errors.push(`Пользователь ID ${participant.id} не имеет email, письмо не отправлено`);
+                    continue;
+                }
+
+                try {
+                    await mailService.sendEssayReminderMail(
+                        participant.email,
+                        essayDeadlineText,
+                        profileLink
+                    );
+                    sentCount += 1;
+                } catch (err) {
+                    console.error('Ошибка отправки письма-напоминания об эссе:', err);
+                    errors.push(`Не удалось отправить письмо на ${participant.email}`);
+                }
+            }
+
+            return res.json({
+                success: true,
+                message: `Письма-напоминания отправлены ${sentCount} участникам`,
+                data: {
+                    sent: sentCount,
+                    totalCandidates: participants.length,
+                    errors
+                }
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Отправить письма участникам с командным форматом, которые не состоят в команде
+     */
+    async sendTeamFormatWithoutTeamReminders(req, res, next) {
+        try {
+            const participants = await UserModel.findAll({
+                where: {
+                    role: 'participant',
+                    isActivated: true,
+                    participation_format: 'team',
+                    teamId: null
+                },
+                attributes: ['id', 'email']
+            });
+
+            if (!participants.length) {
+                return res.json({
+                    success: true,
+                    message: 'Нет участников с командным форматом без команды, письма не отправлены',
+                    data: { sent: 0 }
+                });
+            }
+
+            const profileLink = `${process.env.URL}/profile`;
+            let sentCount = 0;
+            const errors = [];
+
+            for (const participant of participants) {
+                if (!participant.email) {
+                    errors.push(`Пользователь ID ${participant.id} не имеет email, письмо не отправлено`);
+                    continue;
+                }
+
+                try {
+                    await mailService.sendTeamWithoutTeamReminderMail(
+                        participant.email,
+                        profileLink
+                    );
+                    sentCount += 1;
+                } catch (err) {
+                    console.error('Ошибка отправки письма участнику без команды:', err);
+                    errors.push(`Не удалось отправить письмо на ${participant.email}`);
+                }
+            }
+
+            return res.json({
+                success: true,
+                message: `Письма участникам с командным форматом без команды отправлены ${sentCount} участникам`,
+                data: {
+                    sent: sentCount,
+                    totalCandidates: participants.length,
+                    errors
                 }
             });
         } catch (e) {

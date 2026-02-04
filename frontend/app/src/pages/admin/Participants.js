@@ -15,6 +15,8 @@ const Participants = () => {
     const [activeTab, setActiveTab] = useState('participants'); // 'participants', 'teams' или 'individual'
     const [editingPlace, setEditingPlace] = useState(null); // ID участника, чье место редактируется
     const [placeValue, setPlaceValue] = useState(''); // Значение редактируемого места
+    const [sendingEssayReminders, setSendingEssayReminders] = useState(false); // Статус отправки напоминаний об эссе
+    const [sendingTeamFormatWithoutTeam, setSendingTeamFormatWithoutTeam] = useState(false); // Статус отправки писем участникам с командным форматом без команды
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -60,6 +62,52 @@ const Participants = () => {
             setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка загрузки участников' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Отправка писем-напоминаний об эссе
+    const handleSendEssayReminders = async () => {
+        try {
+            setSendingEssayReminders(true);
+            setNotification({ type: null, message: '' });
+
+            const response = await ParticipantsService.sendEssayReminders();
+            const message = response?.data?.message || 'Напоминания об эссе отправлены';
+
+            setNotification({
+                type: 'success',
+                message
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при отправке напоминаний об эссе'
+            });
+        } finally {
+            setSendingEssayReminders(false);
+        }
+    };
+
+    // Отправка писем участникам с командным форматом без команды
+    const handleSendTeamFormatWithoutTeamReminders = async () => {
+        try {
+            setSendingTeamFormatWithoutTeam(true);
+            setNotification({ type: null, message: '' });
+
+            const response = await ParticipantsService.sendTeamFormatWithoutTeamReminders();
+            const message = response?.data?.message || 'Письма участникам без команды отправлены';
+
+            setNotification({
+                type: 'success',
+                message
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при отправке писем участникам без команды'
+            });
+        } finally {
+            setSendingTeamFormatWithoutTeam(false);
         }
     };
 
@@ -253,18 +301,42 @@ const Participants = () => {
                     <h1 className="admin-page-title">Участники</h1>
                     <p className="admin-page-subtitle">Управление зарегистрированными участниками</p>
                 </div>
-                <button 
-                    className="btn btn-primary btn-with-icon"
-                    onClick={handleExport}
-                    disabled={exporting}
-                >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    {exporting ? 'Экспорт...' : 'Экспорт в Excel'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button 
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={handleSendTeamFormatWithoutTeamReminders}
+                        disabled={sendingTeamFormatWithoutTeam}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h16v13H5.17L4 18.17z"/>
+                            <polyline points="8 9 12 13 16 9"/>
+                        </svg>
+                        {sendingTeamFormatWithoutTeam ? 'Отправка напоминаний...' : 'Напомнить без команды'}
+                    </button>
+                    <button 
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={handleSendEssayReminders}
+                        disabled={sendingEssayReminders}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h16v13H5.17L4 18.17z"/>
+                            <polyline points="8 9 12 13 16 9"/>
+                        </svg>
+                        {sendingEssayReminders ? 'Отправка напоминаний...' : 'Напомнить об эссе'}
+                    </button>
+                    <button 
+                        className="btn btn-primary btn-with-icon"
+                        onClick={handleExport}
+                        disabled={exporting}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        {exporting ? 'Экспорт...' : 'Экспорт в Excel'}
+                    </button>
+                </div>
             </div>
 
 
