@@ -28,8 +28,7 @@ const RegisterPage = observer(() => {
         participation_format: ''
     });
 
-    const [parentConsent, setParentConsent] = useState(false);
-    const [participantConsent, setParticipantConsent] = useState(false);
+    const [consent, setConsent] = useState(false);
 
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState({ type: null, message: '' });
@@ -239,21 +238,13 @@ const RegisterPage = observer(() => {
                 [name]: []
             }));
         }
-        // Сбрасываем согласия при изменении даты рождения
+        // Сбрасываем согласие при изменении даты рождения
         if (name === 'birthday') {
-            setParentConsent(false);
-            setParticipantConsent(false);
-            if (errors.parentConsent) {
+            setConsent(false);
+            if (errors.consent) {
                 setErrors(prev => {
                     const newErrors = { ...prev };
-                    delete newErrors.parentConsent;
-                    return newErrors;
-                });
-            }
-            if (errors.participantConsent) {
-                setErrors(prev => {
-                    const newErrors = { ...prev };
-                    delete newErrors.participantConsent;
+                    delete newErrors.consent;
                     return newErrors;
                 });
             }
@@ -355,15 +346,13 @@ const RegisterPage = observer(() => {
                 phoneToSend = '7' + phoneToSend;
             }
             
-            // Проверяем согласие в зависимости от возраста
+            // Проверяем согласие
             const age = calculateAge(formData.birthday);
-            if (age !== null && age < 18 && !parentConsent) {
-                setErrors({ parentConsent: ['Необходимо согласие родителя'] });
-                setIsLoading(false);
-                return;
-            }
-            if (age !== null && age >= 18 && !participantConsent) {
-                setErrors({ participantConsent: ['Необходимо ваше согласие'] });
+            if (age !== null && !consent) {
+                const errorMessage = age < 18 
+                    ? 'Необходимо согласие родителя' 
+                    : 'Необходимо ваше согласие';
+                setErrors({ consent: [errorMessage] });
                 setIsLoading(false);
                 return;
             }
@@ -371,8 +360,7 @@ const RegisterPage = observer(() => {
             const dataToSend = {
                 ...formData,
                 phone: phoneToSend ? `+${phoneToSend}` : '',
-                parentConsent: age !== null && age < 18 ? parentConsent : false,
-                participantConsent: age !== null && age >= 18 ? participantConsent : false
+                consent: consent
             };
             
             await store.registration(dataToSend);
@@ -746,18 +734,18 @@ const RegisterPage = observer(() => {
                                 )}
                             </div>
 
-                            {formData.birthday && isMinor() && (
+                            {formData.birthday && (
                                 <div className="register-checkbox-group">
                                     <label className="register-checkbox">
                                         <input
                                             type="checkbox"
-                                            checked={parentConsent}
+                                            checked={consent}
                                             onChange={(e) => {
-                                                setParentConsent(e.target.checked);
-                                                if (errors.parentConsent) {
+                                                setConsent(e.target.checked);
+                                                if (errors.consent) {
                                                     setErrors(prev => {
                                                         const newErrors = { ...prev };
-                                                        delete newErrors.parentConsent;
+                                                        delete newErrors.consent;
                                                         return newErrors;
                                                     });
                                                 }
@@ -765,58 +753,36 @@ const RegisterPage = observer(() => {
                                         />
                                         <span className="register-checkbox-mark"></span>
                                         <span className="register-checkbox-label">
-                                            Являюсь родителем (законным представителем) участника и согласен на{' '}
-                                            <a 
-                                                href="/consent" 
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                обработку его персональных данных
-                                            </a>
+                                            {isMinor() ? (
+                                                <>
+                                                    Являюсь родителем (законным представителем) участника и согласен на{' '}
+                                                    <a 
+                                                        href="/consent" 
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        обработку его персональных данных
+                                                    </a>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Согласен на{' '}
+                                                    <a 
+                                                        href="/participant-consent" 
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        обработку моих персональных данных
+                                                    </a>
+                                                </>
+                                            )}
                                         </span>
                                     </label>
-                                    {errors.parentConsent && (
+                                    {errors.consent && (
                                         <div className="register-error">
-                                            {errors.parentConsent[0]}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {formData.birthday && isAdult() && (
-                                <div className="register-checkbox-group">
-                                    <label className="register-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            checked={participantConsent}
-                                            onChange={(e) => {
-                                                setParticipantConsent(e.target.checked);
-                                                if (errors.participantConsent) {
-                                                    setErrors(prev => {
-                                                        const newErrors = { ...prev };
-                                                        delete newErrors.participantConsent;
-                                                        return newErrors;
-                                                    });
-                                                }
-                                            }}
-                                        />
-                                        <span className="register-checkbox-mark"></span>
-                                        <span className="register-checkbox-label">
-                                            Согласен на{' '}
-                                            <a 
-                                                href="/participant-consent" 
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                обработку моих персональных данных
-                                            </a>
-                                        </span>
-                                    </label>
-                                    {errors.participantConsent && (
-                                        <div className="register-error">
-                                            {errors.participantConsent[0]}
+                                            {errors.consent[0]}
                                         </div>
                                     )}
                                 </div>

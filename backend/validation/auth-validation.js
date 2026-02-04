@@ -94,7 +94,7 @@ const registrationValidation = [
         .notEmpty().withMessage('Формат участия обязателен')
         .isIn(['individual', 'team']).withMessage('Неверный формат участия. Допустимо: individual или team'),
     
-    body('parentConsent')
+    body('consent')
         .custom((value) => {
             if (value !== true) {
                 throw new Error('Необходимо дать согласие на обработку персональных данных');
