@@ -24,11 +24,51 @@ const Gallery = () => {
 
     const openImage = (image) => {
         setSelectedImage(image);
+        // Блокируем скролл body при открытии модалки
+        document.body.style.overflow = 'hidden';
     };
 
     const closeImage = () => {
         setSelectedImage(null);
+        // Восстанавливаем скролл body
+        document.body.style.overflow = '';
     };
+
+    const navigateImage = (direction) => {
+        if (!selectedImage || images.length === 0) return;
+        
+        const currentIndex = images.findIndex(img => img.id === selectedImage.id);
+        let newIndex;
+        
+        if (direction === 'prev') {
+            newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
+        } else {
+            newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
+        }
+        
+        setSelectedImage(images[newIndex]);
+    };
+
+    // Клавиатурная навигация
+    useEffect(() => {
+        if (!selectedImage) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                closeImage();
+            } else if (e.key === 'ArrowLeft') {
+                navigateImage('prev');
+            } else if (e.key === 'ArrowRight') {
+                navigateImage('next');
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = '';
+        };
+    }, [selectedImage, images]);
 
     if (loading) {
         return (
@@ -92,13 +132,51 @@ const Gallery = () => {
 
                 {selectedImage && (
                     <div className="gallery-modal" onClick={closeImage}>
-                        <div className="modal-content">
+                        <button 
+                            className="gallery-modal-close"
+                            onClick={closeImage}
+                            aria-label="Закрыть"
+                        >
+                            ✕
+                        </button>
+
+                        <button 
+                            className="gallery-modal-nav gallery-modal-prev"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigateImage('prev');
+                            }}
+                            aria-label="Предыдущее фото"
+                        >
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+
+                        <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
                             <img 
                                 src={selectedImage.url} 
                                 alt={selectedImage.description || selectedImage.filename}
-                                onClick={closeImage}
                             />
+                            {selectedImage.description && (
+                                <div className="gallery-modal-description">
+                                    {selectedImage.description}
+                                </div>
+                            )}
                         </div>
+
+                        <button 
+                            className="gallery-modal-nav gallery-modal-next"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigateImage('next');
+                            }}
+                            aria-label="Следующее фото"
+                        >
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
                     </div>
                 )}
             </div>
