@@ -42,5 +42,19 @@ export default class ResultsService {
     static async deleteResult(id) {
         return $api.delete(`/admin/results/${id}`);
     }
+
+    /**
+     * Автоматически создать результаты из участников с расставленными местами (админ)
+     */
+    static async createResultsFromParticipants(year) {
+        return $api.post('/admin/results/from-participants', { year });
+    }
+
+    /**
+     * Отправить письма победителям (админ)
+     */
+    static async sendWinnerNotifications() {
+        return $api.post('/admin/results/send-winner-notifications');
+    }
 }
 

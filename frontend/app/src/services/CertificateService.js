@@ -81,6 +81,11 @@ class CertificateService {
             responseType: 'blob'
         });
     }
+
+    // Отправка писем участникам о выдаче сертификатов (всем с выданными сертификатами)
+    async sendCertificateNotifications() {
+        return $api.post('/admin/certificates/send-notifications');
+    }
 }
 
 export default new CertificateService();

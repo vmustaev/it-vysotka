@@ -22,6 +22,11 @@ const Certificates = () => {
     const [selectedParticipants, setSelectedParticipants] = useState([]);
     const [showInteractive, setShowInteractive] = useState(true);
     const [fontUploaded, setFontUploaded] = useState(false);
+    const [sendingNotifications, setSendingNotifications] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterGrade, setFilterGrade] = useState('');
+    const [filterFormat, setFilterFormat] = useState('');
+    const [showOnlyWithoutCertificate, setShowOnlyWithoutCertificate] = useState(false);
     
     // Refs для отслеживания blob URLs для правильной очистки
     const templateUrlRef = useRef(null);
@@ -195,19 +200,14 @@ const Certificates = () => {
             return;
         }
 
-        if (!selectedParticipant) {
-            setNotification({ type: 'error', message: 'Выберите участника' });
-            return;
-        }
-
         try {
             setLoading(true);
             
             // Сначала сохраняем настройки
             await CertificateService.updateSettings(settings);
             
-            // Затем получаем финальный предпросмотр с текстом
-            const response = await CertificateService.preview(selectedParticipant);
+            // Затем получаем финальный предпросмотр с текстом (без participantId = используется тестовый "Иванов Иван")
+            const response = await CertificateService.preview();
             
             // Создаем URL для blob
             const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -299,6 +299,86 @@ const Certificates = () => {
         }
     };
 
+    const handleSendCertificateNotifications = async () => {
+        try {
+            setSendingNotifications(true);
+            const response = await CertificateService.sendCertificateNotifications();
+            
+            setNotification({ 
+                type: 'success', 
+                message: response.data.message || 'Письма о сертификатах отправлены' 
+            });
+        } catch (e) {
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка отправки уведомлений' });
+        } finally {
+            setSendingNotifications(false);
+        }
+    };
+
+    const handleIssueAllCertificates = async () => {
+        if (!hasTemplate) {
+            setNotification({ type: 'error', message: 'Сначала загрузите шаблон' });
+            return;
+        }
+
+        const participantsWithoutCertificates = filteredParticipants.filter(p => !p.certificateId);
+        
+        if (participantsWithoutCertificates.length === 0) {
+            setNotification({ type: 'error', message: 'Нет участников без сертификатов' });
+            return;
+        }
+
+        if (!window.confirm(`Выдать сертификаты всем участникам (${participantsWithoutCertificates.length} чел.)?`)) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const allIds = participantsWithoutCertificates.map(p => p.id);
+            const response = await CertificateService.issueCertificates(allIds);
+            
+            setNotification({ 
+                type: 'success', 
+                message: `Выдано сертификатов: ${response.data.data.success} из ${response.data.data.total}` 
+            });
+
+            await loadParticipants();
+            setSelectedParticipants([]);
+        } catch (e) {
+            setNotification({ type: 'error', message: e.response?.data?.message || 'Ошибка выдачи сертификатов' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Фильтрация участников
+    const filteredParticipants = participants.filter(participant => {
+        // Поиск по ФИО
+        if (searchQuery) {
+            const fullName = `${participant.last_name} ${participant.first_name} ${participant.second_name || ''}`.toLowerCase();
+            if (!fullName.includes(searchQuery.toLowerCase())) {
+                return false;
+            }
+        }
+
+        // Фильтр по классу
+        if (filterGrade && participant.grade !== parseInt(filterGrade)) {
+            return false;
+        }
+
+        // Фильтр по формату участия
+        if (filterFormat && participant.participation_format !== filterFormat) {
+            return false;
+        }
+
+        // Показывать только без сертификата
+        if (showOnlyWithoutCertificate && participant.certificateId) {
+            return false;
+        }
+
+        return true;
+    });
+
     return (
         <div className="admin-page">
             <div className="admin-page-header">
@@ -372,115 +452,7 @@ const Certificates = () => {
 
             {hasTemplate && (
                 <>
-                    <div className="admin-section" style={{ marginBottom: '2rem' }}>
-                        <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Выдача сертификатов участникам</h2>
-                        
-                        <div style={{ marginBottom: '1rem' }}>
-                            <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                                Выберите участников, которым нужно выдать сертификаты. Сертификаты будут сгенерированы и сохранены, после чего участники смогут скачать их в своих профилях.
-                            </p>
-                            
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                                <button 
-                                    className="btn btn-outline btn-sm"
-                                    onClick={() => {
-                                        const allChecked = participants.length === participants.filter(p => selectedParticipants.includes(p.id)).length;
-                                        if (allChecked) {
-                                            setSelectedParticipants([]);
-                                        } else {
-                                            setSelectedParticipants(participants.map(p => p.id));
-                                        }
-                                    }}
-                                    disabled={loading}
-                                >
-                                    {participants.length === selectedParticipants.length ? 'Снять все' : 'Выбрать всех'}
-                                </button>
-                                
-                                <button 
-                                    className="btn btn-primary btn-with-icon"
-                                    onClick={handleIssueCertificates}
-                                    disabled={loading || selectedParticipants.length === 0}
-                                >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <circle cx="12" cy="8" r="7"/>
-                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
-                                    </svg>
-                                    Выдать сертификаты ({selectedParticipants.length})
-                                </button>
-                            </div>
-
-                            <div style={{ 
-                                maxHeight: '400px', 
-                                overflowY: 'auto', 
-                                border: '1px solid var(--border)', 
-                                borderRadius: 'var(--radius)',
-                                backgroundColor: 'var(--bg-primary)'
-                            }}>
-                                {participants.length > 0 ? (
-                                    <div>
-                                        {participants.map((participant) => (
-                                            <label 
-                                                key={participant.id}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    padding: '1rem',
-                                                    borderBottom: '1px solid var(--border)',
-                                                    cursor: 'pointer',
-                                                    transition: 'background-color 0.2s',
-                                                    backgroundColor: selectedParticipants.includes(participant.id) ? 'var(--bg-secondary)' : 'transparent'
-                                                }}
-                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
-                                                onMouseLeave={(e) => {
-                                                    if (!selectedParticipants.includes(participant.id)) {
-                                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                                    }
-                                                }}
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedParticipants.includes(participant.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setSelectedParticipants([...selectedParticipants, participant.id]);
-                                                        } else {
-                                                            setSelectedParticipants(selectedParticipants.filter(id => id !== participant.id));
-                                                        }
-                                                    }}
-                                                    disabled={loading}
-                                                    style={{ marginRight: '1rem', cursor: 'pointer', width: '18px', height: '18px' }}
-                                                />
-                                                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span>
-                                                        {participant.last_name} {participant.first_name} {participant.second_name || ''}
-                                                    </span>
-                                                    {participant.certificateId && (
-                                                        <span style={{ 
-                                                            color: 'var(--success)', 
-                                                            fontSize: '0.875rem',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '0.25rem'
-                                                        }}>
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                                <polyline points="20 6 9 17 4 12"/>
-                                                            </svg>
-                                                            Выдан
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </label>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                        Нет участников
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
+                    {/* Настройка параметров текста */}
                     <div className="admin-section" style={{ marginBottom: '2rem' }}>
                         <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Настройка параметров текста</h2>
                         
@@ -524,82 +496,260 @@ const Certificates = () => {
                         </button>
                     </div>
 
+                    {/* Предпросмотр сертификата */}
                     <div className="admin-section" style={{ marginBottom: '2rem' }}>
-                        <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Предпросмотр</h2>
+                        <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Предпросмотр сертификата</h2>
                         
-                        {templatePreviewUrl && (
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                {!showInteractive && (
-                                    <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
-                                        <button 
-                                            className="btn btn-sm btn-outline"
-                                            onClick={() => setShowInteractive(true)}
-                                        >
-                                            Вернуться к настройке
-                                        </button>
+                        <div style={{ marginBottom: '1rem' }}>
+                            {showInteractive && templatePreviewUrl && (
+                                <CertificatePreview
+                                    templateUrl={templatePreviewUrl}
+                                    textY={settings.textY}
+                                    templateHeight={templateSize.height}
+                                    onTextYChange={(newY) => handleSettingsChange('textY', newY)}
+                                />
+                            )}
+
+                            {!showInteractive && finalPreviewUrl && (
+                                <div>
+                                    <button 
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => setShowInteractive(true)}
+                                        style={{ marginBottom: '1rem' }}
+                                    >
+                                        ← Вернуться к настройке
+                                    </button>
+                                    <iframe
+                                        src={finalPreviewUrl}
+                                        style={{
+                                            width: '100%',
+                                            height: '600px',
+                                            border: '1px solid var(--border)',
+                                            borderRadius: 'var(--radius)'
+                                        }}
+                                        title="Финальный предпросмотр"
+                                    />
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                                {showInteractive && (
+                                    <button 
+                                        className="btn btn-primary btn-with-icon"
+                                        onClick={handlePreview}
+                                        disabled={loading}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        {loading ? 'Генерация...' : 'Финальный предпросмотр'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Выдача сертификатов */}
+                    <div className="admin-section" style={{ marginBottom: '2rem' }}>
+                        <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Выдача сертификатов участникам</h2>
+                        
+                        <div style={{ marginBottom: '1rem' }}>
+                            <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                                Выберите участников, которым нужно выдать сертификаты. Сертификаты будут сгенерированы и сохранены, после чего участники смогут скачать их в своих профилях.
+                            </p>
+                            
+                            {/* Фильтры */}
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                                gap: '1rem', 
+                                marginBottom: '1rem',
+                                padding: '1rem',
+                                background: 'var(--bg-secondary)',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)'
+                            }}>
+                                <input
+                                    type="text"
+                                    placeholder="Поиск по ФИО..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="form-input"
+                                    style={{ margin: 0 }}
+                                />
+                                
+                                <select
+                                    value={filterGrade}
+                                    onChange={(e) => setFilterGrade(e.target.value)}
+                                    className="form-select"
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">Все классы</option>
+                                    <option value="9">9 класс</option>
+                                    <option value="10">10 класс</option>
+                                    <option value="11">11 класс</option>
+                                </select>
+                                
+                                <select
+                                    value={filterFormat}
+                                    onChange={(e) => setFilterFormat(e.target.value)}
+                                    className="form-select"
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">Все форматы</option>
+                                    <option value="individual">Индивидуальное</option>
+                                    <option value="team">Командное</option>
+                                </select>
+                                
+                                <label style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.5rem',
+                                    cursor: 'pointer',
+                                    userSelect: 'none'
+                                }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={showOnlyWithoutCertificate}
+                                        onChange={(e) => setShowOnlyWithoutCertificate(e.target.checked)}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                    <span style={{ fontSize: '0.9rem' }}>Только без сертификата</span>
+                                </label>
+                            </div>
+                            
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <button 
+                                    className="btn btn-primary btn-with-icon"
+                                    onClick={handleIssueCertificates}
+                                    disabled={loading || selectedParticipants.length === 0}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="12" cy="8" r="7"/>
+                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                                    </svg>
+                                    Выдать выбранным ({selectedParticipants.length})
+                                </button>
+
+                                <button 
+                                    className="btn btn-secondary btn-with-icon"
+                                    onClick={handleSendCertificateNotifications}
+                                    disabled={sendingNotifications}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M4 4h16v13H5.17L4 18.17z"/>
+                                        <polyline points="22 6 12 13 2 6"/>
+                                    </svg>
+                                    {sendingNotifications ? 'Отправка писем...' : 'Отправить письма'}
+                                </button>
+                                
+                                <div style={{ 
+                                    marginLeft: 'auto', 
+                                    color: 'var(--text-secondary)', 
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '1rem'
+                                }}>
+                                    <span>Показано: {filteredParticipants.length} из {participants.length}</span>
+                                    <span>С сертификатом: {filteredParticipants.filter(p => p.certificateId).length}</span>
+                                </div>
+                            </div>
+
+                            {/* Таблица участников */}
+                            <div className="participants-table-container">
+                                {filteredParticipants.length > 0 ? (
+                                    <table className="participants-table">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: '50px', textAlign: 'center' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={filteredParticipants.length > 0 && filteredParticipants.every(p => selectedParticipants.includes(p.id))}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedParticipants(filteredParticipants.map(p => p.id));
+                                                            } else {
+                                                                setSelectedParticipants([]);
+                                                            }
+                                                        }}
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                </th>
+                                                <th>ФИО</th>
+                                                <th>Класс</th>
+                                                <th>Школа</th>
+                                                <th>Формат</th>
+                                                <th style={{ textAlign: 'center' }}>Сертификат</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredParticipants.map((participant) => (
+                                                <tr key={participant.id}>
+                                                    <td style={{ textAlign: 'center' }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedParticipants.includes(participant.id)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedParticipants([...selectedParticipants, participant.id]);
+                                                                } else {
+                                                                    setSelectedParticipants(selectedParticipants.filter(id => id !== participant.id));
+                                                                }
+                                                            }}
+                                                            style={{ cursor: 'pointer' }}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <div className="participant-name">
+                                                            {participant.last_name} {participant.first_name}
+                                                        </div>
+                                                    </td>
+                                                    <td>{participant.grade}</td>
+                                                    <td style={{ fontSize: 'var(--font-size-sm)' }}>
+                                                        {participant.school || '-'}
+                                                    </td>
+                                                    <td>
+                                                        {participant.participation_format === 'individual' ? (
+                                                            <span className="badge badge-info">Индивидуальный</span>
+                                                        ) : (
+                                                            <span className="badge badge-team">Командный</span>
+                                                        )}
+                                                    </td>
+                                                    <td style={{ textAlign: 'center' }}>
+                                                        {participant.certificateId ? (
+                                                            <span className="badge" style={{ 
+                                                                background: '#10b981', 
+                                                                color: 'white',
+                                                                padding: '4px 12px'
+                                                            }}>
+                                                                ✓ Выдан
+                                                            </span>
+                                                        ) : (
+                                                            <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                                                -
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="admin-placeholder">
+                                        <div className="admin-placeholder-icon">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                            </svg>
+                                        </div>
+                                        <h2>Участники не найдены</h2>
+                                        <p>Попробуйте изменить фильтры поиска</p>
                                     </div>
                                 )}
-
-                                {showInteractive ? (
-                                    <CertificatePreview 
-                                        templateUrl={templatePreviewUrl}
-                                        textY={settings.textY}
-                                        templateHeight={templateSize.height}
-                                        onTextYChange={(newY) => handleSettingsChange('textY', newY)}
-                                    />
-                                ) : finalPreviewUrl ? (
-                                    <div style={{ 
-                                        border: '1px solid var(--border)', 
-                                        borderRadius: 'var(--radius)',
-                                        overflow: 'hidden',
-                                        backgroundColor: 'var(--bg-secondary)'
-                                    }}>
-                                        <iframe
-                                            src={finalPreviewUrl}
-                                            style={{
-                                                width: '100%',
-                                                height: '600px',
-                                                border: 'none'
-                                            }}
-                                            title="Финальный предпросмотр сертификата"
-                                        />
-                                    </div>
-                                ) : null}
                             </div>
-                        )}
-
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label className="form-label">Выберите участника для финального предпросмотра</label>
-                            <select
-                                className="form-select"
-                                value={selectedParticipant || ''}
-                                onChange={(e) => setSelectedParticipant(parseInt(e.target.value))}
-                                style={{ maxWidth: '400px' }}
-                            >
-                                {participants.map(p => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.last_name} {p.first_name} {p.second_name || ''}
-                                    </option>
-                                ))}
-                            </select>
-            </div>
-
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button 
-                                className="btn btn-primary"
-                                onClick={handlePreview}
-                                disabled={loading || !selectedParticipant}
-                            >
-                                {loading ? 'Генерация...' : 'Финальный предпросмотр'}
-                            </button>
-
-                            <button 
-                                className="btn btn-outline"
-                                onClick={handleGenerateOne}
-                                disabled={loading || !selectedParticipant}
-                            >
-                                Скачать сертификат
-                            </button>
                         </div>
                     </div>
                 </>

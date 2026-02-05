@@ -124,6 +124,46 @@ class ResultsController {
             next(e);
         }
     }
+
+    /**
+     * Автоматически создать результаты из участников с расставленными местами (админ)
+     */
+    async createResultsFromParticipants(req, res, next) {
+        try {
+            const { year } = req.body;
+
+            if (!year) {
+                throw ApiError.BadRequest('Год обязателен для заполнения');
+            }
+
+            const result = await resultsService.createResultsFromParticipants(parseInt(year));
+
+            return res.json({
+                success: true,
+                data: result,
+                message: `Успешно создано результатов: ${result.count}. ${result.errors.length > 0 ? `Ошибок: ${result.errors.length}` : ''}`
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Отправить письма победителям (админ)
+     */
+    async sendWinnerNotifications(req, res, next) {
+        try {
+            const result = await resultsService.sendWinnerNotifications();
+
+            return res.json({
+                success: true,
+                data: result,
+                message: `Отправлено писем: ${result.sent} из ${result.total}. ${result.errors.length > 0 ? `Ошибок: ${result.errors.length}` : ''}`
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new ResultsController();

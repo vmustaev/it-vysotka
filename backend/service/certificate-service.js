@@ -232,19 +232,25 @@ class CertificateService {
     }
 
     // Генерация сертификата для участника
-    async generateCertificate(participantId) {
+    async generateCertificate(participantId = null) {
         try {
-            // Получаем данные участника
-            const participant = await User.findByPk(participantId);
-            if (!participant) {
-                throw ApiError.BadRequest('Участник не найден');
+            let fullName;
+            
+            // Если ID не указан, используем тестовое имя для предпросмотра
+            if (!participantId) {
+                fullName = 'Иванов Иван';
+            } else {
+                // Получаем данные участника
+                const participant = await User.findByPk(participantId);
+                if (!participant) {
+                    throw ApiError.BadRequest('Участник не найден');
+                }
+                // ФИО участника (только фамилия и имя)
+                fullName = `${participant.last_name} ${participant.first_name}`.trim();
             }
 
             // Получаем настройки сертификата
             const certificate = await this.getActiveTemplate();
-
-            // ФИО участника (только фамилия и имя)
-            const fullName = `${participant.last_name} ${participant.first_name}`.trim();
 
             // Загружаем шаблон
             const templateBytes = await fs.readFile(certificate.templatePath);
@@ -297,7 +303,7 @@ class CertificateService {
             // Возвращаем информацию
             return {
                 participant: {
-                    id: participant.id,
+                    id: participantId || null,
                     fullName: fullName
                 },
                 pdfBytes: pdfBytes

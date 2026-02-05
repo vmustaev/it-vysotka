@@ -106,6 +106,7 @@ router.get('/admin/certificates/preview/:participantId', authMiddleware, adminMi
 router.get('/admin/certificates/generate/:participantId', authMiddleware, adminMiddleware, certificateController.generateOne);
 router.post('/admin/certificates/generate-all', authMiddleware, adminMiddleware, certificateController.generateAll);
 router.post('/admin/certificates/issue', authMiddleware, adminMiddleware, certificateController.issueCertificates);
+router.post('/admin/certificates/send-notifications', authMiddleware, adminMiddleware, certificateController.sendCertificateNotifications);
 
 // Participant routes - Certificates
 router.get('/certificates/download/:participantId', authMiddleware, certificateController.downloadCertificate);
@@ -137,6 +138,8 @@ router.get('/results/year/:year', resultsController.getResultsByYear);
 // Admin routes - Results
 router.get('/admin/results', authMiddleware, adminMiddleware, resultsController.getAllResults);
 router.post('/admin/results', authMiddleware, adminMiddleware, resultsController.createResult);
+router.post('/admin/results/from-participants', authMiddleware, adminMiddleware, resultsController.createResultsFromParticipants);
+router.post('/admin/results/send-winner-notifications', authMiddleware, adminMiddleware, resultsController.sendWinnerNotifications);
 router.put('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.updateResult);
 router.delete('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.deleteResult);
 

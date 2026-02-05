@@ -120,25 +120,8 @@ class CertificateController {
     // Предпросмотр сертификата (для первого участника или текущего пользователя)
     async preview(req, res, next) {
         try {
-            // Можно использовать ID из параметров или взять первого участника
-            let participantId = req.params.participantId || req.user?.id;
-            
-            if (!participantId) {
-                // Берем первого активированного участника для предпросмотра
-                const User = require('../models/user-model');
-                const firstParticipant = await User.findOne({ 
-                    where: { isActivated: true },
-                    order: [['id', 'ASC']]
-                });
-                
-                if (!firstParticipant) {
-                    throw ApiError.BadRequest('Нет участников для предпросмотра');
-                }
-                
-                participantId = firstParticipant.id;
-            }
-            
-            const result = await certificateService.generateCertificate(participantId);
+            // Всегда используем null для предпросмотра - будет статичный текст "Иванов Иван"
+            const result = await certificateService.generateCertificate(null);
             
             // Отправляем PDF для предпросмотра
             res.setHeader('Content-Type', 'application/pdf');
@@ -202,6 +185,63 @@ class CertificateController {
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.filename)}"; filename*=UTF-8''${encodeURIComponent(result.filename)}`);
             res.send(Buffer.from(result.pdfBytes));
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    // Отправка писем участникам о выдаче сертификатов (админ)
+    async sendCertificateNotifications(req, res, next) {
+        try {
+            const UserModel = require('../models/user-model');
+            const mailService = require('../service/mail-service');
+
+            // Находим всех участников с выданными сертификатами
+            const participants = await UserModel.findAll({
+                where: {
+                    role: 'participant',
+                    isActivated: true,
+                    certificateId: { [require('sequelize').Op.ne]: null }
+                }
+            });
+
+            if (!participants || participants.length === 0) {
+                throw ApiError.BadRequest('Не найдено участников с выданными сертификатами');
+            }
+
+            const profileLink = `${process.env.URL}/profile`;
+            let sentCount = 0;
+            const errors = [];
+
+            for (const participant of participants) {
+                if (!participant.email) {
+                    errors.push(`Участник ${participant.last_name} ${participant.first_name} (ID: ${participant.id}) не имеет email`);
+                    continue;
+                }
+
+                try {
+                    const fullName = `${participant.last_name} ${participant.first_name}${participant.second_name ? ' ' + participant.second_name : ''}`;
+                    await mailService.sendCertificateIssuedMail(
+                        participant.email,
+                        fullName,
+                        profileLink
+                    );
+                    sentCount++;
+                } catch (error) {
+                    console.error(`Ошибка отправки письма участнику ${participant.email}:`, error);
+                    errors.push(`Не удалось отправить письмо на ${participant.email}: ${error.message}`);
+                }
+            }
+
+            return res.json({
+                success: true,
+                message: `Отправлено писем: ${sentCount} из ${participants.length}`,
+                data: {
+                    sent: sentCount,
+                    total: participants.length,
+                    errors: errors
+                }
+            });
         } catch (e) {
             next(e);
         }

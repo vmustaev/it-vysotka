@@ -10,6 +10,10 @@ const ResultsManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingResult, setEditingResult] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState({ show: false, resultId: null });
+    const [showAutoGenerateModal, setShowAutoGenerateModal] = useState(false);
+    const [autoGenerateYear, setAutoGenerateYear] = useState(new Date().getFullYear());
+    const [generatingFromParticipants, setGeneratingFromParticipants] = useState(false);
+    const [sendingWinnerNotifications, setSendingWinnerNotifications] = useState(false);
     const [formData, setFormData] = useState({
         year: new Date().getFullYear(),
         place: 1,
@@ -141,6 +145,61 @@ const ResultsManagement = () => {
         }
     };
 
+    const handleOpenAutoGenerateModal = () => {
+        setAutoGenerateYear(new Date().getFullYear());
+        setShowAutoGenerateModal(true);
+    };
+
+    const handleCloseAutoGenerateModal = () => {
+        setShowAutoGenerateModal(false);
+        setAutoGenerateYear(new Date().getFullYear());
+    };
+
+    const handleAutoGenerateFromParticipants = async () => {
+        try {
+            setGeneratingFromParticipants(true);
+            setNotification({ type: null, message: '' });
+
+            const response = await ResultsService.createResultsFromParticipants(autoGenerateYear);
+            
+            setNotification({ 
+                type: 'success', 
+                message: response.data.message || 'Результаты успешно созданы' 
+            });
+            
+            handleCloseAutoGenerateModal();
+            loadResults();
+        } catch (e) {
+            setNotification({ 
+                type: 'error', 
+                message: e.response?.data?.message || 'Ошибка автоматического создания результатов' 
+            });
+        } finally {
+            setGeneratingFromParticipants(false);
+        }
+    };
+
+    const handleSendWinnerNotifications = async () => {
+        try {
+            setSendingWinnerNotifications(true);
+            setNotification({ type: null, message: '' });
+
+            const response = await ResultsService.sendWinnerNotifications();
+            
+            setNotification({ 
+                type: 'success', 
+                message: response.data.message || 'Письма победителям успешно отправлены' 
+            });
+        } catch (e) {
+            setNotification({ 
+                type: 'error', 
+                message: e.response?.data?.message || 'Ошибка отправки писем победителям' 
+            });
+        } finally {
+            setSendingWinnerNotifications(false);
+        }
+    };
+
     const getPlaceName = (place) => {
         const placeNames = {
             1: 'Первое место',
@@ -175,12 +234,34 @@ const ResultsManagement = () => {
                     <h1 className="admin-page-title">Результаты чемпионата</h1>
                     <p className="admin-page-subtitle">Управление результатами по годам</p>
                 </div>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => handleOpenModal()}
-                >
-                    + Добавить результат
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={handleSendWinnerNotifications}
+                        disabled={sendingWinnerNotifications}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h16v13H5.17L4 18.17z"/>
+                            <polyline points="22 6 12 13 2 6"/>
+                        </svg>
+                        {sendingWinnerNotifications ? 'Отправка...' : 'Отправить письма победителям'}
+                    </button>
+                    <button
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={handleOpenAutoGenerateModal}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Создать из участников
+                    </button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => handleOpenModal()}
+                    >
+                        + Добавить результат
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -392,6 +473,80 @@ const ResultsManagement = () => {
                     message={notification.message}
                     onClose={() => setNotification({ type: null, message: '' })}
                 />
+            )}
+
+            {showAutoGenerateModal && (
+                <div className="modal-overlay" onClick={handleCloseAutoGenerateModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">Создать результаты из участников</h2>
+                            <button className="modal-close" onClick={handleCloseAutoGenerateModal}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ marginBottom: 'var(--spacing-lg)', color: 'var(--text-secondary)' }}>
+                                Система автоматически создаст результаты на основе участников с расставленными местами. 
+                                Будут созданы записи для каждого призового места (1, 2, 3) с информацией об участниках, школах и городах.
+                            </p>
+                            
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Год чемпионата <span style={{ color: 'red' }}>*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    value={autoGenerateYear}
+                                    onChange={(e) => setAutoGenerateYear(parseInt(e.target.value) || new Date().getFullYear())}
+                                    className="form-input"
+                                    min="2000"
+                                    max="2100"
+                                    required
+                                />
+                                <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: 'var(--spacing-xs)' }}>
+                                    Укажите год, за который создаются результаты
+                                </small>
+                            </div>
+
+                            <div style={{ 
+                                background: 'var(--bg-secondary)', 
+                                padding: 'var(--spacing-md)', 
+                                borderRadius: 'var(--border-radius-md)',
+                                marginTop: 'var(--spacing-lg)'
+                            }}>
+                                <h4 style={{ marginBottom: 'var(--spacing-sm)', fontSize: 'var(--font-size-md)' }}>
+                                    ⚠️ Внимание
+                                </h4>
+                                <ul style={{ marginLeft: 'var(--spacing-lg)', color: 'var(--text-secondary)' }}>
+                                    <li>Убедитесь, что места расставлены всем призерам во вкладке "Участники"</li>
+                                    <li>Если результаты для указанного года и места уже существуют, они будут пропущены</li>
+                                    <li>Данные берутся из профилей участников (ФИО, школа, город)</li>
+                                </ul>
+                            </div>
+
+                            <div className="form-actions" style={{ 
+                                display: 'flex', 
+                                gap: 'var(--spacing-md)', 
+                                marginTop: 'var(--spacing-xl)' 
+                            }}>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleAutoGenerateFromParticipants}
+                                    disabled={generatingFromParticipants}
+                                >
+                                    {generatingFromParticipants ? 'Создание...' : 'Создать результаты'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={handleCloseAutoGenerateModal}
+                                    disabled={generatingFromParticipants}
+                                >
+                                    Отмена
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {confirmDialog.show && (
