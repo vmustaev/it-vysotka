@@ -240,6 +240,8 @@ body {
 /* Info section - группировка по столбцам */
 .info-section {
     margin-bottom: 160px;
+    padding-top: 16px;
+    overflow: visible;
 }
 
 .info-grid {
@@ -248,7 +250,7 @@ body {
     gap: 24px;
     background: transparent;
     border-radius: 20px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .info-item {
@@ -266,7 +268,6 @@ body {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-8px);
     z-index: 1;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
     border-color: rgba(96, 165, 250, 0.4);
 }
 
@@ -409,7 +410,6 @@ body {
     padding-right: 40px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .sponsors-section::before {
@@ -451,14 +451,11 @@ body {
 }
 
 .sponsor-item img {
-    max-width: 90%;
-    max-height: 90%;
-    width: auto;
-    height: auto;
+    position: absolute;
+    width: 85%;
+    height: 85%;
     object-fit: contain;
-    position: relative;
     z-index: 1;
-    transform: scale(1.2);
 }
 
 /* Пустое состояние партнеров */
@@ -649,16 +646,20 @@ body {
 
     .sponsors-section {
         padding: 80px 0 100px;
-        margin: 0 -24px;
+        margin: 0;
         padding-left: 24px;
         padding-right: 24px;
         border-radius: 32px;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        width: 100%;
     }
 
     .sponsors-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
         margin-top: 40px;
+        min-width: 0;
     }
 
     .sponsors-empty {
@@ -692,10 +693,7 @@ body {
     .sponsor-item {
         padding: 16px;
         border-radius: 16px;
-    }
-
-    .sponsor-item img {
-        transform: scale(1.3);
+        min-width: 0;
     }
 }
 
@@ -719,15 +717,19 @@ body {
     }
 
     .sponsors-section {
-        padding: 60px 0 80px;
+        margin: 0;
+        padding: 60px 24px 80px;
         border-radius: 24px;
     }
 
     .sponsors-container {
         grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 32px;
     }
 
     .sponsor-item {
-        padding: 32px 24px;
+        padding: 20px 16px;
+        aspect-ratio: 2/1;
     }
 }
