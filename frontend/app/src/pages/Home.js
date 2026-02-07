@@ -71,11 +71,37 @@ const Home = () => {
         return null;
     }
 
+    const currentYear = new Date().getFullYear();
+
+    // Создаем шарики для фона
+    const particles = Array.from({ length: 6 }, (_, i) => ({
+        id: i,
+        startX: `${Math.random() * 100}%`,
+        startY: `${Math.random() * 100}%`,
+        duration: 40 + Math.random() * 20,
+        delay: Math.random() * 10
+    }));
+
     return (
         <div className="home-page">
             <div className="hero-wrapper">
-                <div className="hero-content">
-                    <h1 className="hero-title">IT-ВыСотка</h1>
+                <div className="particles-container">
+                    {particles.map((particle) => (
+                        <div
+                            key={particle.id}
+                            className="particle"
+                            style={{
+                                '--start-x': particle.startX,
+                                '--start-y': particle.startY,
+                                '--duration': `${particle.duration}s`,
+                                '--delay': `${particle.delay}s`
+                            }}
+                        />
+                    ))}
+                </div>
+                <div className="hero-wrapper-inner">
+                    <div className="hero-content">
+                        <h1 className="hero-title">IT-ВыСотка {currentYear}</h1>
                     
                     {registrationData?.championship_datetime && (
                         <div className="hero-event-info">
@@ -113,14 +139,22 @@ const Home = () => {
                     ) : (
                         <div className="hero-completed-section">
                             <div className="hero-completed-badge">
-                                Чемпионат успешно завершён
+                                Чемпионат {currentYear} успешно завершён
                             </div>
                             <Link to="/results" className="hero-cta hero-cta-results">
-                                Посмотреть результаты
+                                Посмотреть результаты последнего чемпионата
                                 <span className="cta-arrow">→</span>
                             </Link>
                         </div>
                     )}
+                    </div>
+                    <div className="hero-logo-container">
+                        <img 
+                            src="/assets/img/logo2.svg" 
+                            alt="IT-ВыСотка Logo" 
+                            className="hero-logo"
+                        />
+                    </div>
                 </div>
             </div>
 

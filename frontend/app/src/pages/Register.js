@@ -619,12 +619,12 @@ const RegisterPage = observer(() => {
                                     )}
                                 </div>
                                 <div className="register-form-group">
-                                    <label className="register-label">Город</label>
+                                    <label className="register-label">Населенный пункт</label>
                                     <SearchableSelect
                                         value={formData.city}
                                         onChange={handleCityChange}
                                         options={cities}
-                                        placeholder="Выберите город"
+                                        placeholder="Выберите населенный пункт"
                                         isLoading={isLoadingCities}
                                         disabled={!formData.region}
                                         error={isFieldInvalid('city')}
