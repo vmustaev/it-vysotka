@@ -73,32 +73,9 @@ const Home = () => {
 
     const currentYear = new Date().getFullYear();
 
-    // Создаем шарики для фона
-    const particles = Array.from({ length: 6 }, (_, i) => ({
-        id: i,
-        startX: `${Math.random() * 100}%`,
-        startY: `${Math.random() * 100}%`,
-        duration: 40 + Math.random() * 20,
-        delay: Math.random() * 10
-    }));
-
     return (
         <div className="home-page">
             <div className="hero-wrapper">
-                <div className="particles-container">
-                    {particles.map((particle) => (
-                        <div
-                            key={particle.id}
-                            className="particle"
-                            style={{
-                                '--start-x': particle.startX,
-                                '--start-y': particle.startY,
-                                '--duration': `${particle.duration}s`,
-                                '--delay': `${particle.delay}s`
-                            }}
-                        />
-                    ))}
-                </div>
                 <div className="hero-wrapper-inner">
                     <div className="hero-content">
                         <h1 className="hero-title">IT-ВыСотка {currentYear}</h1>
@@ -150,7 +127,7 @@ const Home = () => {
                     </div>
                     <div className="hero-logo-container">
                         <img 
-                            src="/assets/img/logo2.svg" 
+                            src="/assets/img/vstavka.png" 
                             alt="IT-ВыСотка Logo" 
                             className="hero-logo"
                         />

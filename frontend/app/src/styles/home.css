@@ -29,8 +29,8 @@ body {
     width: 100%;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 450px;
-    gap: 80px;
+    grid-template-columns: 1fr 700px;
+    gap: 0;
     align-items: center;
     position: relative;
     z-index: 2;
@@ -69,147 +69,17 @@ body {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 .hero-logo {
     width: 100%;
-    max-width: 450px;
+    max-width: 700px;
     height: auto;
     position: relative;
     z-index: 2;
-    animation: logoPulse 3s ease-in-out infinite,
-               logoRotate3D 8s ease-in-out infinite,
-               logoGlowPulse 2s ease-in-out infinite;
-    transform-style: preserve-3d;
-    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4))
-            drop-shadow(0 0 30px rgba(96, 165, 250, 0.3))
-            drop-shadow(0 0 45px rgba(147, 197, 253, 0.2));
-    opacity: 1;
 }
 
-.hero-logo-container::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: ripple 3s ease-out infinite;
-    z-index: 1;
-}
-
-.hero-logo-container::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 140%;
-    height: 140%;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: ripple 3s ease-out 1.5s infinite;
-    z-index: 0;
-}
-
-/* Большие цветные шарики как за стеклом (как в ВК) */
-.particles-container {
-    position: absolute;
-    top: -20%;
-    left: -10%;
-    width: 120%;
-    height: 140%;
-    overflow: visible;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.particle {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.6;
-    animation: particleFloat var(--duration, 60s) var(--delay, 0s) linear infinite;
-}
-
-/* Синие шарики */
-.particle:nth-child(1) {
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.6));
-    left: var(--start-x, 15%);
-    top: var(--start-y, 25%);
-}
-
-/* Фиолетовые шарики */
-.particle:nth-child(2) {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.7), rgba(124, 58, 237, 0.5));
-    left: var(--start-x, 70%);
-    top: var(--start-y, 15%);
-}
-
-/* Зеленые шарики */
-.particle:nth-child(3) {
-    width: 380px;
-    height: 380px;
-    background: radial-gradient(circle, rgba(34, 197, 94, 0.75), rgba(22, 163, 74, 0.55));
-    left: var(--start-x, 45%);
-    top: var(--start-y, 65%);
-}
-
-/* Синие большие */
-.particle:nth-child(4) {
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.7), rgba(59, 130, 246, 0.5));
-    left: var(--start-x, 80%);
-    top: var(--start-y, 70%);
-}
-
-/* Фиолетовые средние */
-.particle:nth-child(5) {
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.75), rgba(139, 92, 246, 0.55));
-    left: var(--start-x, 25%);
-    top: var(--start-y, 80%);
-}
-
-/* Зеленые средние */
-.particle:nth-child(6) {
-    width: 360px;
-    height: 360px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.7), rgba(5, 150, 105, 0.5));
-    left: var(--start-x, 55%);
-    top: var(--start-y, 10%);
-}
-
-@keyframes particleFloat {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-    20% {
-        transform: translate(80px, -100px) scale(1.05);
-    }
-    40% {
-        transform: translate(-60px, 120px) scale(0.98);
-    }
-    60% {
-        transform: translate(100px, 80px) scale(1.02);
-    }
-    80% {
-        transform: translate(-80px, -60px) scale(1.03);
-    }
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-}
 
 @keyframes logoPulse {
     0%, 100% {
@@ -723,8 +593,11 @@ body {
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
+
+@media (max-width: 1450px) {
+    .hero-logo-container {
+        display: none;
+    }
     .hero-wrapper {
         padding: 100px 32px 60px;
     }
@@ -732,10 +605,6 @@ body {
     .hero-wrapper-inner {
         grid-template-columns: 1fr;
         gap: 40px;
-    }
-
-    .hero-logo-container {
-        display: none;
     }
 
     .content-wrapper {
