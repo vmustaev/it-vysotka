@@ -11,6 +11,8 @@ const PublicGallery = () => {
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
     const [error, setError] = useState(null);
+    const [years, setYears] = useState([]);
+    const [activeYear, setActiveYear] = useState(null);
 
     useEffect(() => {
         loadGallery();
@@ -23,11 +25,35 @@ const PublicGallery = () => {
             const response = await FileService.getFilesByType('gallery');
             
             // Фильтруем только изображения
-            const imageFiles = response.files.filter(file => 
+            const imageFiles = (response.files || []).filter(file => 
                 file.mimetype.startsWith('image/')
             );
             
             setImages(imageFiles);
+
+            // Формируем список годов для переключения
+            const yearSet = new Set();
+            let hasNoYear = false;
+
+            imageFiles.forEach(file => {
+                if (file.year) {
+                    yearSet.add(file.year);
+                } else {
+                    hasNoYear = true;
+                }
+            });
+
+            const sortedYears = Array.from(yearSet).sort((a, b) => b - a);
+            const yearsForTabs = [...sortedYears];
+
+            if (hasNoYear) {
+                yearsForTabs.push('no-year');
+            }
+
+            setYears(yearsForTabs);
+            if (yearsForTabs.length > 0) {
+                setActiveYear(yearsForTabs[0]);
+            }
         } catch (error) {
             console.error('Ошибка при загрузке галереи:', error);
             setError('Не удалось загрузить галерею');
@@ -56,6 +82,18 @@ const PublicGallery = () => {
 
         setSelectedImage(images[newIndex]);
     };
+
+    const getFilteredImages = () => {
+        if (!activeYear) return images;
+
+        if (activeYear === 'no-year') {
+            return images.filter(img => !img.year);
+        }
+
+        return images.filter(img => img.year === activeYear);
+    };
+
+    const filteredImages = getFilteredImages();
 
     if (loading) {
         return (
@@ -92,9 +130,24 @@ const PublicGallery = () => {
     return (
         <div className="gallery-container">
             <h2 className="gallery-title">Галерея</h2>
+
+            {/* Переключатель годов, как в результатах */}
+            {years.length > 0 && (
+                <div className="year-tabs" style={{ marginBottom: '24px' }}>
+                    {years.map(year => (
+                        <button
+                            key={year}
+                            className={`year-tab ${activeYear === year ? 'active' : ''}`}
+                            onClick={() => setActiveYear(year)}
+                        >
+                            {year === 'no-year' ? 'Год не указан' : year}
+                        </button>
+                    ))}
+                </div>
+            )}
             
             <div className="gallery-grid">
-                {images.map((image) => (
+                {filteredImages.map((image) => (
                     <div 
                         key={image.id} 
                         className="gallery-item"

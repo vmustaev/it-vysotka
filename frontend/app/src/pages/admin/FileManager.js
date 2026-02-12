@@ -339,7 +339,7 @@ const FileManager = () => {
                         </div>
                     )}
 
-                    {uploadType === 'tasks' && (
+                    {(uploadType === 'tasks' || uploadType === 'gallery') && (
                         <div className="form-group">
                             <label>Год:</label>
                             <input
@@ -540,6 +540,11 @@ const FileManager = () => {
                                                             />
                                                         </div>
                                                     </>
+                                                )}
+                                                {file.fileType === 'gallery' && selectedType === 'gallery' && file.year && (
+                                                    <div className="metadata-badge year">
+                                                        📅 {file.year} год
+                                                    </div>
                                                 )}
                                             </div>
                                             

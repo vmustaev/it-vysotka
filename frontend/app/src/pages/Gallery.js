@@ -5,6 +5,8 @@ const Gallery = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [years, setYears] = useState([]);
+    const [activeYear, setActiveYear] = useState(null);
 
     useEffect(() => {
         loadGallery();
@@ -14,7 +16,34 @@ const Gallery = () => {
         try {
             setLoading(true);
             const response = await FileService.getFilesByType('gallery');
-            setImages(response.files);
+            const files = response.files || [];
+
+            setImages(files);
+
+            // Формируем список годов, как в результатах
+            const yearSet = new Set();
+            let hasNoYear = false;
+
+            files.forEach(file => {
+                if (file.year) {
+                    yearSet.add(file.year);
+                } else {
+                    hasNoYear = true;
+                }
+            });
+
+            const sortedYears = Array.from(yearSet).sort((a, b) => b - a);
+            const yearsForTabs = [...sortedYears];
+
+            if (hasNoYear) {
+                yearsForTabs.push('no-year');
+            }
+
+            setYears(yearsForTabs);
+
+            if (yearsForTabs.length > 0) {
+                setActiveYear(yearsForTabs[0]);
+            }
         } catch (error) {
             console.error('Ошибка при загрузке галереи:', error);
         } finally {
@@ -70,6 +99,18 @@ const Gallery = () => {
         };
     }, [selectedImage, images]);
 
+    const getFilteredImages = () => {
+        if (!activeYear) return images;
+
+        if (activeYear === 'no-year') {
+            return images.filter(img => !img.year);
+        }
+
+        return images.filter(img => img.year === activeYear);
+    };
+
+    const filteredImages = getFilteredImages();
+
     if (loading) {
         return (
             <div className="content-page">
@@ -98,8 +139,25 @@ const Gallery = () => {
                     </p>
                 </div>
                 
+                {/* Переключатель годов, как в результатах */}
+                {years.length > 0 && (
+                    <div className="results-section" style={{ paddingTop: 0 }}>
+                        <div className="year-tabs">
+                            {years.map(year => (
+                                <button
+                                    key={year}
+                                    className={`year-tab ${activeYear === year ? 'active' : ''}`}
+                                    onClick={() => setActiveYear(year)}
+                                >
+                                    {year === 'no-year' ? 'Год не указан' : year}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="content-section">
-                    {images.length === 0 ? (
+                    {filteredImages.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">
                                 <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -108,11 +166,11 @@ const Gallery = () => {
                                     <polyline points="21 15 16 10 5 21"/>
                                 </svg>
                             </div>
-                            <h3 className="empty-state-title">Фотографий пока нет</h3>
+                            <h3 className="empty-state-title">Фотографий для выбранного года пока нет</h3>
                         </div>
                     ) : (
                         <div className="gallery-grid">
-                            {images.map((image) => (
+                            {filteredImages.map((image) => (
                                 <div 
                                     key={image.id} 
                                     className="gallery-item"
