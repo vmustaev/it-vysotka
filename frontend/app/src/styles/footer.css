@@ -1,6 +1,5 @@
 @import './variables.css';
 
-/* Footer */
 .footer {
     background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
@@ -48,7 +47,6 @@
     text-decoration: underline;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .footer-content {
         flex-direction: column;

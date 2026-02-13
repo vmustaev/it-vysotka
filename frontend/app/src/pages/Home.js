@@ -36,8 +36,7 @@ const Home = () => {
             console.error('Ошибка при загрузке спонсоров:', error);
         }
     };
-
-    // Вся информация в одном массиве для отображения по столбцам
+    
     const allInfoData = [
         ...(registrationData?.championship_datetime ? [
             {

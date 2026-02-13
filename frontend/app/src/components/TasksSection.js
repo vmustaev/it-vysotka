@@ -3,8 +3,7 @@ import FileService from '../services/FileService';
 import '../styles/tasks-section.css';
 
 /**
- * Компонент для отображения заданий
- * @param {string} variant - вариант отображения: 'default' или 'results'
+ * @param {string} variant
  */
 const TasksSection = ({ variant = 'default' }) => {
     const [tasks, setTasks] = useState([]);
@@ -20,27 +19,23 @@ const TasksSection = ({ variant = 'default' }) => {
         try {
             setLoading(true);
             
-            // Сначала загружаем все задания чтобы получить годы
             if (availableYears.length === 0) {
                 const allTasksResponse = await FileService.getFilesByType('tasks', {});
                 const years = [...new Set(allTasksResponse.files.map(f => f.year).filter(y => y))];
                 const sortedYears = years.sort((a, b) => b - a);
                 setAvailableYears(sortedYears);
                 
-                // Устанавливаем последний год по умолчанию для default варианта
                 if (variant !== 'results' && sortedYears.length > 0 && selectedYear === null) {
                     setSelectedYear(sortedYears[0]);
                     return;
                 }
                 
-                // Для варианта results устанавливаем последний год по умолчанию
                 if (variant === 'results' && sortedYears.length > 0 && !selectedYear) {
                     setSelectedYear(sortedYears[0]);
                     return;
                 }
             }
             
-            // Загружаем задания с фильтром по году
             const filters = selectedYear ? { year: selectedYear } : {};
             const response = await FileService.getFilesByType('tasks', filters);
             setTasks(response.files);
@@ -77,7 +72,6 @@ const TasksSection = ({ variant = 'default' }) => {
         );
     }
 
-    // Вариант для страницы Results
     if (variant === 'results') {
         return (
             <>
@@ -96,7 +90,6 @@ const TasksSection = ({ variant = 'default' }) => {
                 <div className="tasks-content">
                     <div className="tasks-grid">
                         {tasks.map((task, index) => {
-                            // Парсим description: первая строка = название, остальное = описание
                             const lines = (task.description || '').split('\n').filter(l => l.trim());
                             const title = lines[0] || task.filename;
                             const description = lines.slice(1).join(' ') || '';
@@ -126,7 +119,6 @@ const TasksSection = ({ variant = 'default' }) => {
         );
     }
 
-    // Вариант по умолчанию
     return (
         <div className="tasks-section">
             <div className="tasks-container">
@@ -147,7 +139,6 @@ const TasksSection = ({ variant = 'default' }) => {
                 <div className="tasks-content">
                     <div className="tasks-grid">
                         {tasks.map((task, index) => {
-                            // Парсим description: первая строка = название, остальное = описание
                             const lines = (task.description || '').split('\n').filter(l => l.trim());
                             const title = lines[0] || task.filename;
                             const description = lines.slice(1).join(' ') || '';

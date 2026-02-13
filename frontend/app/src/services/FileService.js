@@ -2,13 +2,12 @@ import http from '../http';
 
 class FileService {
     /**
-     * Загрузка файла (Admin)
-     * @param {File} file - Файл для загрузки
-     * @param {string} fileType - Тип файла (gallery, sponsors, certificates, tasks, regulations, results, other)
-     * @param {string} description - Описание файла (необязательно)
-     * @param {string} subType - Подтип файла (необязательно)
-     * @param {number} year - Год (необязательно, для заданий)
-     * @param {number} displayOrder - Порядок отображения (необязательно, для спонсоров)
+     * @param {File} file
+     * @param {string} fileType
+     * @param {string} description
+     * @param {string} subType
+     * @param {number} year
+     * @param {number} displayOrder
      * @returns {Promise}
      */
     async uploadFile(file, fileType, description = '', subType = '', year = null, displayOrder = 0) {
@@ -30,8 +29,7 @@ class FileService {
     }
 
     /**
-     * Получить все файлы (Admin)
-     * @param {Object} filters - Фильтры (fileType, isActive, uploadedBy)
+     * @param {Object} filters
      * @returns {Promise}
      */
     async getAllFiles(filters = {}) {
@@ -49,8 +47,7 @@ class FileService {
     }
 
     /**
-     * Получить файл по ID (Admin)
-     * @param {number} id - ID файла
+     * @param {number} id
      * @returns {Promise}
      */
     async getFileById(id) {
@@ -59,9 +56,8 @@ class FileService {
     }
 
     /**
-     * Получить файлы по типу (Public)
-     * @param {string} type - Тип файла
-     * @param {Object} filters - Фильтры (subType, year)
+     * @param {string} type
+     * @param {Object} filters
      * @returns {Promise}
      */
     async getFilesByType(type, filters = {}) {
@@ -77,9 +73,8 @@ class FileService {
     }
 
     /**
-     * Обновить информацию о файле (Admin)
-     * @param {number} id - ID файла
-     * @param {Object} updateData - Данные для обновления
+     * @param {number} id
+     * @param {Object} updateData
      * @returns {Promise}
      */
     async updateFile(id, updateData) {
@@ -88,8 +83,7 @@ class FileService {
     }
 
     /**
-     * Удалить файл (Admin)
-     * @param {number} id - ID файла
+     * @param {number} id
      * @returns {Promise}
      */
     async deleteFile(id) {
@@ -98,7 +92,6 @@ class FileService {
     }
 
     /**
-     * Получить статистику файлов (Admin)
      * @returns {Promise}
      */
     async getFileStats() {
@@ -107,8 +100,7 @@ class FileService {
     }
 
     /**
-     * Получить URL файла
-     * @param {string} savedFilename - Имя сохраненного файла
+     * @param {string} savedFilename
      * @returns {string}
      */
     getFileUrl(savedFilename) {

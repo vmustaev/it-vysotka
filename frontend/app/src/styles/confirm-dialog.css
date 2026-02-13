@@ -60,7 +60,6 @@
     min-width: 100px;
 }
 
-/* Анимации */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -81,7 +80,6 @@
     }
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .confirm-dialog {
         max-width: 90%;

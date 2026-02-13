@@ -21,7 +21,6 @@ const Regulations = () => {
             const response = await FileService.getFilesByType('regulations');
             const docs = response.files;
 
-            // Маппинг файлов по их именам
             const docsMap = {
                 roditeli: docs.find(d => d.filename.toLowerCase().includes('roditeli') || d.filename.toLowerCase().includes('родител')),
                 uchastniki: docs.find(d => d.filename.toLowerCase().includes('uchastniki') || d.filename.toLowerCase().includes('участник')),
@@ -40,7 +39,6 @@ const Regulations = () => {
     return (
         <div className="regulations-page">
             <div className="regulations-content">
-                {/* Hero секция */}
                 <div className="regulations-hero">
                     <h1 className="regulations-title">
                         Регламент чемпионата
@@ -50,10 +48,8 @@ const Regulations = () => {
                     </p>
                 </div>
 
-                {/* Основная информация */}
                 <div className="regulations-section">
                     <div className="regulations-grid">
-                        {/* Карточка 1 */}
                         <div className="regulation-card">
                             <div className="card-number">01</div>
                             <h3 className="card-title">Согласие для несовершеннолетних</h3>
@@ -90,7 +86,6 @@ const Regulations = () => {
                             )}
                         </div>
 
-                        {/* Карточка 2 */}
                         <div className="regulation-card">
                             <div className="card-number">02</div>
                             <h3 className="card-title">Согласие для совершеннолетних</h3>
@@ -127,7 +122,6 @@ const Regulations = () => {
                             )}
                         </div>
 
-                        {/* Карточка 3 */}
                         <div className="regulation-card">
                             <div className="card-number">03</div>
                             <h3 className="card-title">Порядок предоставления</h3>
@@ -141,7 +135,6 @@ const Regulations = () => {
                             </ul>
                         </div>
 
-                        {/* Карточка 4 */}
                         <div className="regulation-card">
                             <div className="card-number">04</div>
                             <h3 className="card-title">Допуск на чемпионат</h3>
@@ -156,7 +149,6 @@ const Regulations = () => {
                     </div>
                 </div>
 
-                {/* Важная информация */}
                 <div className="regulations-highlight">
                     <div className="highlight-badge">!</div>
                     <div className="highlight-content">

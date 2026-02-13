@@ -41,7 +41,6 @@ const Navbar = observer(() => {
                     <img src="/assets/img/logo.png" alt="IT-ВыСотка" />
                 </Link>
 
-                {/* Бургер-меню для мобильных устройств */}
                 <button 
                     className={`navbar-burger ${mobileMenuOpen ? 'active' : ''}`}
                     onClick={toggleMobileMenu}
@@ -52,12 +51,10 @@ const Navbar = observer(() => {
                     <span></span>
                 </button>
 
-                {/* Оверлей для затемнения фона */}
                 {mobileMenuOpen && (
                     <div className="navbar-overlay" onClick={closeMobileMenu}></div>
                 )}
 
-                {/* Навигационное меню */}
                 <div className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
                     <div className="navbar-links">
                         <Link to="/" className="navbar-link" onClick={closeMobileMenu}>Главная</Link>

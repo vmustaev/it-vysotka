@@ -1,6 +1,5 @@
 @import './variables.css';
 
-/* Основной контейнер */
 .home-page {
     min-height: 100vh;
     background: transparent;
@@ -14,7 +13,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Hero секция с фоновым изображением */
 .hero-wrapper {
     min-height: 100vh;
     display: flex;
@@ -154,7 +152,6 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Огромный заголовок */
 .hero-title {
     font-size: clamp(56px, 9vw, 120px);
     font-weight: 900;
@@ -215,7 +212,6 @@ body {
     backdrop-filter: blur(2px);
 }
 
-/* CTA кнопка */
 .hero-cta {
     display: inline-flex;
     align-items: center;
@@ -257,7 +253,6 @@ body {
     transform: translateX(4px);
 }
 
-/* Completed Championship Section */
 .hero-completed-section {
     display: flex;
     flex-direction: column;
@@ -309,7 +304,6 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Content wrapper */
 .content-wrapper {
     max-width: 1400px;
     margin: 0 auto;
@@ -319,7 +313,6 @@ body {
     margin-top: -1px;
 }
 
-/* Info section - группировка по столбцам */
 .info-section {
     margin-bottom: 160px;
     padding-top: 16px;
@@ -376,7 +369,6 @@ body {
     text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Benefits section */
 .benefits-section {
     margin-bottom: 160px;
     position: relative;
@@ -486,7 +478,6 @@ body {
     text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Sponsors section */
 .sponsors-section {
     padding: 120px 0 140px;
     background: rgba(255, 255, 255, 0.12);
@@ -547,7 +538,6 @@ body {
     z-index: 1;
 }
 
-/* Пустое состояние партнеров */
 .sponsors-empty {
     display: flex;
     flex-direction: column;

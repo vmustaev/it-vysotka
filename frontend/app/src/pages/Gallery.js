@@ -20,7 +20,6 @@ const Gallery = () => {
 
             setImages(files);
 
-            // Формируем список годов, как в результатах
             const yearSet = new Set();
             let hasNoYear = false;
 
@@ -53,13 +52,11 @@ const Gallery = () => {
 
     const openImage = (image) => {
         setSelectedImage(image);
-        // Блокируем скролл body при открытии модалки
         document.body.style.overflow = 'hidden';
     };
 
     const closeImage = () => {
         setSelectedImage(null);
-        // Восстанавливаем скролл body
         document.body.style.overflow = '';
     };
 
@@ -78,7 +75,6 @@ const Gallery = () => {
         setSelectedImage(images[newIndex]);
     };
 
-    // Клавиатурная навигация
     useEffect(() => {
         if (!selectedImage) return;
 
@@ -139,7 +135,6 @@ const Gallery = () => {
                     </p>
                 </div>
                 
-                {/* Переключатель годов, как в результатах */}
                 {years.length > 0 && (
                     <div className="results-section" style={{ paddingTop: 0 }}>
                         <div className="year-tabs">

@@ -64,12 +64,10 @@ const ResetPasswordRequest = () => {
             )}
             
             <div className="reset-content">
-                {/* Hero Section */}
                 <div className="reset-hero">
                     <h1 className="reset-title">Сброс пароля</h1>
                 </div>
 
-                {/* Form Card */}
                 <div className="reset-form-card">
                     <form onSubmit={handleSubmit} className="reset-form">
                         <div className="reset-form-group">

@@ -13,7 +13,6 @@
     text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
 }
 
-/* Сетка галереи */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -72,7 +71,6 @@
     font-weight: 600;
 }
 
-/* Состояния загрузки и ошибок */
 .gallery-loading,
 .gallery-error,
 .gallery-empty {
@@ -126,7 +124,6 @@
     background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
-/* Lightbox */
 .lightbox {
     position: fixed;
     top: 0;
@@ -230,7 +227,6 @@
     right: 20px;
 }
 
-/* Адаптивность */
 @media (max-width: 1200px) {
     .gallery-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

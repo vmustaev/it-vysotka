@@ -1,6 +1,5 @@
 @import './variables.css';
 
-/* Registration Closed Page */
 .registration-closed-page {
     min-height: 100vh;
     padding: 120px 40px 80px;
@@ -62,7 +61,6 @@
     font-weight: 900;
     color: #ffffff;
     box-shadow: 0 12px 40px rgba(239, 68, 68, 0.4);
-    animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -142,7 +140,6 @@
     transform: translateY(-2px);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .registration-closed-page {
         padding: 100px 24px 60px;
@@ -205,4 +202,3 @@
         font-size: 15px;
     }
 }
-

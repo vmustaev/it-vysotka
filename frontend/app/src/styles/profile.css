@@ -1,13 +1,11 @@
 @import './variables.css';
 
-/* Profile Page */
 .profile-page {
     min-height: 100vh;
     padding: 120px 40px 80px;
     background: transparent;
 }
 
-/* Состояние загрузки профиля */
 .profile-loading {
     display: flex;
     flex-direction: column;
@@ -55,7 +53,6 @@
     padding: 0 20px;
 }
 
-/* Hero Section */
 .profile-hero {
     text-align: center;
     margin-bottom: 60px;
@@ -77,13 +74,11 @@
     text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Sections */
 .profile-section {
     margin-bottom: 0;
     break-inside: avoid;
 }
 
-/* На мобильных добавляем отступ между секциями */
 @media (max-width: 1023px) {
 .profile-section {
     margin-bottom: 32px;
@@ -94,7 +89,6 @@
     }
 }
 
-/* Sections Grid Container - 2x2 Layout */
 .profile-sections-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -102,7 +96,6 @@
     width: 100%;
 }
 
-/* Desktop: строгий 2x2 grid */
 @media (min-width: 1024px) {
     .profile-sections-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -111,7 +104,6 @@
         align-items: stretch;
     }
     
-    /* Все секции занимают ровно 1 ячейку */
     .profile-section {
         grid-column: span 1;
         grid-row: span 1;
@@ -135,7 +127,6 @@
     margin-bottom: 20px;
 }
 
-/* Profile Card - одинаковая высота для всех */
 .profile-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -161,24 +152,19 @@
     border-bottom: none;
 }
 
-/* Аккордеон для дополнительной информации */
 .profile-main-info {
-    /* Основные поля всегда видны */
 }
 
 .profile-additional-info {
-    /* На десктопе - всегда видно, аккордеон скрыт */
 }
 
 .profile-accordion-toggle {
-    display: none; /* По умолчанию скрыто на десктопе */
+    display: none;
 }
 
 .profile-accordion-content {
-    /* На десктопе всегда видно */
 }
 
-/* На мобильных - показываем аккордеон */
 @media (max-width: 1023px) {
     .profile-accordion-toggle {
         display: flex;
@@ -240,24 +226,19 @@
     word-break: break-word;
 }
 
-/* Аккордеон для дополнительной информации */
 .profile-main-info {
-    /* Основные поля всегда видны */
 }
 
 .profile-additional-info {
-    /* На десктопе - всегда видно, аккордеон скрыт */
 }
 
 .profile-accordion-toggle {
-    display: none; /* По умолчанию скрыто на десктопе */
+    display: none;
 }
 
 .profile-accordion-content {
-    /* На десктопе всегда видно */
 }
 
-/* На мобильных - показываем аккордеон */
 @media (max-width: 1023px) {
     .profile-accordion-toggle {
         display: flex;
@@ -304,7 +285,6 @@
     }
 }
 
-/* Badges */
 .admin-badge {
     display: inline-block;
     padding: 6px 16px;
@@ -364,7 +344,6 @@
     box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
-/* Links */
 .certificate-link,
 .essay-link {
     color: #2563eb;
@@ -405,7 +384,6 @@
     color: #fff !important;
 }
 
-/* Results Empty State */
 .results-empty {
     text-align: center;
     padding: 40px 20px;
@@ -436,7 +414,6 @@
     line-height: 1.6;
 }
 
-/* Radio Group in Profile */
 .profile-radio-group {
     display: flex;
     gap: 20px;
@@ -448,7 +425,6 @@
     flex: 1 1 auto;
 }
 
-/* Если места не хватает - кнопки в столбик */
 @media (max-width: 1023px) {
     .profile-radio-group {
         flex-direction: column;
@@ -519,7 +495,6 @@
     white-space: normal;
 }
 
-/* Team Section - одинаковая высота */
 .team-empty {
     text-align: center;
     padding: 48px 32px;
@@ -590,7 +565,6 @@
     flex-wrap: wrap;
 }
 
-/* Team Info Card - одинаковая высота */
 .team-info-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -640,7 +614,6 @@
     flex: 1;
 }
 
-/* Team Members */
 .team-members {
     margin-bottom: 24px;
 }
@@ -697,13 +670,11 @@
     color: #64748b;
 }
 
-/* Team Actions */
 .team-actions {
     padding-top: 24px;
     border-top: 2px solid #e2e8f0;
 }
 
-/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -789,7 +760,6 @@
     }
 }
 
-/* Планшеты - тоже одна колонка */
 @media (min-width: 768px) and (max-width: 1023px) {
     .profile-section {
         margin-bottom: 32px;
@@ -800,7 +770,6 @@
     }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .profile-page {
         padding: 100px 24px 60px;

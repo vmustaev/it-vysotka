@@ -39,7 +39,6 @@ const Profile = () => {
         };
     }, []);
 
-    // Обработка URL параметров
     useEffect(() => {
         const joined = searchParams.get('joined');
         const joinError = searchParams.get('join_error');
@@ -55,7 +54,6 @@ const Profile = () => {
         }
     }, [searchParams, setSearchParams]);
 
-    // Загрузка профиля
     useEffect(() => {
         if (store.isAuth) {
             loadProfile();
@@ -63,7 +61,6 @@ const Profile = () => {
         }
     }, [store.isAuth]);
 
-    // Документ «Требования к эссе» для блока Эссе
     useEffect(() => {
         const loadEssayDoc = async () => {
             try {
@@ -98,7 +95,6 @@ const Profile = () => {
         });
     };
 
-    // Инициализация essayUrl при загрузке профиля
     useEffect(() => {
         if (profile && profile.essayUrl) {
             setEssayUrl(profile.essayUrl);
@@ -124,7 +120,6 @@ const Profile = () => {
         }
     };
 
-    // Единая функция для выполнения операций с автоматической обработкой уведомлений
     const executeAction = async (action, options = {}) => {
         const {
             showLoading = true,
@@ -144,18 +139,15 @@ const Profile = () => {
         try {
             const response = await action();
             
-            // Автоматически показываем сообщение от API
             if (response?.data?.message) {
                 setNotification({ type: 'success', message: response.data.message });
             }
 
-            // Очистка формы если нужно
             if (clearForm) {
                 setTeamName('');
                 setShowCreateForm(false);
             }
 
-            // Перезагрузка данных
             if (reloadProfile) {
                 await loadProfile();
             } else if (reloadTeam) {
@@ -163,13 +155,11 @@ const Profile = () => {
                 setTeam(teamResponse.data.data);
             }
 
-            // Callback после успеха
             if (onSuccess) {
                 onSuccess(response);
             }
 
         } catch (error) {
-            // Автоматическая обработка ошибок
             const errorData = error.response?.data;
             const errorMessage = errorData?.message || '';
             
@@ -186,7 +176,6 @@ const Profile = () => {
                 setNotification({ type: 'error', message: errorMessage || 'Произошла ошибка' });
             }
 
-            // Перезагрузка при ошибке - всегда полный профиль для синхронизации
             if (reloadOnError) {
                 try {
                     await loadProfile();
@@ -201,7 +190,6 @@ const Profile = () => {
         }
     };
 
-    // Обработчики операций - теперь просто вызывают executeAction
     const handleCreateTeam = (e) => {
         e.preventDefault();
 
@@ -217,7 +205,6 @@ const Profile = () => {
             return;
         }
 
-        // Проверка на допустимые символы (кириллица, латиница, цифры, пробелы)
         const nameRegex = /^[a-zA-Zа-яА-ЯёЁ0-9\s]+$/;
         if (!nameRegex.test(trimmedName)) {
             setNotification({ type: 'error', message: 'Название команды может содержать только буквы (русские/английские) и цифры' });
@@ -229,7 +216,7 @@ const Profile = () => {
             { 
                 reloadProfile: true, 
                 clearForm: true,
-                reloadOnError: true // Обновляем профиль даже при ошибке (если уже в команде)
+                reloadOnError: true
             }
         );
     };
@@ -248,7 +235,7 @@ const Profile = () => {
                     () => TeamService.leaveTeam(),
                     { 
                         reloadProfile: true,
-                        reloadOnError: true // Обновляем даже при ошибке
+                        reloadOnError: true
                     }
                 );
             }
@@ -269,7 +256,7 @@ const Profile = () => {
                     () => TeamService.kickMember(userId),
                     { 
                         reloadTeam: true,
-                        reloadOnError: true // Обновляем даже при ошибке
+                        reloadOnError: true
                     }
                 );
             }
@@ -290,7 +277,7 @@ const Profile = () => {
                     () => TeamService.deleteTeam(),
                     { 
                         reloadProfile: true,
-                        reloadOnError: true // Обновляем даже при ошибке
+                        reloadOnError: true
                     }
                 );
             }
@@ -298,9 +285,7 @@ const Profile = () => {
     };
 
     const handleParticipationFormatChange = (newFormat) => {
-        // Если меняет на индивидуальный и состоит в команде
         if (newFormat === 'individual' && profile.teamId) {
-            // Определяем isLead из данных команды
             const currentUserInTeam = team?.members?.find(m => m.id === profile.id);
             const isLead = currentUserInTeam?.isLead || false;
             
@@ -321,7 +306,6 @@ const Profile = () => {
                 }
             });
         } else {
-            // Если нет команды или меняет на командный формат - просто меняем
             updateParticipationFormat(newFormat);
         }
     };
@@ -344,7 +328,6 @@ const Profile = () => {
     const handleSaveEssay = () => {
         const trimmedUrl = essayUrl.trim();
         
-        // Если поле пустое, разрешаем сохранить (удалить ссылку)
         if (!trimmedUrl) {
             executeAction(
                 () => UserService.updateEssayUrl(''),
@@ -359,7 +342,6 @@ const Profile = () => {
             return;
         }
 
-        // Проверка на валидный URL
         try {
             new URL(trimmedUrl);
         } catch (e) {
@@ -389,7 +371,6 @@ const Profile = () => {
             async () => {
                 const response = await CertificateService.downloadCertificate(profile.id);
                 
-                // Скачиваем сертификат
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -445,7 +426,6 @@ const Profile = () => {
         );
     }
 
-    // Определяем isLead из данных команды (убрали дублирование из profile)
     const isLead = team?.members?.find(m => m.id === profile.id)?.isLead || false;
 
     return (
@@ -462,11 +442,9 @@ const Profile = () => {
                 </div>
 
                 <div className="profile-sections-grid">
-                {/* User Info Section */}
                 <div className="profile-section">
                     <h2 className="profile-section-title">Личная информация</h2>
                     <div className="profile-card">
-                        {/* Основные поля - всегда видимые */}
                         <div className="profile-main-info">
                         <div className="profile-row">
                             <span className="profile-label">ФИО:</span>
@@ -516,10 +494,7 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-
-                        {/* Дополнительные поля - в аккордеоне на мобильных */}
                         <div className="profile-additional-info">
-                            {/* Кнопка аккордеона - только на мобильных */}
                                             <button 
                                 className="profile-accordion-toggle"
                                 onClick={() => setIsAccordionOpen(!isAccordionOpen)}
@@ -539,7 +514,6 @@ const Profile = () => {
                                                         </svg>
                                             </button>
 
-                            {/* Контент аккордеона */}
                             <div className={`profile-accordion-content ${isAccordionOpen ? 'accordion-open' : ''}`}>
                                 {profile.school && (
                                     <div className="profile-row">
@@ -596,7 +570,6 @@ const Profile = () => {
                         </div>
                     </div>
 
-                {/* Team Section - показываем только для командного формата */}
                 {profile.participation_format === 'team' && (
                     <div className="profile-section">
                             <h2 className="profile-section-title">Моя команда</h2>
@@ -827,7 +800,6 @@ const Profile = () => {
                     </div>
                 )}
 
-                {/* Results Section - всегда показываем */}
                 <div className="profile-section">
                     <h2 className="profile-section-title">Результаты</h2>
                     <div className="profile-card">
@@ -910,7 +882,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Essay Section - только для индивидуальных участников или лидеров команд */}
                 {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
                     <div className="profile-section">
                         <h2 className="profile-section-title">Эссе</h2>
@@ -1056,7 +1027,6 @@ const Profile = () => {
                 onCancel={() => setConfirmDialog({ isOpen: false })}
             />
 
-            {/* Toast уведомление */}
             {notification.type && (
                 <Toast
                     type={notification.type}

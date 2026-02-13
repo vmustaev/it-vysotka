@@ -24,7 +24,6 @@ const AboutChampionship = () => {
     return (
         <div className="about-championship-page">
             <div className="about-championship-content">
-                {/* Hero секция */}
                 <div className="about-hero">
                     <h1 className="about-title">
                         О чемпионате
@@ -34,7 +33,6 @@ const AboutChampionship = () => {
                     </p>
                 </div>
 
-                {/* Информация о чемпионате */}
                 <div className="about-section">
                     <div className="championship-info">
                         <div className="championship-info-block">
@@ -81,7 +79,6 @@ const AboutChampionship = () => {
                     </div>
                 </div>
 
-                {/* Примеры заданий прошлых лет */}
                 <div className="about-section">
                     <h2 className="section-title-main">Примеры заданий прошлых лет</h2>
                     <TasksSection variant="default" />

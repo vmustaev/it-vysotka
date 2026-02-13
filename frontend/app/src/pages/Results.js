@@ -65,14 +65,12 @@ const Results = () => {
     return (
         <div className="results-page">
             <div className="results-content">
-                {/* Hero секция */}
                 <div className="results-hero">
                     <h1 className="results-title">
                         Результаты IT-ВыСотка
                     </h1>
                 </div>
 
-                {/* Секция результатов */}
                 <div className="results-section">
                     {years.length > 0 && (
                         <div className="year-tabs">

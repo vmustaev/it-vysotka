@@ -48,7 +48,6 @@ const RegisterPage = observer(() => {
 
     useEffect(() => {
         checkRegistrationStatus();
-        // Загружаем регионы только если регистрация открыта
     }, []);
 
     useEffect(() => {
@@ -65,13 +64,11 @@ const RegisterPage = observer(() => {
                 registration_start: response.data.data.registration_start,
                 registration_end: response.data.data.registration_end
             });
-            // Получаем дату закрытия эссе из того же ответа
             if (response.data.data.essay_close_date) {
                 setEssayCloseDate(response.data.data.essay_close_date);
             }
         } catch (e) {
             console.error('Error checking registration status:', e);
-            // В случае ошибки считаем регистрацию открытой
             setRegistrationStatus({ isOpen: true });
         }
     };
@@ -238,7 +235,6 @@ const RegisterPage = observer(() => {
                 [name]: []
             }));
         }
-        // Сбрасываем согласие при изменении даты рождения
         if (name === 'birthday') {
             setConsent(false);
             if (errors.consent) {
@@ -266,12 +262,11 @@ const RegisterPage = observer(() => {
             }));
         }
         
-        // Показываем модальное окно с разными текстами
         let message = '';
         const dateText = essayCloseDate ? ` до ${formatDate(essayCloseDate)}` : '';
         
         if (value === 'individual') {
-            message = `Вы выбрали индивидуальное участие. После активации аккаунта в личном кабинете вам необходимо будет указать ссылку на эссе${dateText}.`;
+            message = `Вы выбрали индивидуальное участие. После активации аккаунта в личном кабинете вам необходимо указать ссылку на эссе${dateText}.`;
         } else if (value === 'team') {
             message = `Вы выбрали командное участие. После активации аккаунта в личном кабинете вам необходимо создать команду или присоединиться к команде по ссылке. Лидеру команды необходимо прикрепить эссе${dateText}.`;
         }
@@ -346,7 +341,6 @@ const RegisterPage = observer(() => {
                 phoneToSend = '7' + phoneToSend;
             }
             
-            // Проверяем согласие
             const age = calculateAge(formData.birthday);
             if (age !== null && !consent) {
                 const errorMessage = age < 18 
@@ -395,12 +389,10 @@ const RegisterPage = observer(() => {
         return errors[fieldName] && errors[fieldName].length > 0;
     };
 
-    // Если статус еще не проверен, не показываем ничего
     if (registrationStatus.isOpen === null) {
         return null;
     }
 
-    // Если регистрация закрыта, показываем отдельную страницу
     if (!registrationStatus.isOpen) {
         return (
             <div className="registration-closed-page">
@@ -433,7 +425,6 @@ const RegisterPage = observer(() => {
         );
     }
 
-    // Если регистрация открыта, показываем форму
     return (
         <div className="register-page">
             {notification.message && (

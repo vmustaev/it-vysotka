@@ -19,7 +19,6 @@ import Profile from "./pages/Profile";
 import Consent from "./pages/Consent";
 import ParticipantConsent from "./pages/ParticipantConsent";
 
-// Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Participants from "./pages/admin/Participants";
@@ -37,15 +36,12 @@ const App = observer(() => {
 
     useEffect(() => {
         store.checkAuth();
-    }, []); // Вызываем только один раз при монтировании
+    }, []);
 
-    // Скролл в начало при смене маршрута (мгновенно, без анимации)
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }, [location.pathname]);
 
-    // Пока идет проверка авторизации, не рендерим маршруты,
-    // чтобы избежать краткого перехода на /login при перезагрузке защищенных страниц
     if (store.isLoading) {
         return (
             <div style={{
@@ -110,14 +106,12 @@ const App = observer(() => {
                     store.isAuth ? <Navigate to="/" /> : <ResetPassword />
                 } />
 
-                {/* Profile - только для обычных участников */}
                 <Route path="/profile" element={
                     !store.isAuth ? <Navigate to="/login" /> :
                     store.user.role === 'admin' ? <Navigate to="/admin" /> :
                     <Profile />
                 } />
 
-                {/* Admin panel - только для администраторов */}
                 <Route path="/admin" element={
                     !store.isAuth ? <Navigate to="/login" /> :
                     store.user.role !== 'admin' ? <Navigate to="/profile" /> :

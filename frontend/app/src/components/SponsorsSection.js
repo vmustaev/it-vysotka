@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import FileService from '../services/FileService';
 import '../styles/sponsors-section.css';
 
-/**
- * Компонент для отображения логотипов спонсоров
- * Получает файлы с типом 'sponsors' из файловой системы
- */
 const SponsorsSection = () => {
     const [sponsors, setSponsors] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,7 +15,6 @@ const SponsorsSection = () => {
             setLoading(true);
             const response = await FileService.getFilesByType('sponsors');
             
-            // Фильтруем только изображения
             const sponsorImages = response.files.filter(file => 
                 file.mimetype.startsWith('image/')
             );
@@ -41,7 +36,7 @@ const SponsorsSection = () => {
     }
 
     if (sponsors.length === 0) {
-        return null; // Не показываем секцию, если нет спонсоров
+        return null;
     }
 
     return (

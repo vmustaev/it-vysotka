@@ -86,12 +86,10 @@ const ResetPassword = () => {
             )}
             
             <div className="reset-content">
-                {/* Hero Section */}
                 <div className="reset-hero">
                     <h1 className="reset-title">Установка нового пароля</h1>
                 </div>
 
-                {/* Form Card */}
                 <div className="reset-form-card">
                     {!token ? (
                         <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>

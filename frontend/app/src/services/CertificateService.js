@@ -2,7 +2,6 @@ import $api from '../http';
 
 class CertificateService {
     
-    // Загрузка шаблона сертификата
     async uploadTemplate(file, settings) {
         const formData = new FormData();
         formData.append('template', file);
@@ -18,7 +17,6 @@ class CertificateService {
         });
     }
 
-    // Загрузка шрифта
     async uploadFont(file) {
         const formData = new FormData();
         formData.append('font', file);
@@ -30,24 +28,20 @@ class CertificateService {
         });
     }
 
-    // Получение настроек
     async getSettings() {
         return $api.get('/admin/certificates/settings');
     }
 
-    // Получение файла шаблона
     async getTemplateFile() {
         return $api.get('/admin/certificates/template', {
             responseType: 'blob'
         });
     }
 
-    // Обновление настроек
     async updateSettings(settings) {
         return $api.put('/admin/certificates/settings', settings);
     }
 
-    // Предпросмотр сертификата
     async preview(participantId) {
         const url = participantId 
             ? `/admin/certificates/preview/${participantId}`
@@ -58,31 +52,26 @@ class CertificateService {
         });
     }
 
-    // Генерация одного сертификата
     async generateOne(participantId) {
         return $api.get(`/admin/certificates/generate/${participantId}`, {
             responseType: 'blob'
         });
     }
 
-    // Генерация всех сертификатов
     async generateAll() {
         return $api.post('/admin/certificates/generate-all');
     }
 
-    // Выдача сертификатов выбранным участникам
     async issueCertificates(participantIds) {
         return $api.post('/admin/certificates/issue', { participantIds });
     }
 
-    // Скачивание сертификата участника
     async downloadCertificate(participantId) {
         return $api.get(`/certificates/download/${participantId}`, {
             responseType: 'blob'
         });
     }
 
-    // Отправка писем участникам о выдаче сертификатов (всем с выданными сертификатами)
     async sendCertificateNotifications() {
         return $api.post('/admin/certificates/send-notifications');
     }

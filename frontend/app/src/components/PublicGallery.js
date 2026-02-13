@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import FileService from '../services/FileService';
 import '../styles/public-gallery.css';
 
-/**
- * Компонент публичной галереи
- * Отображает изображения из файловой системы с типом 'gallery'
- */
 const PublicGallery = () => {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,14 +20,12 @@ const PublicGallery = () => {
             setError(null);
             const response = await FileService.getFilesByType('gallery');
             
-            // Фильтруем только изображения
             const imageFiles = (response.files || []).filter(file => 
                 file.mimetype.startsWith('image/')
             );
             
             setImages(imageFiles);
 
-            // Формируем список годов для переключения
             const yearSet = new Set();
             let hasNoYear = false;
 
@@ -131,7 +125,6 @@ const PublicGallery = () => {
         <div className="gallery-container">
             <h2 className="gallery-title">Галерея</h2>
 
-            {/* Переключатель годов, как в результатах */}
             {years.length > 0 && (
                 <div className="year-tabs" style={{ marginBottom: '24px' }}>
                     {years.map(year => (
@@ -167,7 +160,6 @@ const PublicGallery = () => {
                 ))}
             </div>
 
-            {/* Lightbox для просмотра изображений в полном размере */}
             {selectedImage && (
                 <div className="lightbox" onClick={closeLightbox}>
                     <button 

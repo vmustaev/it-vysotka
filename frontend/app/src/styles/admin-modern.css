@@ -1,10 +1,5 @@
 @import './variables.css';
 
-/* ========================================
-   MODERN ADMIN STYLES - Glass Morphism
-   ======================================== */
-
-/* Admin Layout - Modern Background */
 .admin-layout {
     display: flex;
     gap: 24px;
@@ -13,7 +8,6 @@
     background: transparent;
 }
 
-/* Sidebar - Glass Effect */
 .admin-sidebar {
     width: 260px;
     background: rgba(255, 255, 255, 0.95);
@@ -85,7 +79,6 @@
     border-top: 2px solid #e2e8f0;
 }
 
-/* Main Content Area */
 .admin-main {
     flex: 1;
     min-width: 0;
@@ -97,7 +90,6 @@
     overflow: visible;
 }
 
-/* Page Container - Glass Effect */
 .admin-page {
     width: 100%;
     background: rgba(255, 255, 255, 0.95);
@@ -132,7 +124,6 @@
     margin: 0;
 }
 
-/* Stats Grid - Modern Cards */
 .admin-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -208,7 +199,6 @@
     margin: 0 0 24px 0;
 }
 
-/* Quick Actions Grid */
 .admin-quick-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -260,7 +250,6 @@
     line-height: 1.5;
 }
 
-/* Info Box */
 .admin-info-box {
     background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(219, 234, 254, 0.9));
     border: 2px solid rgba(59, 130, 246, 0.3);
@@ -298,7 +287,6 @@
     line-height: 1.6;
 }
 
-/* Cards */
 .admin-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
     backdrop-filter: blur(10px);
@@ -331,7 +319,6 @@
     gap: 20px;
 }
 
-/* Forms */
 .admin-form {
     display: flex;
     flex-direction: column;
@@ -396,7 +383,6 @@
     flex-wrap: wrap;
 }
 
-/* Tables */
 .admin-table-container,
 .participants-table-container,
 .teams-table-container {
@@ -449,7 +435,6 @@
     background: rgba(59, 130, 246, 0.05);
 }
 
-/* Filters */
 .participants-filters {
     display: grid;
     grid-template-columns: 2fr repeat(3, 1fr) auto;
@@ -462,7 +447,6 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Tabs */
 .admin-page .tabs {
     display: flex;
     gap: 0;
@@ -493,7 +477,6 @@
     font-weight: 600;
 }
 
-/* Badges */
 .badge {
     display: inline-block;
     padding: 6px 12px;
@@ -541,7 +524,6 @@
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -560,7 +542,6 @@
     font-weight: 500;
 }
 
-/* Loading State */
 .admin-loading {
     display: flex;
     flex-direction: column;
@@ -584,7 +565,6 @@
     to { transform: rotate(360deg); }
 }
 
-/* Placeholder */
 .admin-placeholder {
     display: flex;
     flex-direction: column;
@@ -622,7 +602,6 @@
     margin: 0;
 }
 
-/* Team Members Expanded View */
 .team-row {
     transition: all 0.3s ease;
     border-bottom: 1px solid #e2e8f0;
@@ -729,7 +708,6 @@
     margin-bottom: 4px;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
     .admin-sidebar {
         width: 220px;

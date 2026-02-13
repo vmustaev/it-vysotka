@@ -48,7 +48,6 @@
     min-width: 120px;
 }
 
-/* Анимации */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -69,7 +68,6 @@
     }
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .info-modal {
         max-width: 90%;
@@ -79,4 +77,3 @@
         width: 100%;
     }
 }
-

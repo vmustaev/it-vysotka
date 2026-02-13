@@ -25,7 +25,6 @@ export default class TeamService {
         return $api.delete('/team/delete');
     }
 
-    // Получить все команды (для админки)
     static async getAllTeams() {
         return $api.get('/admin/teams');
     }

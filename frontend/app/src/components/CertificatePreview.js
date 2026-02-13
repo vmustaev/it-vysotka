@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Устанавливаем путь к worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange }) => {
@@ -27,7 +26,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 
                 const context = canvas.getContext('2d');
 
-                // Вычисляем масштаб для отображения
                 const containerWidth = containerRef.current?.offsetWidth || 800;
                 const viewport = page.getViewport({ scale: 1 });
                 const computedScale = containerWidth / viewport.width;
@@ -44,7 +42,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
 
                 await page.render(renderContext).promise;
                 
-                // Устанавливаем значения только после успешного рендера
                 setScale(computedScale);
                 setPageHeight(viewport.height);
                 setIsLoading(false);
@@ -57,10 +54,8 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
         loadPdf();
     }, [templateUrl]);
 
-    // Конвертируем Y координату из PDF системы (снизу) в CSS систему (сверху)
     const linePositionFromTop = pageHeight > 0 ? (pageHeight - textY) * scale : 0;
 
-    // Обработчики для перетаскивания
     const handleMouseDown = (e) => {
         setIsDragging(true);
         updatePosition(e);
@@ -86,10 +81,8 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
         const rect = containerRef.current.getBoundingClientRect();
         const clickY = e.clientY - rect.top;
         
-        // Конвертируем из CSS координат (сверху) в PDF координаты (снизу)
         const pdfY = pageHeight - (clickY / scale);
         
-        // Ограничиваем значение в пределах страницы
         const clampedY = Math.max(0, Math.min(pageHeight, pdfY));
         
         onTextYChange(clampedY);
@@ -158,7 +151,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 }}
             />
             
-            {/* Горизонтальная линия для позиции текста */}
             {!isLoading && pageHeight > 0 && (
                 <div
                     style={{
@@ -174,7 +166,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                         transition: isDragging ? 'none' : 'top 0.1s ease-out'
                     }}
                 >
-                    {/* Метки по краям */}
                     <div style={{
                         position: 'absolute',
                         left: 0,
@@ -206,7 +197,6 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                         </svg>
                     </div>
                     
-                    {/* Подпись с координатой */}
                     <div style={{
                         position: 'absolute',
                         left: '50%',
@@ -230,4 +220,3 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
 };
 
 export default CertificatePreview;
-

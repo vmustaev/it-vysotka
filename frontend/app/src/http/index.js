@@ -17,7 +17,7 @@ export const clearAccessToken = () => {
 const $api = axios.create({
     withCredentials: true,
     baseURL: API_URL,
-    timeout: 60000 // 60 секунд для загрузки файлов
+    timeout: 60000
 });
 
 $api.interceptors.request.use((config) => {

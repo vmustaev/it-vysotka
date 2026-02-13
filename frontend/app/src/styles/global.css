@@ -1,6 +1,5 @@
 @import './variables.css';
 
-/* Reset и базовые стили */
 * {
   margin: 0;
   padding: 0;
@@ -39,7 +38,6 @@ body {
   flex-direction: column;
 }
 
-/* Стиль для всех страниц */
 .page {
   min-height: calc(100vh - 140px);
   padding: 80px 40px;
@@ -79,7 +77,6 @@ body {
   margin-bottom: 80px;
 }
 
-/* Типографика */
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
@@ -126,7 +123,6 @@ a:hover {
   color: var(--primary-dark);
 }
 
-/* Переопределение для кнопок-ссылок */
 a.btn {
   color: inherit;
 }
@@ -135,7 +131,6 @@ a.btn:hover {
   color: inherit;
 }
 
-/* Списки */
 ul, ol {
   margin-bottom: var(--spacing-md);
   padding-left: var(--spacing-lg);
@@ -145,14 +140,12 @@ li {
   margin-bottom: var(--spacing-xs);
 }
 
-/* Изображения */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Кнопки базовые */
 button {
   font-family: inherit;
   font-size: inherit;
@@ -167,7 +160,6 @@ button:disabled {
   opacity: 0.6;
 }
 
-/* Кнопки стилизованные */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -226,7 +218,6 @@ button:disabled {
   transform: none !important;
 }
 
-/* Формы */
 input,
 select,
 textarea {
@@ -242,7 +233,6 @@ textarea:focus {
   outline: none;
 }
 
-/* Утилиты для скрытия */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -255,7 +245,6 @@ textarea:focus {
   border-width: 0;
 }
 
-/* Контейнер */
 .container {
   width: 100%;
   max-width: var(--max-width-xl);
@@ -263,13 +252,11 @@ textarea:focus {
   padding: 0 var(--spacing-md);
 }
 
-/* Основной контент */
 .main-content {
   min-height: calc(100vh - var(--navbar-height));
   padding: var(--spacing-xl) 0;
 }
 
-/* Загрузка */
 .loading {
   display: flex;
   justify-content: center;
@@ -296,7 +283,6 @@ textarea:focus {
   }
 }
 
-/* Анимации */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -312,7 +298,6 @@ textarea:focus {
   animation: fadeIn var(--transition-slow) ease-out;
 }
 
-/* Скроллбар */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
