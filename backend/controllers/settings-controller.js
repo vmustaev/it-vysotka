@@ -46,13 +46,13 @@ class SettingsController {
      */
     async getRegistrationStatus(req, res, next) {
         try {
-            const isOpen = await settingsService.isRegistrationOpen();
+            const registrationStatus = await settingsService.getRegistrationStatus();
             const settings = await settingsService.getSettings();
             
             return res.json({
                 success: true,
                 data: {
-                    isOpen,
+                    ...registrationStatus,
                     registration_start: settings.registration_start,
                     registration_end: settings.registration_end,
                     championship_datetime: settings.championship_datetime,

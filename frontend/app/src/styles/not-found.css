@@ -1,6 +1,6 @@
 @import './variables.css';
 
-.registration-closed-page {
+.not-found-page {
     min-height: 100vh;
     padding: 120px 40px 80px;
     background: transparent;
@@ -9,7 +9,7 @@
     justify-content: center;
 }
 
-.registration-closed-content {
+.not-found-content {
     max-width: 600px;
     width: 100%;
     animation: fadeInUp 0.6s ease-out;
@@ -26,7 +26,7 @@
     }
 }
 
-.registration-closed-card {
+.not-found-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border: 2px solid rgba(96, 165, 250, 0.3);
@@ -38,7 +38,7 @@
     overflow: hidden;
 }
 
-.registration-closed-card::before {
+.not-found-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -48,56 +48,41 @@
     background: linear-gradient(90deg, #60a5fa, #3b82f6, #2563eb);
 }
 
-.closed-icon {
-    width: 100px;
-    height: 100px;
+.not-found-icon {
+    width: 120px;
+    height: 120px;
     margin: 0 auto 32px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 48px;
+    font-size: 64px;
     font-weight: 900;
     color: #ffffff;
     box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
 }
 
-.status-icon-closed {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+.not-found-number {
+    font-size: clamp(72px, 10vw, 120px);
+    font-weight: 900;
+    color: #1e3a8a;
+    margin-bottom: 20px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
 }
 
-.status-icon-not-started {
-    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-    box-shadow: 0 12px 40px rgba(96, 165, 250, 0.4);
-}
-
-.status-icon-not-opened {
-    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
-    box-shadow: 0 12px 40px rgba(147, 197, 253, 0.4);
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
-    }
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 16px 48px rgba(59, 130, 246, 0.5);
-    }
-}
-
-.closed-title {
-    font-size: clamp(32px, 5vw, 48px);
+.not-found-title {
+    font-size: clamp(28px, 4vw, 40px);
     font-weight: 800;
-    color: #0f172a;
+    color: #1e3a8a;
     margin-bottom: 20px;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
 
-.closed-text {
+.not-found-text {
     font-size: 18px;
     line-height: 1.7;
     color: #334155;
@@ -107,14 +92,14 @@
     margin-right: auto;
 }
 
-.closed-actions {
+.not-found-actions {
     display: flex;
     gap: 16px;
     justify-content: center;
     flex-wrap: wrap;
 }
 
-.btn-closed {
+.btn-not-found {
     padding: 16px 32px;
     font-size: 16px;
     font-weight: 600;
@@ -128,26 +113,26 @@
     justify-content: center;
 }
 
-.btn-closed-primary {
+.btn-not-found-primary {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-.btn-closed-primary:hover {
+.btn-not-found-primary:hover {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
     transform: translateY(-2px);
 }
 
-.btn-closed-secondary {
+.btn-not-found-secondary {
     background: rgba(255, 255, 255, 0.8);
     color: #1e40af;
     border: 2px solid #3b82f6;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.btn-closed-secondary:hover {
+.btn-not-found-secondary:hover {
     background: #ffffff;
     border-color: #2563eb;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -155,38 +140,43 @@
 }
 
 @media (max-width: 768px) {
-    .registration-closed-page {
+    .not-found-page {
         padding: 100px 24px 60px;
     }
 
-    .registration-closed-card {
+    .not-found-card {
         padding: 48px 32px;
         border-radius: 24px;
     }
 
-    .closed-icon {
-        width: 80px;
-        height: 80px;
-        font-size: 40px;
+    .not-found-icon {
+        width: 100px;
+        height: 100px;
+        font-size: 56px;
         margin-bottom: 24px;
     }
 
-    .closed-title {
-        font-size: 32px;
+    .not-found-number {
+        font-size: 64px;
         margin-bottom: 16px;
     }
 
-    .closed-text {
+    .not-found-title {
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+
+    .not-found-text {
         font-size: 16px;
         margin-bottom: 32px;
     }
 
-    .closed-actions {
+    .not-found-actions {
         flex-direction: column;
         gap: 12px;
     }
 
-    .btn-closed {
+    .btn-not-found {
         width: 100%;
         padding: 14px 24px;
         font-size: 15px;
@@ -194,25 +184,30 @@
 }
 
 @media (max-width: 480px) {
-    .registration-closed-page {
+    .not-found-page {
         padding: 90px 20px 50px;
     }
 
-    .registration-closed-card {
+    .not-found-card {
         padding: 40px 24px;
     }
 
-    .closed-icon {
-        width: 72px;
-        height: 72px;
-        font-size: 36px;
+    .not-found-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 48px;
     }
 
-    .closed-title {
-        font-size: 28px;
+    .not-found-number {
+        font-size: 56px;
     }
 
-    .closed-text {
+    .not-found-title {
+        font-size: 24px;
+    }
+
+    .not-found-text {
         font-size: 15px;
     }
 }
+

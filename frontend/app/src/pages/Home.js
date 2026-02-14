@@ -71,6 +71,22 @@ const Home = () => {
     }
 
     const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const nowUTC = now.getTime();
+    
+    // Проверяем, завершен ли чемпионат (текущая дата > дата проведения + 1 день)
+    const isChampionshipCompleted = registrationData?.championship_datetime && (() => {
+        const championshipDate = new Date(registrationData.championship_datetime);
+        const championshipDatePlusOne = new Date(championshipDate);
+        championshipDatePlusOne.setDate(championshipDatePlusOne.getDate() + 1);
+        return now > championshipDatePlusOne;
+    })();
+    
+    // Проверяем, если текущая дата < дата открытия регистрации
+    const isBeforeRegistrationStart = registrationData?.registration_start && (() => {
+        const registrationStartDate = new Date(registrationData.registration_start);
+        return nowUTC < registrationStartDate.getTime();
+    })();
 
     return (
         <div className="home-page">
@@ -112,7 +128,17 @@ const Home = () => {
                             Зарегистрироваться на чемпионат
                             <span className="cta-arrow">→</span>
                         </Link>
-                    ) : (
+                    ) : isBeforeRegistrationStart ? (
+                        <div className="hero-completed-section">
+                            <div className="hero-completed-badge">
+                                Чемпионат {currentYear - 1} успешно завершён
+                            </div>
+                            <Link to="/results" className="hero-cta hero-cta-results">
+                                Посмотреть результаты последнего чемпионата
+                                <span className="cta-arrow">→</span>
+                            </Link>
+                        </div>
+                    ) : isChampionshipCompleted ? (
                         <div className="hero-completed-section">
                             <div className="hero-completed-badge">
                                 Чемпионат {currentYear} успешно завершён
@@ -122,7 +148,7 @@ const Home = () => {
                                 <span className="cta-arrow">→</span>
                             </Link>
                         </div>
-                    )}
+                    ) : null}
                     </div>
                     <div className="hero-logo-container">
                         <img 

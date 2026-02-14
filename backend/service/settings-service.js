@@ -108,6 +108,68 @@ class SettingsService {
     }
 
     /**
+     * Получить детальный статус регистрации
+     * Возвращает: 'open', 'closed', 'not_started', 'not_opened_yet'
+     */
+    async getRegistrationStatus() {
+        const settings = await this.getSettings();
+        const now = new Date();
+        const nowUTC = Date.now();
+        const currentYear = now.getFullYear();
+
+        // Если даты не установлены
+        if (!settings.registration_start || !settings.registration_end || !settings.championship_datetime) {
+            return {
+                status: 'not_started',
+                isOpen: false,
+                message: 'Регистрация еще не началась'
+            };
+        }
+
+        const startDate = new Date(settings.registration_start);
+        const endDate = new Date(settings.registration_end);
+        const championshipDate = new Date(settings.championship_datetime);
+        
+        const startUTC = startDate.getTime();
+        const endUTC = endDate.getTime();
+        const championshipYear = championshipDate.getFullYear();
+
+        // Если текущий год больше года чемпионата - регистрация еще не началась
+        if (currentYear > championshipYear) {
+            return {
+                status: 'not_started',
+                isOpen: false,
+                message: 'Регистрация еще не началась'
+            };
+        }
+
+        // Если текущая дата позже даты закрытия регистрации
+        if (nowUTC > endUTC) {
+            return {
+                status: 'closed',
+                isOpen: false,
+                message: 'Регистрация на текущий год закрыта'
+            };
+        }
+
+        // Если текущая дата до даты начала регистрации
+        if (nowUTC < startUTC) {
+            return {
+                status: 'not_opened_yet',
+                isOpen: false,
+                message: 'Регистрация еще не открыта'
+            };
+        }
+
+        // Регистрация открыта (текущая дата >= дата начала регистрации и <= дата закрытия)
+        return {
+            status: 'open',
+            isOpen: true,
+            message: 'Регистрация открыта'
+        };
+    }
+
+    /**
      * Очистить данные для нового года
      * Удаляет: пользователей (кроме админов), команды, рассадку, токены
      * НЕ трогает: школы, файлы, настройки, аудитории, результаты чемпионата

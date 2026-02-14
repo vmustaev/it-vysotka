@@ -43,7 +43,7 @@ const RegisterPage = observer(() => {
     const [isLoadingRegions, setIsLoadingRegions] = useState(false);
     const [isLoadingCities, setIsLoadingCities] = useState(false);
     const [isLoadingSchools, setIsLoadingSchools] = useState(false);
-    const [registrationStatus, setRegistrationStatus] = useState({ isOpen: null });
+    const [registrationStatus, setRegistrationStatus] = useState({ isOpen: null, status: null });
     const [essayCloseDate, setEssayCloseDate] = useState(null);
 
     useEffect(() => {
@@ -61,15 +61,18 @@ const RegisterPage = observer(() => {
             const response = await SettingsService.getRegistrationStatus();
             setRegistrationStatus({
                 isOpen: response.data.data.isOpen,
+                status: response.data.data.status,
+                message: response.data.data.message,
                 registration_start: response.data.data.registration_start,
-                registration_end: response.data.data.registration_end
+                registration_end: response.data.data.registration_end,
+                championship_datetime: response.data.data.championship_datetime
             });
             if (response.data.data.essay_close_date) {
                 setEssayCloseDate(response.data.data.essay_close_date);
             }
         } catch (e) {
             console.error('Error checking registration status:', e);
-            setRegistrationStatus({ isOpen: true });
+            setRegistrationStatus({ isOpen: true, status: 'open' });
         }
     };
 
@@ -394,16 +397,50 @@ const RegisterPage = observer(() => {
     }
 
     if (!registrationStatus.isOpen) {
+        const getStatusContent = () => {
+            const status = registrationStatus.status;
+            
+            if (status === 'not_started') {
+                return {
+                    icon: '⏰',
+                    title: 'Регистрация еще не началась',
+                    text: 'Следите за новостями о начале регистрации!',
+                    iconClass: 'status-icon-not-started'
+                };
+            } else if (status === 'not_opened_yet') {
+                return {
+                    icon: '📅',
+                    title: 'Регистрация еще не открыта',
+                    text: registrationStatus.registration_start
+                        ? `Регистрация откроется ${formatDate(registrationStatus.registration_start)}. Следите за новостями!`
+                        : 'Следите за новостями о начале регистрации!',
+                    iconClass: 'status-icon-not-opened'
+                };
+            } else {
+                // closed
+                return {
+                    icon: '✓',
+                    title: 'Регистрация закрыта',
+                    text: 'Регистрация на текущий год закрыта. Следите за новостями о следующих мероприятиях!',
+                    iconClass: 'status-icon-closed'
+                };
+            }
+        };
+
+        const statusContent = getStatusContent();
+
         return (
             <div className="registration-closed-page">
                 <div className="registration-closed-content">
                     <div className="registration-closed-card">
-                        <div className="closed-icon">✕</div>
+                        <div className={`closed-icon ${statusContent.iconClass}`}>
+                            {statusContent.icon}
+                        </div>
                         <h1 className="closed-title">
-                            Регистрация закрыта
+                            {statusContent.title}
                         </h1>
                         <p className="closed-text">
-                            Регистрация на чемпионат завершена. Следите за новостями о следующих мероприятиях!
+                            {statusContent.text}
                         </p>
                         <div className="closed-actions">
                             <button 

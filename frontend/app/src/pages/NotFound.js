@@ -1,29 +1,38 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/not-found.css';
 
 const NotFound = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="page" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '60vh',
-            textAlign: 'center'
-        }}>
-            <h1 style={{ fontSize: '72px', marginBottom: '20px' }} className="text-primary">404</h1>
-            <h2 style={{ marginBottom: '20px' }}>Страница не найдена</h2>
-            <p style={{ marginBottom: '30px', fontSize: '18px' }} className="text-secondary">
-                Извините, запрашиваемая страница не существует.
-            </p>
-            <button
-                onClick={() => navigate('/')}
-                className="btn btn-primary btn-lg"
-            >
-                Вернуться на главную
-            </button>
+        <div className="not-found-page">
+            <div className="not-found-content">
+                <div className="not-found-card">
+                    <div className="not-found-icon">🔍</div>
+                    <div className="not-found-number">404</div>
+                    <h1 className="not-found-title">
+                        Страница не найдена
+                    </h1>
+                    <p className="not-found-text">
+                        Извините, запрашиваемая страница не существует. Возможно, она была перемещена или удалена.
+                    </p>
+                    <div className="not-found-actions">
+                        <button 
+                            className="btn-not-found btn-not-found-primary"
+                            onClick={() => navigate('/')}
+                        >
+                            Вернуться на главную
+                        </button>
+                        <button 
+                            className="btn-not-found btn-not-found-secondary"
+                            onClick={() => navigate(-1)}
+                        >
+                            Назад
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
