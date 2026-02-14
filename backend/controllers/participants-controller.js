@@ -20,6 +20,7 @@ class ParticipantsController {
                 programming_language = '',
                 hasTeam = '',
                 participation_format = '',
+                attendance = '',
                 sortBy = 'id',
                 sortOrder = 'ASC'
             } = req.query;
@@ -68,12 +69,19 @@ class ParticipantsController {
                 where.participation_format = participation_format;
             }
 
+            // Фильтр по присутствию
+            if (attendance === 'true') {
+                where.attendance = true;
+            } else if (attendance === 'false') {
+                where.attendance = false;
+            }
+
             // Валидация сортировки
             const allowedSortFields = ['id', 'last_name', 'email', 'grade', 'region', 'createdAt', 'teamId'];
             const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'id';
             const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
 
-            // Сортировка: по teamId — сначала группируем по команде, внутри команды по фамилии
+            // Сортировка: по teamId – сначала группируем по команде, внутри команды по фамилии
             const order = validSortBy === 'teamId'
                 ? [['teamId', validSortOrder], ['last_name', 'ASC']]
                 : [[validSortBy, validSortOrder]];
@@ -110,7 +118,8 @@ class ParticipantsController {
                     'birthday',
                     'essayUrl',
                     'certificateId',
-                    'place'
+                    'place',
+                    'attendance'
                     // Исключаем: password
                 ]
             });

@@ -29,6 +29,11 @@ import Certificates from "./pages/admin/Certificates";
 import Settings from "./pages/admin/Settings";
 import FileManager from "./pages/admin/FileManager";
 import ResultsManagement from "./pages/admin/ResultsManagement";
+import Volunteers from "./pages/admin/Volunteers";
+
+import VolunteerLayout from "./pages/volunteer/VolunteerLayout";
+import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
+import AttendanceList from "./pages/volunteer/AttendanceList";
 
 const App = observer(() => {
     const { store } = useContext(Context);
@@ -92,7 +97,9 @@ const App = observer(() => {
 
                 <Route path="/login" element={
                     store.isAuth ? (
-                        store.user.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/profile" />
+                        store.user.role === 'admin' ? <Navigate to="/admin" /> :
+                        store.user.role === 'volunteer' ? <Navigate to="/volunteer" /> :
+                        <Navigate to="/profile" />
                     ) : <Login />
                 } />
                 <Route path="/register" element={
@@ -109,6 +116,7 @@ const App = observer(() => {
                 <Route path="/profile" element={
                     !store.isAuth ? <Navigate to="/login" /> :
                     store.user.role === 'admin' ? <Navigate to="/admin" /> :
+                    store.user.role === 'volunteer' ? <Navigate to="/volunteer" /> :
                     <Profile />
                 } />
 
@@ -126,6 +134,16 @@ const App = observer(() => {
                     <Route path="settings" element={<Settings />} />
                     <Route path="results" element={<ResultsManagement />} />
                     <Route path="files" element={<FileManager />} />
+                    <Route path="volunteers" element={<Volunteers />} />
+                </Route>
+
+                <Route path="/volunteer" element={
+                    !store.isAuth ? <Navigate to="/login" /> :
+                    store.user.role !== 'volunteer' ? <Navigate to="/profile" /> :
+                    <VolunteerLayout />
+                }>
+                    <Route index element={<VolunteerDashboard />} />
+                    <Route path="attendance" element={<AttendanceList />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

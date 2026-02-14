@@ -66,7 +66,7 @@ const UserSchema = sequelize.define('User', {
         defaultValue: false
     },
     role: {
-        type: DataTypes.ENUM('participant', 'admin'),
+        type: DataTypes.ENUM('participant', 'admin', 'volunteer'),
         allowNull: false,
         defaultValue: 'participant'
     },
@@ -88,6 +88,11 @@ const UserSchema = sequelize.define('User', {
         type: DataTypes.TEXT,
         allowNull: true,
         defaultValue: null
+    },
+    attendance: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 }, { timestamps: false });
 

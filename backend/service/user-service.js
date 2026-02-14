@@ -439,6 +439,123 @@ class UserService {
             message: 'Результаты успешно обновлены'
         };
     }
+
+    /**
+     * Создать волонтера (только для админа)
+     */
+    async createVolunteer(email, password, firstName, lastName, secondName = null) {
+        // Проверяем, существует ли пользователь с таким email
+        const existingUser = await UserModel.findOne({ where: { email } });
+        if (existingUser) {
+            throw ApiError.BadRequest(
+                'Пользователь с таким email уже существует',
+                ['Пользователь с таким email уже существует'],
+                { email: ['Пользователь с таким email уже существует'] }
+            );
+        }
+
+        // Хешируем пароль
+        const hashedPassword = await bcrypt.hash(password, 3);
+
+        // Создаем волонтера
+        const volunteer = await UserModel.create({
+            email,
+            password: hashedPassword,
+            role: 'volunteer',
+            isActivated: true, // Волонтеры активируются сразу
+            first_name: firstName,
+            last_name: lastName,
+            second_name: secondName,
+            // Заполняем обязательные поля значениями по умолчанию
+            birthday: '2000-01-01',
+            region: 'Не указано',
+            city: 'Не указано',
+            school: 'Волонтер',
+            programming_language: 'Не указано',
+            phone: '+70000000000',
+            grade: 11,
+            participation_format: 'individual'
+        });
+
+        return {
+            success: true,
+            message: 'Волонтер успешно создан',
+            volunteer: {
+                id: volunteer.id,
+                email: volunteer.email,
+                firstName: volunteer.first_name,
+                lastName: volunteer.last_name,
+                secondName: volunteer.second_name,
+                role: volunteer.role
+            }
+        };
+    }
+
+    /**
+     * Получить список всех волонтеров
+     */
+    async getVolunteers() {
+        const volunteers = await UserModel.findAll({
+            where: { role: 'volunteer' },
+            attributes: ['id', 'email', 'first_name', 'last_name', 'second_name', 'isActivated']
+        });
+
+        return volunteers.map(v => ({
+            id: v.id,
+            email: v.email,
+            firstName: v.first_name,
+            lastName: v.last_name,
+            secondName: v.second_name,
+            fullName: `${v.last_name} ${v.first_name} ${v.second_name || ''}`.trim(),
+            isActivated: v.isActivated
+        }));
+    }
+
+    /**
+     * Удалить волонтера
+     */
+    async deleteVolunteer(volunteerId) {
+        const volunteer = await UserModel.findByPk(volunteerId);
+
+        if (!volunteer) {
+            throw ApiError.BadRequest('Волонтер не найден');
+        }
+
+        if (volunteer.role !== 'volunteer') {
+            throw ApiError.BadRequest('Пользователь не является волонтером');
+        }
+
+        await volunteer.destroy();
+
+        return {
+            success: true,
+            message: 'Волонтер успешно удален'
+        };
+    }
+
+    /**
+     * Обновить пароль волонтера
+     */
+    async updateVolunteerPassword(volunteerId, newPassword) {
+        const volunteer = await UserModel.findByPk(volunteerId);
+
+        if (!volunteer) {
+            throw ApiError.BadRequest('Волонтер не найден');
+        }
+
+        if (volunteer.role !== 'volunteer') {
+            throw ApiError.BadRequest('Пользователь не является волонтером');
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 3);
+        volunteer.password = hashedPassword;
+        await volunteer.save();
+
+        return {
+            success: true,
+            message: 'Пароль волонтера успешно обновлен'
+        };
+    }
 }
 
 module.exports = new UserService();

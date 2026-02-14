@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ParticipantsService from '../../services/ParticipantsService';
 import TeamService from '../../services/TeamService';
+import AttendanceService from '../../services/AttendanceService';
 import Toast from '../../components/Toast';
 
 const Participants = () => {
@@ -17,6 +18,7 @@ const Participants = () => {
     const [placeValue, setPlaceValue] = useState(''); // Значение редактируемого места
     const [sendingEssayReminders, setSendingEssayReminders] = useState(false); // Статус отправки напоминаний об эссе
     const [sendingTeamFormatWithoutTeam, setSendingTeamFormatWithoutTeam] = useState(false); // Статус отправки писем участникам с командным форматом без команды
+    const [showInfoModal, setShowInfoModal] = useState(false);
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -28,6 +30,7 @@ const Participants = () => {
         programming_language: '',
         hasTeam: '',
         participation_format: '',
+        attendance: '',
         sortBy: 'teamId',
         sortOrder: 'ASC'
     });
@@ -284,12 +287,44 @@ const Participants = () => {
 
             setNotification({ 
                 type: 'success', 
-                message: 'Место удалено'
+                message: 'Место удалено' 
             });
         } catch (e) {
             setNotification({
                 type: 'error',
                 message: e.response?.data?.message || 'Ошибка при удалении места'
+            });
+        }
+    };
+
+    // Переключить присутствие по ПКМ
+    const handleToggleAttendance = async (e, participant) => {
+        e.preventDefault(); // Предотвращаем стандартное контекстное меню
+        
+        try {
+            const newAttendance = !participant.attendance;
+            const response = await AttendanceService.markAttendance(participant.id, newAttendance);
+            
+            // Обновляем список участников
+            setParticipants(prev => prev.map(p => 
+                p.id === participant.id ? { ...p, attendance: newAttendance } : p
+            ));
+
+            // Обновляем индивидуальных участников если это активная вкладка
+            if (activeTab === 'individual') {
+                setIndividualParticipants(prev => prev.map(p => 
+                    p.id === participant.id ? { ...p, attendance: newAttendance } : p
+                ));
+            }
+
+            setNotification({ 
+                type: 'success', 
+                message: newAttendance ? 'Участник отмечен как присутствующий' : 'Отметка о присутствии снята'
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при изменении статуса присутствия'
             });
         }
     };
@@ -301,7 +336,39 @@ const Participants = () => {
                     <h1 className="admin-page-title">Участники</h1>
                     <p className="admin-page-subtitle">Управление зарегистрированными участниками</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <button
+                        onClick={() => setShowInfoModal(true)}
+                        style={{
+                            width: '32px',
+                            height: '32px',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            border: '1px solid #e2e8f0',
+                            background: 'white',
+                            color: '#64748b',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = '#cbd5e1';
+                            e.currentTarget.style.color = '#475569';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = '#e2e8f0';
+                            e.currentTarget.style.color = '#64748b';
+                        }}
+                        title="Информация"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                    </button>
                     <button 
                         className="btn btn-secondary btn-with-icon"
                         onClick={handleSendTeamFormatWithoutTeamReminders}
@@ -477,6 +544,16 @@ const Participants = () => {
                     <option value="team">Командное</option>
                 </select>
 
+                <select
+                    value={filters.attendance}
+                    onChange={(e) => handleFilterChange('attendance', e.target.value)}
+                    className="form-select"
+                >
+                    <option value="">Все участники</option>
+                    <option value="true">Пришедшие</option>
+                    <option value="false">Не пришедшие</option>
+                </select>
+
                 <button
                     className="btn btn-outline"
                     onClick={() => setFilters({
@@ -488,6 +565,7 @@ const Participants = () => {
                         programming_language: '',
                         hasTeam: '',
                         participation_format: '',
+                        attendance: '',
                         sortBy: 'id',
                         sortOrder: 'ASC'
                     })}
@@ -529,6 +607,7 @@ const Participants = () => {
                                     <th onClick={() => handleSort('teamId')}>
                                         Команда / Формат {filters.sortBy === 'teamId' && (filters.sortOrder === 'ASC' ? '↑' : '↓')}
                                     </th>
+                                    <th style={{ width: '80px', textAlign: 'center' }}>Пришел</th>
                                     <th style={{ width: '100px', textAlign: 'center' }}>Место</th>
                                 </tr>
                             </thead>
@@ -567,6 +646,20 @@ const Participants = () => {
                                             ) : (
                                                 <span className="badge badge-no-team">Нет команды</span>
                                             )}
+                                        </td>
+                                        <td 
+                                            style={{ 
+                                                textAlign: 'center', 
+                                                fontSize: 'var(--font-size-sm)', 
+                                                color: participant.attendance ? '#10b981' : '#ef4444', 
+                                                fontWeight: 500,
+                                                cursor: 'pointer',
+                                                userSelect: 'none'
+                                            }}
+                                            onContextMenu={(e) => handleToggleAttendance(e, participant)}
+                                            title="ПКМ для переключения присутствия"
+                                        >
+                                            {participant.attendance ? 'Да' : 'Нет'}
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
                                             {editingPlace === participant.id ? (
@@ -907,6 +1000,34 @@ const Participants = () => {
                     </>
                 )}
             </div>
+
+            {/* Модальное окно с инструкцией */}
+            {showInfoModal && (
+                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
+                            <button 
+                                className="modal-close"
+                                onClick={() => setShowInfoModal(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div style={{ lineHeight: '1.8' }}>
+                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
+                                <li>Используйте фильтры для быстрого поиска участников по классу, формату участия или наличию команды</li>
+                                <li>Поиск работает по ФИО и email – введите любую часть для быстрого результата</li>
+                                <li>Для изменения статуса присутствия нажмите правой кнопкой мыши на ячейку "Пришел"</li>
+                                <li>Фильтр "Пришедшие" поможет быстро найти участников, которые уже пришли на чемпионат</li>
+                                <li>Место участника можно назначить, нажав на текст "Назначить" в колонке "Место"</li>
+                                <li>Экспорт в Excel позволяет сохранить полный список участников с фильтрами</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Toast уведомление */}
             {notification.type && (

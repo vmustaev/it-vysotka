@@ -11,9 +11,11 @@ const certificateController = require('../controllers/certificate-controller');
 const fileController = require('../controllers/file-controller');
 const backupController = require('../controllers/backup-controller');
 const resultsController = require('../controllers/results-controller');
+const attendanceController = require('../controllers/attendance-controller');
 const router = new Router();
 const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
+const volunteerMiddleware = require('../middlewares/volunteer-middleware');
 const validationMiddleware = require('../middlewares/validation-middleware');
 const { registrationValidation, loginValidation } = require('../validation/auth-validation');
 const { passwordResetRequestValidation, passwordResetValidation } = require('../validation/password-reset-validation');
@@ -95,6 +97,12 @@ router.post('/admin/settings/clear-data', authMiddleware, adminMiddleware, setti
 // Admin routes - User results
 router.put('/admin/users/:userId/result', authMiddleware, adminMiddleware, userController.setUserResult);
 
+// Admin routes - Volunteers management
+router.post('/admin/volunteers', authMiddleware, adminMiddleware, userController.createVolunteer);
+router.get('/admin/volunteers', authMiddleware, adminMiddleware, userController.getVolunteers);
+router.delete('/admin/volunteers/:volunteerId', authMiddleware, adminMiddleware, userController.deleteVolunteer);
+router.put('/admin/volunteers/:volunteerId/password', authMiddleware, adminMiddleware, userController.updateVolunteerPassword);
+
 // Admin routes - Certificates
 router.post('/admin/certificates/upload-template', authMiddleware, adminMiddleware, upload.single('template'), certificateController.uploadTemplate);
 router.post('/admin/certificates/upload-font', authMiddleware, adminMiddleware, upload.single('font'), certificateController.uploadFont);
@@ -142,5 +150,17 @@ router.post('/admin/results/from-participants', authMiddleware, adminMiddleware,
 router.post('/admin/results/send-winner-notifications', authMiddleware, adminMiddleware, resultsController.sendWinnerNotifications);
 router.put('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.updateResult);
 router.delete('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.deleteResult);
+
+// Volunteer routes - Attendance
+router.get('/volunteer/participants', authMiddleware, volunteerMiddleware, attendanceController.getParticipantsWithSeating);
+router.post('/volunteer/attendance/mark', authMiddleware, volunteerMiddleware, attendanceController.markAttendance);
+router.post('/volunteer/attendance/mark-multiple', authMiddleware, volunteerMiddleware, attendanceController.markMultipleAttendance);
+router.get('/volunteer/attendance/statistics', authMiddleware, volunteerMiddleware, attendanceController.getStatistics);
+router.get('/volunteer/attendance/export-all-rooms', authMiddleware, volunteerMiddleware, attendanceController.exportAllRoomsToPDF);
+router.get('/volunteer/attendance/history/:userId', authMiddleware, volunteerMiddleware, attendanceController.getAttendanceHistory);
+
+// Admin routes - Attendance History
+router.get('/admin/attendance/history', authMiddleware, adminMiddleware, attendanceController.getAllAttendanceHistory);
+router.get('/admin/attendance/history/:userId', authMiddleware, adminMiddleware, attendanceController.getAttendanceHistory);
 
 module.exports = router;

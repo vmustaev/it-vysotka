@@ -1,0 +1,318 @@
+/* Volunteer-specific styles */
+
+/* Filters Section */
+.volunteer-filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.volunteer-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.volunteer-filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.volunteer-filter-select {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #0f172a;
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.volunteer-filter-select:hover {
+    border-color: #cbd5e1;
+}
+
+.volunteer-filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.volunteer-filter-input {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #0f172a;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.volunteer-filter-input::placeholder {
+    color: #94a3b8;
+}
+
+.volunteer-filter-input:hover {
+    border-color: #cbd5e1;
+}
+
+.volunteer-filter-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Room Section */
+.volunteer-room-section {
+    margin-bottom: 32px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.volunteer-room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.volunteer-room-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.volunteer-room-stats {
+    font-size: 14px;
+    color: #64748b;
+    margin-left: 12px;
+    font-weight: 500;
+}
+
+.volunteer-room-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Buttons */
+.volunteer-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.volunteer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.volunteer-btn:active {
+    transform: translateY(0);
+}
+
+.volunteer-btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.volunteer-btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.volunteer-btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.volunteer-btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.volunteer-btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.volunteer-btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.volunteer-btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+/* Attendance Button */
+.volunteer-attendance-btn {
+    min-width: 120px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.volunteer-attendance-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.volunteer-attendance-btn:active {
+    transform: translateY(0);
+}
+
+.volunteer-attendance-btn.present {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.volunteer-attendance-btn.present:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.volunteer-attendance-btn.absent {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.volunteer-attendance-btn.absent:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Table */
+.volunteer-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 2px solid #f1f5f9;
+}
+
+.volunteer-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.volunteer-table thead {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.volunteer-table th {
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.volunteer-table td {
+    padding: 16px;
+    font-size: 14px;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.volunteer-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.volunteer-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.volunteer-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Export Button */
+.volunteer-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.volunteer-export-btn:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.volunteer-export-btn:active {
+    transform: translateY(0);
+}
+
+/* Header with button */
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .volunteer-filters {
+        flex-direction: column;
+    }
+
+    .volunteer-filter-group {
+        width: 100%;
+    }
+
+    .volunteer-room-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .volunteer-room-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .volunteer-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .volunteer-table-container {
+        overflow-x: scroll;
+    }
+}
+

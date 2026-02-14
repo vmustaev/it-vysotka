@@ -20,6 +20,7 @@ const SettingsModel = require('./models/settings-model');
 // CertificateModel удален - настройки сертификатов теперь в settings
 const FileModel = require('./models/file-model');
 const ChampionshipResultModel = require('./models/championship-result-model');
+const AttendanceHistoryModel = require('./models/attendance-history-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });
@@ -39,6 +40,11 @@ UserModel.hasMany(FileModel, { foreignKey: 'uploadedBy', as: 'UploadedFiles' });
 
 // Связь User -> Certificate File
 UserModel.belongsTo(FileModel, { foreignKey: 'certificateId', as: 'Certificate' });
+
+// Связи для истории отметок
+AttendanceHistoryModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'Participant', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+AttendanceHistoryModel.belongsTo(UserModel, { foreignKey: 'markedBy', as: 'MarkedByUser', onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+UserModel.hasMany(AttendanceHistoryModel, { foreignKey: 'userId', as: 'AttendanceHistory' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;

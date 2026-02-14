@@ -26,7 +26,9 @@ const Certificates = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterGrade, setFilterGrade] = useState('');
     const [filterFormat, setFilterFormat] = useState('');
+    const [filterAttendance, setFilterAttendance] = useState('');
     const [showOnlyWithoutCertificate, setShowOnlyWithoutCertificate] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
     
     // Refs для отслеживания blob URLs для правильной очистки
     const templateUrlRef = useRef(null);
@@ -371,6 +373,14 @@ const Certificates = () => {
             return false;
         }
 
+        // Фильтр по присутствию
+        if (filterAttendance === 'true' && !participant.attendance) {
+            return false;
+        }
+        if (filterAttendance === 'false' && participant.attendance) {
+            return false;
+        }
+
         // Показывать только без сертификата
         if (showOnlyWithoutCertificate && participant.certificateId) {
             return false;
@@ -386,6 +396,38 @@ const Certificates = () => {
                 <h1 className="admin-page-title">Сертификаты</h1>
                     <p className="admin-page-subtitle">Генерация сертификатов для участников</p>
                 </div>
+                <button
+                    onClick={() => setShowInfoModal(true)}
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        padding: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        border: '1px solid #e2e8f0',
+                        background: 'white',
+                        color: '#64748b',
+                        transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                        e.currentTarget.style.color = '#475569';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.color = '#64748b';
+                    }}
+                    title="Информация"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                </button>
             </div>
 
             <div className="admin-section" style={{ marginBottom: '2rem' }}>
@@ -602,6 +644,17 @@ const Certificates = () => {
                                     <option value="team">Командное</option>
                                 </select>
                                 
+                                <select
+                                    value={filterAttendance}
+                                    onChange={(e) => setFilterAttendance(e.target.value)}
+                                    className="form-select"
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">Все участники</option>
+                                    <option value="true">Пришедшие</option>
+                                    <option value="false">Не пришедшие</option>
+                                </select>
+                                
                                 <label style={{ 
                                     display: 'flex', 
                                     alignItems: 'center', 
@@ -681,6 +734,7 @@ const Certificates = () => {
                                                 <th>Класс</th>
                                                 <th>Школа</th>
                                                 <th>Формат</th>
+                                                <th style={{ width: '80px', textAlign: 'center' }}>Пришел</th>
                                                 <th style={{ textAlign: 'center' }}>Сертификат</th>
                                             </tr>
                                         </thead>
@@ -716,6 +770,9 @@ const Certificates = () => {
                                                         ) : (
                                                             <span className="badge badge-team">Командный</span>
                                                         )}
+                                                    </td>
+                                                    <td style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: participant.attendance ? '#10b981' : '#ef4444', fontWeight: 500 }}>
+                                                        {participant.attendance ? 'Да' : 'Нет'}
                                                     </td>
                                                     <td style={{ textAlign: 'center' }}>
                                                         {participant.certificateId ? (
@@ -766,6 +823,34 @@ const Certificates = () => {
                     <h2>Загрузите шаблон сертификата</h2>
                     <p>Начните с загрузки PDF шаблона сертификата</p>
             </div>
+            )}
+
+            {/* Модальное окно с инструкцией */}
+            {showInfoModal && (
+                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
+                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
+                            <button 
+                                className="modal-close"
+                                onClick={() => setShowInfoModal(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div style={{ lineHeight: '1.8' }}>
+                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
+                                <li>Загрузите PDF шаблон сертификата перед началом работы</li>
+                                <li>Используйте интерактивный предпросмотр для точной настройки позиции текста</li>
+                                <li>Фильтр "Пришедшие" поможет выдать сертификаты только присутствующим участникам</li>
+                                <li>Вы можете выбрать конкретных участников или выдать сертификаты всем сразу</li>
+                                <li>После выдачи сертификатов участники смогут скачать их в своих профилях</li>
+                                <li>Используйте функцию отправки писем для уведомления участников о готовности сертификатов</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Toast уведомление */}

@@ -31,7 +31,7 @@ class BackupService {
         const password = process.env.DB_PASSWORD || '';
 
         const env = { ...process.env, PGPASSWORD: password };
-        // Исключаем таблицу schools — она большая, заполняется скриптом import-schools.js
+        // Исключаем таблицу schools – она большая, заполняется скриптом import-schools.js
         const cmd = `pg_dump -h ${host} -p ${port} -U ${user} -d ${db} -F p --no-owner --no-acl --exclude-table=schools -f "${filepath}"`;
 
         try {

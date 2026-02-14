@@ -176,6 +176,65 @@ class UserController {
             next(e);
         }
     }
+
+    // Управление волонтерами (только для админа)
+    async createVolunteer(req, res, next) {
+        try {
+            const { email, password, firstName, lastName, secondName } = req.body;
+            
+            if (!email || !password || !firstName || !lastName) {
+                return next(ApiError.BadRequest('Заполните все обязательные поля'));
+            }
+            
+            const result = await userService.createVolunteer(email, password, firstName, lastName, secondName);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getVolunteers(req, res, next) {
+        try {
+            const volunteers = await userService.getVolunteers();
+            return res.json({
+                success: true,
+                data: volunteers
+            });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async deleteVolunteer(req, res, next) {
+        try {
+            const { volunteerId } = req.params;
+            
+            if (!volunteerId) {
+                return next(ApiError.BadRequest('ID волонтера не указан'));
+            }
+            
+            const result = await userService.deleteVolunteer(parseInt(volunteerId));
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async updateVolunteerPassword(req, res, next) {
+        try {
+            const { volunteerId } = req.params;
+            const { newPassword } = req.body;
+            
+            if (!volunteerId || !newPassword) {
+                return next(ApiError.BadRequest('ID волонтера и новый пароль обязательны'));
+            }
+            
+            const result = await userService.updateVolunteerPassword(parseInt(volunteerId), newPassword);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new UserController();
