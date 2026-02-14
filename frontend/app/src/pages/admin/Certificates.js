@@ -548,6 +548,7 @@ const Certificates = () => {
                                     templateUrl={templatePreviewUrl}
                                     textY={settings.textY}
                                     templateHeight={templateSize.height}
+                                    templateWidth={templateSize.width}
                                     onTextYChange={(newY) => handleSettingsChange('textY', newY)}
                                 />
                             )}

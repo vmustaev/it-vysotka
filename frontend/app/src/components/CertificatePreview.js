@@ -1,59 +1,72 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange }) => {
-    const canvasRef = useRef(null);
+const CertificatePreview = ({ templateUrl, textY, templateHeight, templateWidth, onTextYChange }) => {
     const containerRef = useRef(null);
+    const iframeRef = useRef(null);
+    const overlayRef = useRef(null);
     const [scale, setScale] = useState(1);
     const [pageHeight, setPageHeight] = useState(0);
+    const [pageWidth, setPageWidth] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!templateUrl) return;
+        if (!templateUrl) {
+            setIsLoading(false);
+            return;
+        }
 
-        const loadPdf = async () => {
-            try {
-                setIsLoading(true);
-                const loadingTask = pdfjsLib.getDocument(templateUrl);
-                const pdf = await loadingTask.promise;
-                const page = await pdf.getPage(1);
+        setIsLoading(true);
+        setError(null);
 
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-                
-                const context = canvas.getContext('2d');
+        // Получаем ширину контейнера
+        const containerWidth = containerRef.current?.offsetWidth || 800;
+        
+        // Стандартный размер A4 в пунктах PDF: 595 x 842
+        const standardA4Width = 595;
+        const standardA4Height = 842;
+        
+        // Используем переданные размеры шаблона или стандартный A4
+        let pdfWidth, pdfHeight;
+        
+        // Проверяем, что размеры в разумных пределах (A4 обычно 595x842, но могут быть другие форматы)
+        // Максимальный разумный размер: 3000x4000 пунктов
+        const MAX_REASONABLE_SIZE = 4000;
+        
+        if (templateWidth && templateWidth > 0 && templateWidth < MAX_REASONABLE_SIZE &&
+            templateHeight && templateHeight > 0 && templateHeight < MAX_REASONABLE_SIZE) {
+            // Используем реальные размеры шаблона
+            pdfWidth = templateWidth;
+            pdfHeight = templateHeight;
+        } else if (templateHeight && templateHeight > 0 && templateHeight < MAX_REASONABLE_SIZE) {
+            // Если есть только высота, вычисляем ширину сохраняя пропорции A4
+            pdfWidth = (templateHeight * standardA4Width / standardA4Height);
+            pdfHeight = templateHeight;
+        } else {
+            // Используем стандартный A4, если размеры не переданы или выглядят неправильно
+            pdfWidth = standardA4Width;
+            pdfHeight = standardA4Height;
+        }
+        
+        // Вычисляем масштаб так, чтобы PDF поместился по ширине контейнера
+        const computedScale = containerWidth / pdfWidth;
+        
+        setScale(computedScale);
+        setPageHeight(pdfHeight);
+        setPageWidth(pdfWidth);
+        
+        // Даем время iframe загрузиться
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 300);
 
-                const containerWidth = containerRef.current?.offsetWidth || 800;
-                const viewport = page.getViewport({ scale: 1 });
-                const computedScale = containerWidth / viewport.width;
-                
-                const scaledViewport = page.getViewport({ scale: computedScale });
-                
-                canvas.height = scaledViewport.height;
-                canvas.width = scaledViewport.width;
+        return () => clearTimeout(timer);
+    }, [templateUrl, templateHeight, templateWidth]);
 
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: scaledViewport
-                };
-
-                await page.render(renderContext).promise;
-                
-                setScale(computedScale);
-                setPageHeight(viewport.height);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Ошибка загрузки PDF:', error);
-                setIsLoading(false);
-            }
-        };
-
-        loadPdf();
-    }, [templateUrl]);
-
+    // Вычисляем позицию красной полоски
+    // textY - это координата Y в системе координат PDF (0 внизу, pageHeight вверху)
+    // Нам нужно преобразовать это в позицию от верха экрана
     const linePositionFromTop = pageHeight > 0 ? (pageHeight - textY) * scale : 0;
 
     const handleMouseDown = (e) => {
@@ -81,6 +94,9 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
         const rect = containerRef.current.getBoundingClientRect();
         const clickY = e.clientY - rect.top;
         
+        // Преобразуем координату клика в координату PDF
+        // clickY - это позиция от верха контейнера
+        // В PDF координатах: 0 внизу, pageHeight вверху
         const pdfY = pageHeight - (clickY / scale);
         
         const clampedY = Math.max(0, Math.min(pageHeight, pdfY));
@@ -115,11 +131,12 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 overflow: 'hidden',
                 backgroundColor: 'var(--bg-secondary)',
                 maxWidth: '100%',
-                cursor: isDragging ? 'grabbing' : 'grab',
-                minHeight: isLoading ? '400px' : 'auto'
+                width: '100%',
+                height: isLoading ? '400px' : (pageHeight > 0 ? `${pageHeight * scale}px` : 'auto'),
+                cursor: isDragging ? 'grabbing' : 'grab'
             }}
         >
-            {isLoading && (
+            {isLoading && !error && (
                 <div style={{
                     position: 'absolute',
                     top: '50%',
@@ -142,15 +159,63 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                 </div>
             )}
             
-            <canvas 
-                ref={canvasRef}
-                style={{ 
-                    display: isLoading ? 'none' : 'block',
-                    width: '100%',
-                    height: 'auto'
-                }}
-            />
+            {error && (
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    color: '#ff4444',
+                    zIndex: 20,
+                    padding: '20px',
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderRadius: '8px',
+                    border: '1px solid #ff4444',
+                    maxWidth: '80%'
+                }}>
+                    <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>Ошибка загрузки</div>
+                    <div style={{ fontSize: '14px', marginBottom: '15px' }}>{error}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        Проверьте, что файл шаблона загружен и доступен.
+                    </div>
+                </div>
+            )}
             
+            {/* embed для отображения PDF без панели инструментов */}
+            {!isLoading && (
+                <embed
+                    ref={iframeRef}
+                    src={`${templateUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                    type="application/pdf"
+                    style={{
+                        display: 'block',
+                        width: '100%',
+                        height: pageHeight > 0 ? `${pageHeight * scale}px` : 'auto',
+                        border: 'none',
+                        pointerEvents: 'none' // Отключаем взаимодействие, чтобы клики попадали на overlay
+                    }}
+                    title="PDF Preview"
+                />
+            )}
+            
+            {/* Overlay для интерактивности (вместо canvas) */}
+            {!isLoading && pageHeight > 0 && (
+                <div
+                    ref={overlayRef}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: `${pageHeight * scale}px`,
+                        pointerEvents: 'auto',
+                        zIndex: 5
+                    }}
+                />
+            )}
+            
+            {/* Красная полоска для индикации позиции текста */}
             {!isLoading && pageHeight > 0 && (
                 <div
                     style={{
@@ -160,7 +225,7 @@ const CertificatePreview = ({ templateUrl, textY, templateHeight, onTextYChange 
                         right: 0,
                         height: '3px',
                         backgroundColor: isDragging ? '#ff3333' : '#ff0000',
-                        zIndex: 10,
+                        zIndex: 15,
                         boxShadow: isDragging ? '0 0 10px rgba(255, 0, 0, 0.8)' : '0 0 5px rgba(255, 0, 0, 0.5)',
                         pointerEvents: 'none',
                         transition: isDragging ? 'none' : 'top 0.1s ease-out'
