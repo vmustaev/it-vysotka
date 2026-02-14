@@ -417,6 +417,76 @@ class UserService {
         throw ApiError.BadRequest('Не удалось обновить ссылку на эссе');
     }
 
+    async updateProfile(userId, profileData, editedBy = null) {
+        const ProfileHistoryModel = require('../models/profile-history-model');
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        // Проверяем, не занят ли телефон другим пользователем
+        if (profileData.phone && profileData.phone !== user.phone) {
+            const phoneExists = await UserModel.findOne({ 
+                where: { 
+                    phone: profileData.phone,
+                    id: { [require('sequelize').Op.ne]: userId }
+                } 
+            });
+            if (phoneExists) {
+                throw ApiError.BadRequest(
+                    errorMessages.PHONE_EXISTS,
+                    [errorMessages.PHONE_EXISTS],
+                    { phone: [errorMessages.PHONE_EXISTS] }
+                );
+            }
+        }
+
+        // Собираем изменения для истории
+        const changes = {};
+        const fieldsToTrack = ['last_name', 'first_name', 'second_name', 'birthday', 'region', 'city', 'school', 'programming_language', 'phone', 'grade'];
+        
+        fieldsToTrack.forEach(field => {
+            const oldValue = user[field];
+            const newValue = field === 'grade' ? parseInt(profileData[field]) : profileData[field];
+            
+            if (oldValue !== newValue) {
+                changes[field] = {
+                    old: oldValue,
+                    new: newValue
+                };
+            }
+        });
+
+        // Обновляем поля
+        user.last_name = profileData.last_name;
+        user.first_name = profileData.first_name;
+        user.second_name = profileData.second_name || null;
+        user.birthday = profileData.birthday;
+        user.region = profileData.region;
+        user.city = profileData.city;
+        user.school = profileData.school;
+        user.programming_language = profileData.programming_language;
+        user.phone = profileData.phone;
+        user.grade = parseInt(profileData.grade);
+
+        await user.save();
+
+        // Сохраняем историю изменений, если есть изменения и указан редактор
+        if (Object.keys(changes).length > 0 && editedBy) {
+            await ProfileHistoryModel.create({
+                userId: userId,
+                editedBy: editedBy,
+                changes: changes
+            });
+        }
+
+        return {
+            success: true,
+            message: 'Профиль успешно обновлен'
+        };
+    }
+
     async setUserResult(userId, place, certificateId) {
         const user = await UserModel.findByPk(userId);
         
@@ -555,6 +625,33 @@ class UserService {
             success: true,
             message: 'Пароль волонтера успешно обновлен'
         };
+    }
+
+    async getProfileHistory(userId) {
+        const ProfileHistoryModel = require('../models/profile-history-model');
+        
+        const history = await ProfileHistoryModel.findAll({
+            where: { userId },
+            include: [{
+                model: UserModel,
+                as: 'EditedByUser',
+                attributes: ['id', 'first_name', 'last_name', 'second_name', 'role'],
+                required: false
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 50
+        });
+
+        return history.map(record => ({
+            id: record.id,
+            changes: record.changes,
+            createdAt: record.createdAt,
+            editedBy: record.EditedByUser ? {
+                id: record.EditedByUser.id,
+                name: `${record.EditedByUser.last_name} ${record.EditedByUser.first_name} ${record.EditedByUser.second_name || ''}`.trim(),
+                role: record.EditedByUser.role
+            } : null
+        }));
     }
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AttendanceService from '../../services/AttendanceService';
+import EditProfileModal from '../../components/EditProfileModal';
 import Toast from '../../components/Toast';
 import '../../styles/admin.css';
 import '../../styles/volunteer.css';
@@ -15,6 +16,8 @@ const AttendanceList = () => {
     const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
+    const [editingParticipant, setEditingParticipant] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -367,7 +370,8 @@ const AttendanceList = () => {
                                         <th>ФИО</th>
                                         <th>Школа</th>
                                         <th>Команда</th>
-                                        <th style={{ width: '150px', textAlign: 'center' }}>Присутствие</th>
+                                        <th style={{ width: '200px', textAlign: 'center' }}>Присутствие</th>
+                                        <th style={{ width: '120px', textAlign: 'center' }}>Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -378,27 +382,43 @@ const AttendanceList = () => {
                                             <td style={{ fontSize: '13px', color: '#64748b' }}>{participant.school}</td>
                                             <td>{participant.teamName || '–'}</td>
                                             <td style={{ textAlign: 'center' }}>
+                                                <button
+                                                    className={`volunteer-attendance-btn ${participant.attendance ? 'present' : 'absent'}`}
+                                                    onClick={() => handleAttendanceToggle(participant.id, participant.attendance)}
+                                                >
+                                                    {participant.attendance ? (
+                                                        <>
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                                <polyline points="20 6 9 17 4 12"/>
+                                                            </svg>
+                                                            Присутствует
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                                            </svg>
+                                                            Отсутствует
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button
-                                                        className={`volunteer-attendance-btn ${participant.attendance ? 'present' : 'absent'}`}
-                                                        onClick={() => handleAttendanceToggle(participant.id, participant.attendance)}
+                                                        className="volunteer-btn volunteer-btn-outline volunteer-btn-sm"
+                                                        onClick={() => {
+                                                            setEditingParticipant(participant);
+                                                            setIsEditModalOpen(true);
+                                                        }}
+                                                        title="Редактировать данные"
+                                                        style={{ minWidth: 'auto', padding: '6px 10px' }}
                                                     >
-                                                        {participant.attendance ? (
-                                                            <>
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                                    <polyline points="20 6 9 17 4 12"/>
-                                                                </svg>
-                                                                Присутствует
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                                                </svg>
-                                                                Отсутствует
-                                                            </>
-                                                        )}
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                        </svg>
                                                     </button>
                                                     <button
                                                         className="volunteer-btn volunteer-btn-outline volunteer-btn-sm"
@@ -508,6 +528,28 @@ const AttendanceList = () => {
                         )}
                     </div>
                 </div>
+            )}
+
+            {editingParticipant && (
+                <EditProfileModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setEditingParticipant(null);
+                    }}
+                    profile={{
+                        ...editingParticipant,
+                        // Преобразуем формат данных для модального окна
+                        last_name: editingParticipant.last_name || editingParticipant.lastName,
+                        first_name: editingParticipant.first_name || editingParticipant.firstName,
+                        second_name: editingParticipant.second_name || editingParticipant.secondName
+                    }}
+                    userId={editingParticipant.id}
+                    onSave={() => {
+                        setNotification({ type: 'success', message: 'Данные участника успешно обновлены' });
+                        loadData();
+                    }}
+                />
             )}
         </div>
     );

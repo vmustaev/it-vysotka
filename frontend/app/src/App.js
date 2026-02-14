@@ -34,6 +34,7 @@ import Volunteers from "./pages/admin/Volunteers";
 import VolunteerLayout from "./pages/volunteer/VolunteerLayout";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import AttendanceList from "./pages/volunteer/AttendanceList";
+import EditParticipants from "./pages/volunteer/EditParticipants";
 
 const App = observer(() => {
     const { store } = useContext(Context);
@@ -144,6 +145,7 @@ const App = observer(() => {
                 }>
                     <Route index element={<VolunteerDashboard />} />
                     <Route path="attendance" element={<AttendanceList />} />
+                    <Route path="edit-participants" element={<EditParticipants />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

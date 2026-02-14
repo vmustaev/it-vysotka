@@ -21,6 +21,7 @@ const SettingsModel = require('./models/settings-model');
 const FileModel = require('./models/file-model');
 const ChampionshipResultModel = require('./models/championship-result-model');
 const AttendanceHistoryModel = require('./models/attendance-history-model');
+const ProfileHistoryModel = require('./models/profile-history-model');
 
 // Настройка связей между моделями
 TeamModel.hasMany(UserModel, { foreignKey: 'teamId', as: 'Members' });
@@ -45,6 +46,11 @@ UserModel.belongsTo(FileModel, { foreignKey: 'certificateId', as: 'Certificate' 
 AttendanceHistoryModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'Participant', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 AttendanceHistoryModel.belongsTo(UserModel, { foreignKey: 'markedBy', as: 'MarkedByUser', onDelete: 'SET NULL', onUpdate: 'CASCADE' });
 UserModel.hasMany(AttendanceHistoryModel, { foreignKey: 'userId', as: 'AttendanceHistory' });
+
+// Связи для истории изменений профиля
+ProfileHistoryModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'User', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+ProfileHistoryModel.belongsTo(UserModel, { foreignKey: 'editedBy', as: 'EditedByUser', onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+UserModel.hasMany(ProfileHistoryModel, { foreignKey: 'userId', as: 'ProfileHistory' });
 
 const app = express();
 const PORT = process.env.PORT || 4000;

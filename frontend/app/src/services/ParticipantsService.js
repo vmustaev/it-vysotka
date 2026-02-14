@@ -34,5 +34,10 @@ export default class ParticipantsService {
     static async sendTeamFormatWithoutTeamReminders() {
         return $api.post('/admin/participants/send-team-format-without-team-reminders');
     }
+
+    // Метод для волонтера
+    static async getAllForVolunteer(params = {}) {
+        return $api.get('/volunteer/participants/list', { params });
+    }
 }
 

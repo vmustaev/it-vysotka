@@ -280,6 +280,57 @@ const VolunteerDashboard = () => {
                                         fontSize: '0.875rem',
                                         fontWeight: 'bold'
                                     }}>3</span>
+                                    Как редактировать данные участника?
+                                </h3>
+                                <div style={{ paddingLeft: '2.5rem', color: '#475569' }}>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        Если участник сообщил об ошибке в своих данных (неправильное ФИО, телефон, школа и т.д.), вы можете исправить их:
+                                    </p>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        <strong>Шаг 1:</strong> Перейдите в раздел <strong>"Редактирование участников"</strong> в меню слева.
+                                    </p>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        <strong>Шаг 2:</strong> Найдите участника с помощью поиска или фильтров (по классу, формату участия и т.д.).
+                                    </p>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        <strong>Шаг 3:</strong> Нажмите кнопку <strong style={{ color: '#3b82f6' }}>"Редактировать"</strong> рядом с участником.
+                                    </p>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        <strong>Шаг 4:</strong> В открывшемся окне исправьте нужные данные и нажмите <strong>"Сохранить"</strong>.
+                                    </p>
+                                    <p style={{ marginBottom: '0.5rem' }}>
+                                        <strong>Важно:</strong> 
+                                    </p>
+                                    <ul style={{ marginLeft: '1.5rem', marginBottom: '0.5rem' }}>
+                                        <li>В колонке "История" вы можете увидеть, были ли изменения в данных участника ранее</li>
+                                        <li>Если есть история изменений, нажмите на <strong style={{ color: '#3b82f6' }}>"Есть изменения"</strong>, чтобы просмотреть, кто и когда вносил изменения</li>
+                                        <li>Кнопка "Редактировать" будет синей, если у участника есть история изменений, и серой, если изменений не было</li>
+                                        <li>Все изменения сохраняются в истории, чтобы можно было отследить, кто и когда внёс правки</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                                <h3 style={{ 
+                                    color: '#0f172a', 
+                                    fontSize: '1.25rem', 
+                                    marginBottom: '1rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <span style={{ 
+                                        display: 'inline-flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        width: '28px',
+                                        height: '28px',
+                                        borderRadius: '50%',
+                                        background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+                                        color: 'white',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 'bold'
+                                    }}>4</span>
                                     Что делать, если два волонтера работают одновременно?
                                 </h3>
                                 <div style={{ paddingLeft: '2.5rem', color: '#475569' }}>
@@ -325,6 +376,8 @@ const VolunteerDashboard = () => {
                                     <li>Поиск работает по ФИО, школе и названию команды – введите любую часть</li>
                                     <li>Статистика вверху страницы показывает общее количество пришедших участников</li>
                                     <li>Если случайно отметили не того участника – просто нажмите кнопку ещё раз, чтобы снять отметку</li>
+                                    <li>При редактировании данных участника поле поиска сохраняет фокус, вы можете продолжать вводить текст</li>
+                                    <li>История изменений показывает, кто и когда вносил правки в данные участника</li>
                                 </ul>
                             </div>
                         </div>

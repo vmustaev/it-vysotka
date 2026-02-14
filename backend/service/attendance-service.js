@@ -24,7 +24,7 @@ class AttendanceService {
                     include: [{
                         model: UserModel,
                         as: 'Members',
-                        attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'isLead', 'attendance'],
+                        attributes: ['id', 'email', 'school', 'first_name', 'last_name', 'second_name', 'isLead', 'attendance', 'phone', 'birthday', 'region', 'city', 'programming_language', 'grade'],
                         where: { role: 'participant' },
                         required: false
                     }]
@@ -32,7 +32,7 @@ class AttendanceService {
                 {
                     model: UserModel,
                     as: 'User',
-                    attributes: ['id', 'school', 'first_name', 'last_name', 'second_name', 'attendance']
+                    attributes: ['id', 'email', 'school', 'first_name', 'last_name', 'second_name', 'attendance', 'phone', 'birthday', 'region', 'city', 'programming_language', 'grade']
                 },
                 {
                     model: RoomModel,
@@ -70,10 +70,17 @@ class AttendanceService {
                             lastName: member.last_name,
                             secondName: member.second_name,
                             fullName: `${member.last_name} ${member.first_name} ${member.second_name || ''}`.trim(),
+                            email: member.email,
                             school: member.school,
                             teamName: team.name,
                             isTeamMember: true,
-                            attendance: member.attendance || false
+                            attendance: member.attendance || false,
+                            phone: member.phone,
+                            birthday: member.birthday,
+                            region: member.region,
+                            city: member.city,
+                            programming_language: member.programming_language,
+                            grade: member.grade
                         });
                     });
                 } else if (assignment.userId && assignment.User) {
@@ -84,10 +91,17 @@ class AttendanceService {
                         lastName: user.last_name,
                         secondName: user.second_name,
                         fullName: `${user.last_name} ${user.first_name} ${user.second_name || ''}`.trim(),
+                        email: user.email,
                         school: user.school,
                         teamName: null,
                         isTeamMember: false,
-                        attendance: user.attendance || false
+                        attendance: user.attendance || false,
+                        phone: user.phone,
+                        birthday: user.birthday,
+                        region: user.region,
+                        city: user.city,
+                        programming_language: user.programming_language,
+                        grade: user.grade
                     });
                 }
             }

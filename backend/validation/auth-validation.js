@@ -113,7 +113,48 @@ const loginValidation = [
         .notEmpty().withMessage(errorMessages.PASSWORD_REQUIRED)
 ];
 
+const updateProfileValidation = [
+    body('last_name')
+        .notEmpty().withMessage(errorMessages.LAST_NAME_REQUIRED)
+        .custom(validateCyrillic),
+    
+    body('first_name')
+        .notEmpty().withMessage(errorMessages.FIRST_NAME_REQUIRED)
+        .custom(validateCyrillic),
+    
+    body('second_name')
+        .optional({ checkFalsy: true })
+        .custom(validateCyrillic),
+    
+    body('birthday')
+        .notEmpty().withMessage(errorMessages.BIRTHDAY_REQUIRED)
+        .custom(validateDate).withMessage(errorMessages.BIRTHDAY_INVALID)
+        .custom(validateAge).withMessage(errorMessages.BIRTHDAY_AGE),
+    
+    body('region')
+        .notEmpty().withMessage('Регион обязателен'),
+    
+    body('city')
+        .notEmpty().withMessage('Город обязателен'),
+    
+    body('school')
+        .notEmpty().withMessage('Школа обязательна'),
+    
+    body('programming_language')
+        .notEmpty().withMessage('Язык программирования обязателен')
+        .isIn(['C++', 'Python', 'Java']).withMessage('Неверный формат. Допустимо: C++ или Python или Java'),
+    
+    body('phone')
+        .notEmpty().withMessage(errorMessages.PHONE_REQUIRED)
+        .custom(validatePhone).withMessage(errorMessages.PHONE_INVALID),
+    
+    body('grade')
+        .notEmpty().withMessage('Класс обязателен')
+        .isInt({ min: 9, max: 11 }).withMessage(errorMessages.GRADE_INVALID)
+];
+
 module.exports = {
     registrationValidation,
-    loginValidation
+    loginValidation,
+    updateProfileValidation
 };

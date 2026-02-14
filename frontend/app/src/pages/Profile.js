@@ -8,6 +8,7 @@ import SettingsService from '../services/SettingsService';
 import FileService from '../services/FileService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
+import EditProfileModal from '../components/EditProfileModal';
 import '../styles/profile.css';
 
 const Profile = () => {
@@ -31,6 +32,7 @@ const Profile = () => {
         message: '',
         onConfirm: null,
     });
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
 
     useEffect(() => {
         document.body.style.overflowY = 'scroll';
@@ -94,6 +96,7 @@ const Profile = () => {
             day: 'numeric'
         });
     };
+
 
     useEffect(() => {
         if (profile && profile.essayUrl) {
@@ -446,129 +449,142 @@ const Profile = () => {
                     <h2 className="profile-section-title">Личная информация</h2>
                     <div className="profile-card">
                         <div className="profile-main-info">
-                        <div className="profile-row">
-                            <span className="profile-label">ФИО:</span>
-                            <span className="profile-value">
-                                {profile.last_name} {profile.first_name} {profile.second_name}
-                            </span>
-                        </div>
-                        <div className="profile-row">
-                            <span className="profile-label">Email:</span>
-                            <span className="profile-value">{profile.email}</span>
-                        </div>
-                            {profile.phone && (
-                            <div className="profile-row">
-                                    <span className="profile-label">Телефон:</span>
-                                    <span className="profile-value">{profile.phone}</span>
-                            </div>
-                        )}
-                        <div className="profile-row">
-                            <span className="profile-label">Формат участия:</span>
-                            <div className="profile-value">
-                                <div className="profile-radio-group">
-                                    <label className="profile-radio">
-                                        <input
-                                            type="radio"
-                                            name="participation_format"
-                                            value="individual"
-                                            checked={profile.participation_format === 'individual'}
-                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            disabled={actionLoading}
-                                        />
-                                        <span className="profile-radio-mark"></span>
-                                        <span className="profile-radio-text">Индивидуальное</span>
-                                    </label>
-                                    <label className="profile-radio">
-                                        <input
-                                            type="radio"
-                                            name="participation_format"
-                                            value="team"
-                                            checked={profile.participation_format === 'team'}
-                                            onChange={(e) => handleParticipationFormatChange(e.target.value)}
-                                            disabled={actionLoading}
-                                        />
-                                        <span className="profile-radio-mark"></span>
-                                        <span className="profile-radio-text">Командное</span>
-                                    </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        <div className="profile-additional-info">
-                                            <button 
-                                className="profile-accordion-toggle"
-                                onClick={() => setIsAccordionOpen(!isAccordionOpen)}
-                                type="button"
-                            >
-                                <span>Дополнительная информация</span>
-                                <svg
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    className={isAccordionOpen ? 'accordion-icon-open' : 'accordion-icon-closed'}
-                                >
-                                    <polyline points="6 9 12 15 18 9" />
-                                                        </svg>
-                                            </button>
-
-                            <div className={`profile-accordion-content ${isAccordionOpen ? 'accordion-open' : ''}`}>
-                                {profile.school && (
                                     <div className="profile-row">
-                                        <span className="profile-label">Школа:</span>
-                                        <span className="profile-value">{profile.school}</span>
-                                    </div>
-                                )}
-                                {profile.grade && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Класс:</span>
-                                        <span className="profile-value">{profile.grade} класс</span>
-                            </div>
-                        )}
-                                {profile.city && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Город:</span>
-                                        <span className="profile-value">{profile.city}</span>
-                    </div>
-                                )}
-                                {profile.region && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Регион:</span>
-                                        <span className="profile-value">{profile.region}</span>
-                </div>
-                                )}
-                                {profile.programming_language && (
-                                    <div className="profile-row">
-                                        <span className="profile-label">Язык программирования:</span>
-                                        <span className="profile-value">{profile.programming_language}</span>
-                        </div>
-                                )}
-                                {profile.birthday && (
-                                <div className="profile-row">
-                                        <span className="profile-label">Дата рождения:</span>
-                                    <span className="profile-value">
-                                            {new Date(profile.birthday).toLocaleDateString('ru-RU', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
+                                        <span className="profile-label">ФИО:</span>
+                                        <span className="profile-value">
+                                            {profile.last_name} {profile.first_name} {profile.second_name}
                                         </span>
                                     </div>
-                                )}
-                                {profile.role === 'admin' && (
                                     <div className="profile-row">
-                                        <span className="profile-label">Роль:</span>
-                                        <span className="profile-value">
-                                            <span className="admin-badge">Администратор</span>
-                                    </span>
-                                </div>
-                                )}
+                                        <span className="profile-label">Email:</span>
+                                        <span className="profile-value">{profile.email}</span>
+                                    </div>
+                                    {profile.phone && (
+                                        <div className="profile-row">
+                                            <span className="profile-label">Телефон:</span>
+                                            <span className="profile-value">{profile.phone}</span>
+                                        </div>
+                                    )}
+                                    <div className="profile-row">
+                                        <span className="profile-label">Формат участия:</span>
+                                        <div className="profile-value">
+                                            <div className="profile-radio-group">
+                                                <label className="profile-radio">
+                                                    <input
+                                                        type="radio"
+                                                        name="participation_format"
+                                                        value="individual"
+                                                        checked={profile.participation_format === 'individual'}
+                                                        onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                                        disabled={actionLoading}
+                                                    />
+                                                    <span className="profile-radio-mark"></span>
+                                                    <span className="profile-radio-text">Индивидуальное</span>
+                                                </label>
+                                                <label className="profile-radio">
+                                                    <input
+                                                        type="radio"
+                                                        name="participation_format"
+                                                        value="team"
+                                                        checked={profile.participation_format === 'team'}
+                                                        onChange={(e) => handleParticipationFormatChange(e.target.value)}
+                                                        disabled={actionLoading}
+                                                    />
+                                                    <span className="profile-radio-mark"></span>
+                                                    <span className="profile-radio-text">Командное</span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                        </div>
+                                <div className="profile-additional-info">
+                                    <button 
+                                        className="profile-accordion-toggle"
+                                        onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+                                        type="button"
+                                    >
+                                        <span>Дополнительная информация</span>
+                                        <svg
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            className={isAccordionOpen ? 'accordion-icon-open' : 'accordion-icon-closed'}
+                                        >
+                                            <polyline points="6 9 12 15 18 9" />
+                                        </svg>
+                                    </button>
+
+                                    <div className={`profile-accordion-content ${isAccordionOpen ? 'accordion-open' : ''}`}>
+                                        {profile.school && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Школа:</span>
+                                                <span className="profile-value">{profile.school}</span>
+                                            </div>
+                                        )}
+                                        {profile.grade && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Класс:</span>
+                                                <span className="profile-value">{profile.grade} класс</span>
+                                            </div>
+                                        )}
+                                        {profile.city && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Город:</span>
+                                                <span className="profile-value">{profile.city}</span>
+                                            </div>
+                                        )}
+                                        {profile.region && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Регион:</span>
+                                                <span className="profile-value">{profile.region}</span>
+                                            </div>
+                                        )}
+                                        {profile.programming_language && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Язык программирования:</span>
+                                                <span className="profile-value">{profile.programming_language}</span>
+                                            </div>
+                                        )}
+                                        {profile.birthday && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Дата рождения:</span>
+                                                <span className="profile-value">
+                                                    {new Date(profile.birthday).toLocaleDateString('ru-RU', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric'
+                                                    })}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {profile.role === 'admin' && (
+                                            <div className="profile-row">
+                                                <span className="profile-label">Роль:</span>
+                                                <span className="profile-value">
+                                                    <span className="admin-badge">Администратор</span>
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                                    <button
+                                        className="btn btn-secondary btn-with-icon"
+                                        onClick={() => setIsEditingProfile(true)}
+                                        disabled={actionLoading}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                        Редактировать личные данные
+                                    </button>
+                                </div>
                     </div>
+                </div>
 
                 {profile.participation_format === 'team' && (
                     <div className="profile-section">
@@ -1035,6 +1051,16 @@ const Profile = () => {
                     duration={5000}
                 />
             )}
+
+            <EditProfileModal
+                isOpen={isEditingProfile}
+                onClose={() => setIsEditingProfile(false)}
+                profile={profile}
+                onSave={() => {
+                    setNotification({ type: 'success', message: 'Профиль успешно обновлен' });
+                    loadProfile();
+                }}
+            />
         </div>
     );
 };

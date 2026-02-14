@@ -161,6 +161,36 @@ class UserController {
         }
     }
 
+    async updateProfile(req, res, next) {
+        try {
+            const userId = req.user.id; // Из authMiddleware
+            const {
+                last_name, first_name, second_name, birthday,
+                region, city, school, programming_language,
+                phone, grade
+            } = req.body;
+            
+            const profileData = {
+                last_name,
+                first_name,
+                second_name: second_name || null,
+                birthday,
+                region,
+                city,
+                school,
+                programming_language,
+                phone,
+                grade: parseInt(grade)
+            };
+            
+            // Передаем userId как editedBy, так как пользователь редактирует сам себя
+            const result = await userService.updateProfile(userId, profileData, userId);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async setUserResult(req, res, next) {
         try {
             const { userId } = req.params;
@@ -231,6 +261,50 @@ class UserController {
             
             const result = await userService.updateVolunteerPassword(parseInt(volunteerId), newPassword);
             return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async updateParticipantProfileByVolunteer(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const editedBy = req.user.id; // ID волонтера, который редактирует
+            const {
+                last_name, first_name, second_name, birthday,
+                region, city, school, programming_language,
+                phone, grade
+            } = req.body;
+            
+            const profileData = {
+                last_name,
+                first_name,
+                second_name: second_name || null,
+                birthday,
+                region,
+                city,
+                school,
+                programming_language,
+                phone,
+                grade: parseInt(grade)
+            };
+            
+            // Передаем ID волонтера как editedBy
+            const result = await userService.updateProfile(parseInt(userId), profileData, editedBy);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getProfileHistory(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const history = await userService.getProfileHistory(parseInt(userId));
+            return res.json({
+                success: true,
+                data: history
+            });
         } catch (e) {
             next(e);
         }

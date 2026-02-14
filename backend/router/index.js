@@ -17,7 +17,7 @@ const authMiddleware = require('../middlewares/auth-middleware');
 const adminMiddleware = require('../middlewares/admin-middleware');
 const volunteerMiddleware = require('../middlewares/volunteer-middleware');
 const validationMiddleware = require('../middlewares/validation-middleware');
-const { registrationValidation, loginValidation } = require('../validation/auth-validation');
+const { registrationValidation, loginValidation, updateProfileValidation } = require('../validation/auth-validation');
 const { passwordResetRequestValidation, passwordResetValidation } = require('../validation/password-reset-validation');
 const { createTeamValidation } = require('../validation/team-validation');
 const { createRoomValidation, updateRoomValidation } = require('../validation/room-validation');
@@ -39,6 +39,7 @@ router.get('/activate/:link', userController.activate);
 router.post('/refresh', userController.refresh);
 router.get('/users', authMiddleware, userController.getUsers);
 router.get('/user/profile', authMiddleware, userController.getProfile);
+router.put('/user/profile', authMiddleware, updateProfileValidation, validationMiddleware, userController.updateProfile);
 router.put('/user/participation-format', authMiddleware, userController.updateParticipationFormat);
 router.put('/user/essay-url', authMiddleware, userController.updateEssayUrl);
 
@@ -151,6 +152,9 @@ router.post('/admin/results/send-winner-notifications', authMiddleware, adminMid
 router.put('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.updateResult);
 router.delete('/admin/results/:id', authMiddleware, adminMiddleware, resultsController.deleteResult);
 
+// Volunteer routes - Participants (for editing)
+router.get('/volunteer/participants/list', authMiddleware, volunteerMiddleware, participantsController.getAll);
+
 // Volunteer routes - Attendance
 router.get('/volunteer/participants', authMiddleware, volunteerMiddleware, attendanceController.getParticipantsWithSeating);
 router.post('/volunteer/attendance/mark', authMiddleware, volunteerMiddleware, attendanceController.markAttendance);
@@ -158,6 +162,10 @@ router.post('/volunteer/attendance/mark-multiple', authMiddleware, volunteerMidd
 router.get('/volunteer/attendance/statistics', authMiddleware, volunteerMiddleware, attendanceController.getStatistics);
 router.get('/volunteer/attendance/export-all-rooms', authMiddleware, volunteerMiddleware, attendanceController.exportAllRoomsToPDF);
 router.get('/volunteer/attendance/history/:userId', authMiddleware, volunteerMiddleware, attendanceController.getAttendanceHistory);
+
+// Volunteer routes - Edit participant profile
+router.put('/volunteer/participants/:userId/profile', authMiddleware, volunteerMiddleware, updateProfileValidation, validationMiddleware, userController.updateParticipantProfileByVolunteer);
+router.get('/volunteer/participants/:userId/profile-history', authMiddleware, volunteerMiddleware, userController.getProfileHistory);
 
 // Admin routes - Attendance History
 router.get('/admin/attendance/history', authMiddleware, adminMiddleware, attendanceController.getAllAttendanceHistory);

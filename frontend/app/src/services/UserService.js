@@ -16,4 +16,12 @@ export default class UserService {
     static updateEssayUrl(essayUrl) {
         return $api.put('/user/essay-url', { essayUrl })
     }
+
+    static updateProfile(profileData) {
+        return $api.put('/user/profile', profileData)
+    }
+
+    static getProfileHistory(userId) {
+        return $api.get(`/volunteer/participants/${userId}/profile-history`)
+    }
 }
