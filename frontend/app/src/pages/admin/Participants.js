@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ParticipantsService from '../../services/ParticipantsService';
 import TeamService from '../../services/TeamService';
 import AttendanceService from '../../services/AttendanceService';
+import SeatingService from '../../services/SeatingService';
 import Toast from '../../components/Toast';
 
 const Participants = () => {
@@ -9,6 +10,7 @@ const Participants = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [exporting, setExporting] = useState(false);
+    const [exportingVerificationProtocols, setExportingVerificationProtocols] = useState(false);
     const [notification, setNotification] = useState({ type: null, message: '' });
     const [expandedTeams, setExpandedTeams] = useState(new Set()); // Для раскрывающихся команд
     const [teams, setTeams] = useState([]); // Список всех команд
@@ -18,7 +20,6 @@ const Participants = () => {
     const [placeValue, setPlaceValue] = useState(''); // Значение редактируемого места
     const [sendingEssayReminders, setSendingEssayReminders] = useState(false); // Статус отправки напоминаний об эссе
     const [sendingTeamFormatWithoutTeam, setSendingTeamFormatWithoutTeam] = useState(false); // Статус отправки писем участникам с командным форматом без команды
-    const [showInfoModal, setShowInfoModal] = useState(false);
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -185,6 +186,42 @@ const Participants = () => {
         }
     };
 
+    const handleExportVerificationProtocols = async () => {
+        try {
+            setExportingVerificationProtocols(true);
+            setNotification({ type: null, message: '' });
+            const response = await SeatingService.exportVerificationProtocols();
+            
+            // Создаем blob из response (Excel)
+            const blob = new Blob([response.data], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = window.URL.createObjectURL(blob);
+            
+            // Создаем ссылку для скачивания
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Протоколы_проверки_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Очищаем URL после небольшой задержки
+            setTimeout(() => window.URL.revokeObjectURL(url), 100);
+            
+            setNotification({ 
+                type: 'success', 
+                message: 'Протоколы проверки успешно скачаны!' 
+            });
+        } catch (error) {
+            console.error('Ошибка экспорта протоколов проверки:', error);
+            const errorMessage = error.response?.data?.message || 'Не удалось экспортировать протоколы проверки. Попробуйте еще раз.';
+            setNotification({ type: 'error', message: errorMessage });
+        } finally {
+            setExportingVerificationProtocols(false);
+        }
+    };
+
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({
             ...prev,
@@ -337,38 +374,6 @@ const Participants = () => {
                     <p className="admin-page-subtitle">Управление зарегистрированными участниками</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <button
-                        onClick={() => setShowInfoModal(true)}
-                        style={{
-                            width: '32px',
-                            height: '32px',
-                            padding: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            border: '1px solid #e2e8f0',
-                            background: 'white',
-                            color: '#64748b',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#cbd5e1';
-                            e.currentTarget.style.color = '#475569';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.color = '#64748b';
-                        }}
-                        title="Информация"
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
-                    </button>
                     <button 
                         className="btn btn-secondary btn-with-icon"
                         onClick={handleSendTeamFormatWithoutTeamReminders}
@@ -402,6 +407,18 @@ const Participants = () => {
                             <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
                         {exporting ? 'Экспорт...' : 'Экспорт в Excel'}
+                    </button>
+                    <button 
+                        className="btn btn-primary btn-with-icon"
+                        onClick={handleExportVerificationProtocols}
+                        disabled={exportingVerificationProtocols}
+                        style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            <path d="M9 12h6m-6 4h6"/>
+                        </svg>
+                        {exportingVerificationProtocols ? 'Экспорт...' : 'Протоколы проверки'}
                     </button>
                 </div>
             </div>
@@ -1000,34 +1017,6 @@ const Participants = () => {
                     </>
                 )}
             </div>
-
-            {/* Модальное окно с инструкцией */}
-            {showInfoModal && (
-                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
-                            <button 
-                                className="modal-close"
-                                onClick={() => setShowInfoModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div style={{ lineHeight: '1.8' }}>
-                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
-                                <li>Используйте фильтры для быстрого поиска участников по классу, формату участия или наличию команды</li>
-                                <li>Поиск работает по ФИО и email – введите любую часть для быстрого результата</li>
-                                <li>Для изменения статуса присутствия нажмите правой кнопкой мыши на ячейку "Пришел"</li>
-                                <li>Фильтр "Пришедшие" поможет быстро найти участников, которые уже пришли на чемпионат</li>
-                                <li>Место участника можно назначить, нажав на текст "Назначить" в колонке "Место"</li>
-                                <li>Экспорт в Excel позволяет сохранить полный список участников с фильтрами</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Toast уведомление */}
             {notification.type && (

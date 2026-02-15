@@ -365,6 +365,296 @@ class AttendanceController {
             next(e);
         }
     }
+
+    /**
+     * Экспорт протоколов проверки в Excel (каждый кабинет на отдельном листе)
+     * Для заполнения баллов за эссе и 3 задания
+     */
+    async exportVerificationProtocols(req, res, next) {
+        try {
+            const ExcelJS = require('exceljs');
+
+            // Получаем данные всех кабинетов
+            const allRoomsData = await attendanceService.getParticipantsWithSeating();
+
+            // Создаем книгу Excel
+            const workbook = new ExcelJS.Workbook();
+
+            // Обрабатываем каждый кабинет
+            allRoomsData.rooms.forEach((roomData) => {
+                // Фильтруем только рассаженных и присутствующих
+                const presentParticipants = roomData.participants.filter(p => p.attendance);
+                
+                if (presentParticipants.length === 0) {
+                    return; // Пропускаем кабинет без присутствующих
+                }
+
+                // Группируем участников по командам
+                const teams = {};
+                const individuals = [];
+
+                presentParticipants.forEach(p => {
+                    if (p.teamName) {
+                        if (!teams[p.teamName]) {
+                            teams[p.teamName] = [];
+                        }
+                        teams[p.teamName].push(p);
+                    } else {
+                        individuals.push(p);
+                    }
+                });
+
+                // Создаем лист для кабинета
+                const sheetName = `Кабинет ${roomData.room.number}`;
+                const worksheet = workbook.addWorksheet(sheetName);
+
+                // Настройка печати - книжный формат A4
+                worksheet.pageSetup = {
+                    paperSize: 9, // A4
+                    orientation: 'portrait',
+                    fitToPage: true,
+                    fitToWidth: 1,
+                    fitToHeight: 0,
+                    margins: {
+                        left: 0.4, right: 0.4,
+                        top: 0.5, bottom: 0.5,
+                        header: 0.3, footer: 0.3
+                    }
+                };
+
+                let currentRow = 1;
+
+                // Заголовок
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const titleCell = worksheet.getCell(`A${currentRow}`);
+                titleCell.value = 'IT-ВыСотка';
+                titleCell.font = { size: 18, bold: true };
+                titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const subtitleCell = worksheet.getCell(`A${currentRow}`);
+                subtitleCell.value = 'Протокол проверки';
+                subtitleCell.font = { size: 14, bold: true };
+                subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const roomCell = worksheet.getCell(`A${currentRow}`);
+                roomCell.value = `Кабинет ${roomData.room.number}`;
+                roomCell.font = { size: 12, bold: true };
+                roomCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const countCell = worksheet.getCell(`A${currentRow}`);
+                countCell.value = `Участников: ${presentParticipants.length}`;
+                countCell.font = { size: 10 };
+                countCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                currentRow += 2;
+
+                // Настройка ширины колонок для книжного формата
+                worksheet.columns = [
+                    { width: 4 },   // №
+                    { width: 22 },  // ФИО/Команда
+                    { width: 7 },   // Э (40)
+                    { width: 7 },   // З1 (20)
+                    { width: 7 },   // З2 (20)
+                    { width: 7 },   // З3 (20)
+                    { width: 9 },   // Итого (100)
+                    { width: 21 }   // Школа
+                ];
+
+                // Функция добавления заголовка таблицы
+                const addTableHeader = (row) => {
+                    const headerRow = worksheet.getRow(row);
+                    headerRow.values = ['№', 'ФИО/Команда', 'Э\n(40)', 'З1\n(20)', 'З2\n(20)', 'З3\n(20)', 'Итого\n(100)', 'Школа'];
+                    headerRow.font = { bold: true, size: 9 };
+                    headerRow.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                    headerRow.height = 30;
+                    
+                    // Границы
+                    for (let col = 1; col <= 8; col++) {
+                        headerRow.getCell(col).border = {
+                            top: { style: 'medium' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'medium' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                };
+
+                let participantNumber = 1;
+
+                // Добавляем команды
+                Object.keys(teams).sort().forEach((teamName) => {
+                    // Заголовок команды
+                    worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                    const teamHeaderCell = worksheet.getCell(`A${currentRow}`);
+                    teamHeaderCell.value = `Команда: ${teamName}`;
+                    teamHeaderCell.font = { size: 10, bold: true };
+                    teamHeaderCell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    currentRow++;
+
+                    // Заголовок таблицы
+                    addTableHeader(currentRow);
+                    currentRow++;
+
+                    // Строка для команды (общие баллы)
+                    const teamRow = worksheet.getRow(currentRow);
+                    teamRow.values = [
+                        participantNumber++,
+                        teamName,
+                        '', // Эссе
+                        '', // Задание 1
+                        '', // Задание 2
+                        '', // Задание 3
+                        '', // Итого
+                        teams[teamName][0].school // Школа
+                    ];
+                    teamRow.height = 20;
+                    teamRow.alignment = { vertical: 'middle', horizontal: 'center' };
+                    teamRow.font = { bold: true, size: 9 };
+                    
+                    // Границы
+                    for (let col = 1; col <= 8; col++) {
+                        teamRow.getCell(col).border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                    
+                    // Выравнивание
+                    teamRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                    teamRow.getCell(2).alignment = { horizontal: 'left', vertical: 'middle' };
+                    teamRow.getCell(8).alignment = { horizontal: 'left', vertical: 'middle' };
+                    
+                    currentRow++;
+
+                    // Участники команды (для справки)
+                    teams[teamName].forEach((participant) => {
+                        const row = worksheet.getRow(currentRow);
+                        row.values = [
+                            '',
+                            `  • ${participant.fullName}`,
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            ''
+                        ];
+                        row.height = 15;
+                        row.alignment = { vertical: 'middle' };
+                        row.font = { size: 8, italic: true, color: { argb: 'FF666666' } };
+                        
+                        // Границы только для первых двух и последней колонки
+                        for (let col = 1; col <= 2; col++) {
+                            row.getCell(col).border = {
+                                top: { style: 'thin' },
+                                left: { style: 'thin' },
+                                bottom: { style: 'thin' },
+                                right: { style: 'thin' }
+                            };
+                        }
+                        row.getCell(8).border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                        
+                        row.getCell(2).alignment = { horizontal: 'left', vertical: 'middle' };
+                        
+                        currentRow++;
+                    });
+
+                    currentRow++; // Пустая строка между командами
+                });
+
+                // Добавляем индивидуальных участников
+                if (individuals.length > 0) {
+                    worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                    const individualHeaderCell = worksheet.getCell(`A${currentRow}`);
+                    individualHeaderCell.value = 'Индивидуальные участники';
+                    individualHeaderCell.font = { size: 10, bold: true };
+                    individualHeaderCell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    currentRow++;
+
+                    // Заголовок таблицы
+                    addTableHeader(currentRow);
+                    currentRow++;
+
+                    // Индивидуальные участники
+                    individuals.forEach((participant) => {
+                        const row = worksheet.getRow(currentRow);
+                        row.values = [
+                            participantNumber++,
+                            participant.fullName,
+                            '', // Эссе
+                            '', // Задание 1
+                            '', // Задание 2
+                            '', // Задание 3
+                            '', // Итого
+                            participant.school
+                        ];
+                        row.height = 20;
+                        row.alignment = { vertical: 'middle', horizontal: 'center' };
+                        row.font = { size: 9 };
+                        
+                        // Границы
+                        for (let col = 1; col <= 8; col++) {
+                            row.getCell(col).border = {
+                                top: { style: 'thin' },
+                                left: { style: 'thin' },
+                                bottom: { style: 'thin' },
+                                right: { style: 'thin' }
+                            };
+                        }
+                        
+                        // Выравнивание
+                        row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                        row.getCell(2).alignment = { horizontal: 'left', vertical: 'middle' };
+                        row.getCell(8).alignment = { horizontal: 'left', vertical: 'middle' };
+                        
+                        currentRow++;
+                    });
+                }
+
+                // Футер
+                currentRow += 2;
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const footerCell = worksheet.getCell(`A${currentRow}`);
+                footerCell.value = `Дата: ${new Date().toLocaleDateString('ru-RU')}`;
+                footerCell.font = { size: 9, italic: true };
+                footerCell.alignment = { horizontal: 'left' };
+                
+                currentRow += 2;
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                const signatureCell = worksheet.getCell(`A${currentRow}`);
+                signatureCell.value = 'Проверяющий: _________________________ Подпись: _____________';
+                signatureCell.font = { size: 9 };
+                signatureCell.alignment = { horizontal: 'left' };
+            });
+
+            // Генерируем имя файла с датой
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `Протоколы_проверки_${date}.xlsx`;
+
+            // Устанавливаем заголовки для скачивания
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+
+            // Отправляем файл
+            await workbook.xlsx.write(res);
+            res.end();
+        } catch (e) {
+            console.error('Ошибка экспорта протоколов проверки:', e);
+            next(ApiError.BadRequest('Ошибка при экспорте протоколов проверки'));
+        }
+    }
 }
 
 module.exports = new AttendanceController();

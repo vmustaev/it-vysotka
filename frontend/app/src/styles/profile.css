@@ -127,6 +127,38 @@
     margin-bottom: 20px;
 }
 
+.info-button {
+    background: white;
+    border: 2px solid #cbd5e1;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.info-button:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    color: #3b82f6;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+    transform: scale(1.05);
+}
+
+.info-button svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
 .profile-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);

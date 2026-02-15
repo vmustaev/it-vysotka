@@ -54,9 +54,9 @@ const AboutChampionship = () => {
                                 Ссылку на эссе необходимо прикрепить в личном кабинете: участникам индивидуального формата – самостоятельно, участникам команд – у лидера команды.
                             </p>
                             {essayRequirementsDoc ? (
-                                <a href={essayRequirementsDoc.url} target="_blank" rel="noopener noreferrer" className="about-essay-doc-link">
-                                    Требования к эссе
-                                </a>
+                                <>
+                                    Рекомендуем ознакомиться с <a href={essayRequirementsDoc.url} target="_blank" rel="noopener noreferrer" className="about-essay-doc-link">требованиями к эссе</a>.
+                                </>
                             ) : !loadingEssayDoc ? null : (
                                 <p className="info-block-text" style={{ marginTop: '12px', color: '#94a3b8', fontSize: '0.9rem' }}>Загрузка...</p>
                             )}

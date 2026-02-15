@@ -204,6 +204,26 @@ class FileController {
         }
     }
 
+    async deleteMultiple(req, res, next) {
+        try {
+            const { ids } = req.body;
+
+            if (!ids || !Array.isArray(ids) || ids.length === 0) {
+                throw ApiError.BadRequest('Необходимо указать массив ID файлов');
+            }
+
+            const result = await fileService.deleteMultipleFiles(ids);
+
+            return res.json({
+                success: true,
+                message: result.message,
+                results: result.results
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getStats(req, res, next) {
         try {
             const stats = await fileService.getFileStats();

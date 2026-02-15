@@ -317,7 +317,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
 
     return (
         <div className="modal-overlay" onClick={handleBackdropClick}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
                 <div className="modal-header">
                     <h2>Редактирование личных данных</h2>
                     <button 
@@ -329,6 +329,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                     </button>
                 </div>
 
+                <div style={{ overflowY: 'auto', flex: 1 }}>
                 <form onSubmit={handleSubmit} className="register-form" style={{ padding: '24px 32px' }}>
                     {errors._general && (
                         <div className="register-error" style={{ marginBottom: '20px', padding: '12px', background: '#fee2e2', borderRadius: '8px' }}>
@@ -528,7 +529,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                         </div>
                     </div>
 
-                    <div className="register-actions" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+                    <div className="register-actions" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '12px' }}>
                         <button 
                             type="submit"
                             disabled={isLoading}
@@ -541,7 +542,6 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                             onClick={onClose}
                             disabled={isLoading}
                             className="btn btn-outline"
-                            style={{ marginLeft: '12px' }}
                         >
                             Отмена
                         </button>
@@ -646,6 +646,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                         )}
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );

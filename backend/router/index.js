@@ -84,6 +84,7 @@ router.delete('/admin/rooms/:id', authMiddleware, adminMiddleware, roomControlle
 router.post('/admin/seating/auto-assign', authMiddleware, adminMiddleware, seatingController.autoAssign);
 router.get('/admin/seating', authMiddleware, adminMiddleware, seatingController.getSeating);
 router.get('/admin/seating/export', authMiddleware, adminMiddleware, seatingController.exportToExcel);
+router.get('/admin/seating/export-verification-protocols', authMiddleware, adminMiddleware, attendanceController.exportVerificationProtocols);
 router.get('/admin/seating/unassigned', authMiddleware, adminMiddleware, seatingController.getUnassigned);
 router.post('/admin/seating/add-unassigned', authMiddleware, adminMiddleware, seatingController.addUnassigned);
 router.delete('/admin/seating/clear', authMiddleware, adminMiddleware, seatingController.clearSeating);
@@ -130,6 +131,7 @@ router.get('/admin/files/stats', authMiddleware, adminMiddleware, fileController
 router.get('/admin/files/:id', authMiddleware, adminMiddleware, fileController.getById);
 router.put('/admin/files/:id', authMiddleware, adminMiddleware, fileController.update);
 router.delete('/admin/files/:id', authMiddleware, adminMiddleware, fileController.delete);
+router.post('/admin/files/delete-multiple', authMiddleware, adminMiddleware, fileController.deleteMultiple);
 
 // Admin routes - Backups
 router.post('/admin/backups', authMiddleware, adminMiddleware, backupController.create);

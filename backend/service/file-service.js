@@ -158,6 +158,56 @@ class FileService {
         }
     }
 
+    async deleteMultipleFiles(ids) {
+        try {
+            if (!Array.isArray(ids) || ids.length === 0) {
+                throw ApiError.BadRequest('Необходимо указать массив ID файлов');
+            }
+
+            const results = {
+                success: [],
+                failed: []
+            };
+
+            for (const id of ids) {
+                try {
+                    const file = await FileModel.findByPk(id);
+
+                    if (!file) {
+                        results.failed.push({ id, reason: 'Файл не найден' });
+                        continue;
+                    }
+
+                    // Удаляем физический файл
+                    const fullPath = path.join(__dirname, '../files', file.savedFilename);
+                    try {
+                        await fs.unlink(fullPath);
+                    } catch (fsError) {
+                        console.warn(`Не удалось удалить физический файл ${file.savedFilename}:`, fsError.message);
+                    }
+
+                    // Удаляем запись из БД
+                    await file.destroy();
+                    results.success.push(id);
+                } catch (error) {
+                    console.error(`Error deleting file ${id}:`, error);
+                    results.failed.push({ id, reason: error.message });
+                }
+            }
+
+            return {
+                message: `Удалено файлов: ${results.success.length}, ошибок: ${results.failed.length}`,
+                results
+            };
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            console.error('Error in deleteMultipleFiles:', error);
+            throw ApiError.BadRequest('Ошибка при множественном удалении файлов');
+        }
+    }
+
     async getFilesByType(fileType, filters = {}) {
         try {
             const where = {

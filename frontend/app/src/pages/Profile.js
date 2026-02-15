@@ -9,6 +9,7 @@ import FileService from '../services/FileService';
 import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
 import EditProfileModal from '../components/EditProfileModal';
+import InfoModal from '../components/InfoModal';
 import '../styles/profile.css';
 
 const Profile = () => {
@@ -26,6 +27,11 @@ const Profile = () => {
     const [isAccordionOpen, setIsAccordionOpen] = useState(false);
     const [essayCloseDate, setEssayCloseDate] = useState(null);
     const [essayRequirementsDoc, setEssayRequirementsDoc] = useState(null);
+    const [infoModal, setInfoModal] = useState({
+        isOpen: false,
+        title: '',
+        content: ''
+    });
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -588,10 +594,41 @@ const Profile = () => {
 
                 {profile.participation_format === 'team' && (
                     <div className="profile-section">
-                            <h2 className="profile-section-title">Моя команда</h2>
-
-                    {!team ? (
-                        <div className="team-empty">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <h2 className="profile-section-title" style={{ marginBottom: 0 }}>Моя команда</h2>
+                            <button 
+                                className="info-button"
+                                onClick={() => setInfoModal({
+                                    isOpen: true,
+                                    title: 'Как создать или присоединиться к команде',
+                                    content: (
+                                        <div>
+                                            <h4 style={{ marginTop: 0, color: '#1e3a8a' }}>Создать команду:</h4>
+                                            <p><strong>Шаг 1:</strong> Нажмите кнопку "Создать команду"</p>
+                                            <p><strong>Шаг 2:</strong> Придумайте название команды (от 3 до 50 символов)</p>
+                                            <p><strong>Шаг 3:</strong> После создания вы станете капитаном команды</p>
+                                            <p><strong>Шаг 4:</strong> Скопируйте ссылку-приглашение и отправьте её участникам</p>
+                                            
+                                            <h4 style={{ marginTop: '20px', color: '#1e3a8a' }}>Присоединиться к команде:</h4>
+                                            <p><strong>Шаг 1:</strong> Получите ссылку-приглашение от капитана команды</p>
+                                            <p><strong>Шаг 2:</strong> Перейдите по ссылке</p>
+                                            <p><strong>Шаг 3:</strong> Подтвердите вступление в команду</p>
+                                            
+                                            <p style={{ marginTop: '16px', padding: '12px', background: '#eff6ff', borderRadius: '8px', fontSize: '14px' }}>
+                                                <strong>Важно:</strong> В команде может быть от 2 до 3 участников. Капитан команды может удалять участников и удалить команду.
+                                            </p>
+                                        </div>
+                                    )
+                                })}
+                                title="Как работать с командой"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        
+                        <div className="profile-card">
+                        {!team ? (
+                            <div className="team-empty">
                             <p className="empty-message">Вы не состоите в команде</p>
 
                             {!showCreateForm ? (
@@ -813,11 +850,38 @@ const Profile = () => {
                             </div>
                         </div>
                     )}
+                        </div>
                     </div>
                 )}
 
                 <div className="profile-section">
-                    <h2 className="profile-section-title">Результаты</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <h2 className="profile-section-title" style={{ marginBottom: 0 }}>Результаты</h2>
+                        <button 
+                            className="info-button"
+                            onClick={() => setInfoModal({
+                                isOpen: true,
+                                title: 'О результатах и сертификатах',
+                                content: (
+                                    <div>
+                                        <p>После завершения чемпионата здесь появятся ваши результаты:</p>
+                                        <p><strong>• Место</strong> - ваше место в общем зачете</p>
+                                        <p><strong>• Сертификат</strong> - если вы заняли призовое место или участвовали в чемпионате</p>
+                                        
+                                        <p style={{ marginTop: '16px' }}>Результаты публикуются после подведения итогов чемпионата.</p>
+                                        
+                                        <p style={{ marginTop: '16px', padding: '12px', background: '#eff6ff', borderRadius: '8px', fontSize: '14px' }}>
+                                            <strong>Важно:</strong> Сертификаты выдаются всем участникам. Призерам выдаются дипломы.
+                                        </p>
+                                    </div>
+                                )
+                            })}
+                            title="О результатах"
+                            >
+                                ?
+                            </button>
+                    </div>
+                    
                     <div className="profile-card">
                         {profile.place || profile.certificateId ? (
                             <>
@@ -900,7 +964,42 @@ const Profile = () => {
 
                 {(profile.participation_format === 'individual' || (profile.participation_format === 'team' && isLead)) && (
                     <div className="profile-section">
-                        <h2 className="profile-section-title">Эссе</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <h2 className="profile-section-title" style={{ marginBottom: 0 }}>Эссе</h2>
+                            <button 
+                                className="info-button"
+                                onClick={() => setInfoModal({
+                                    isOpen: true,
+                                    title: 'Как подготовить и загрузить эссе',
+                                    content: (
+                                        <div>
+                                            <h4 style={{ marginTop: 0, color: '#1e3a8a' }}>Эссе состоит из ДВУХ частей:</h4>
+                                            
+                                            <p style={{ marginTop: '12px', marginBottom: '8px', fontWeight: 600 }}>1. Текстовая часть (до 1 страницы):</p>
+                                            <p style={{ marginLeft: '16px', marginTop: '4px', marginBottom: '4px' }}>• Форматы: .docx, .txt или .pdf</p>
+                                            <p style={{ marginLeft: '16px', marginTop: '4px', marginBottom: '4px' }}>• Тема: "Мой путь в индустрии ИТ"</p>
+                                            
+                                            <p style={{ marginTop: '12px', marginBottom: '8px', fontWeight: 600 }}>2. Видео-высказывание (до 60 секунд):</p>
+                                            <p style={{ marginLeft: '16px', marginTop: '4px', marginBottom: '4px' }}>• Художественное видео по теме эссе</p>
+                                            <p style={{ marginLeft: '16px', marginTop: '4px', marginBottom: '4px' }}>• Можно использовать фото, видео, изображения с ИИ</p>
+                                            
+                                            <h4 style={{ marginTop: '16px', color: '#1e3a8a' }}>Как загрузить:</h4>
+                                            <p><strong>Шаг 1:</strong> Создайте папку на облаке (Google Drive, Яндекс.Диск и т.д.)</p>
+                                            <p><strong>Шаг 2:</strong> Загрузите туда текстовый файл И видео</p>
+                                            <p><strong>Шаг 3:</strong> Откройте доступ к папке "Всем, у кого есть ссылка"</p>
+                                            <p><strong>Шаг 4:</strong> Скопируйте ссылку на папку и вставьте в поле ниже</p>
+                                            
+                                            <p style={{ marginTop: '16px', padding: '12px', background: '#fef3c7', borderRadius: '8px', fontSize: '14px', borderLeft: '4px solid #f59e0b' }}>
+                                                <strong>⚠️ Важно:</strong> Обе части обязательны! Максимум за эссе – 40 баллов. Срок подачи: до 9 марта 2026 года.
+                                            </p>
+                                        </div>
+                                    )
+                                })}
+                                title="Как подготовить и загрузить эссе"
+                            >
+                                ?
+                            </button>
+                        </div>
                         
                         <div className="profile-card">
                             {essayCloseDate && (
@@ -1031,6 +1130,13 @@ const Profile = () => {
                 )}
                 </div>
             </div>
+
+            <InfoModal
+                isOpen={infoModal.isOpen}
+                title={infoModal.title}
+                content={infoModal.content}
+                onClose={() => setInfoModal({ isOpen: false, title: '', content: '' })}
+            />
 
             <ConfirmDialog
                 isOpen={confirmDialog.isOpen}

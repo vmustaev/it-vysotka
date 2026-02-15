@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FileService from '../services/FileService';
 
 const Gallery = () => {
@@ -7,6 +7,10 @@ const Gallery = () => {
     const [loading, setLoading] = useState(true);
     const [years, setYears] = useState([]);
     const [activeYear, setActiveYear] = useState(null);
+    const [visibleImages, setVisibleImages] = useState(9); // Показываем первые 9 изображений
+    const observerRef = useRef(null);
+    const loadMoreRef = useRef(null);
+    const loadingMoreRef = useRef(false);
 
     useEffect(() => {
         loadGallery();
@@ -106,6 +110,45 @@ const Gallery = () => {
     };
 
     const filteredImages = getFilteredImages();
+    
+    // Сброс видимых изображений при смене года
+    useEffect(() => {
+        setVisibleImages(9);
+        loadingMoreRef.current = false;
+    }, [activeYear]);
+
+    // Intersection Observer для подгрузки изображений
+    useEffect(() => {
+        if (observerRef.current) observerRef.current.disconnect();
+
+        const handleObserver = (entries) => {
+            const target = entries[0];
+            if (target.isIntersecting && visibleImages < filteredImages.length && !loadingMoreRef.current) {
+                loadingMoreRef.current = true;
+                // Добавляем небольшую задержку для предотвращения множественных загрузок
+                setTimeout(() => {
+                    setVisibleImages(prev => Math.min(prev + 9, filteredImages.length));
+                    loadingMoreRef.current = false;
+                }, 100);
+            }
+        };
+
+        observerRef.current = new IntersectionObserver(handleObserver, {
+            root: null,
+            rootMargin: '300px',
+            threshold: 0.1
+        });
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current);
+        }
+
+        return () => {
+            if (observerRef.current) observerRef.current.disconnect();
+        };
+    }, [visibleImages, filteredImages.length]);
+
+    const displayedImages = filteredImages.slice(0, visibleImages);
 
     if (loading) {
         return (
@@ -164,22 +207,31 @@ const Gallery = () => {
                             <h3 className="empty-state-title">Фотографий для выбранного года пока нет</h3>
                         </div>
                     ) : (
-                        <div className="gallery-grid">
-                            {filteredImages.map((image) => (
-                                <div 
-                                    key={image.id} 
-                                    className="gallery-item"
-                                    onClick={() => openImage(image)}
-                                >
-                                    <img 
-                                        src={image.url} 
-                                        alt={image.description || image.filename}
-                                        loading="lazy"
-                                    />
-                                    <div className="gallery-overlay"></div>
+                        <>
+                            <div className="gallery-grid">
+                                {displayedImages.map((image) => (
+                                    <div 
+                                        key={image.id} 
+                                        className="gallery-item"
+                                        onClick={() => openImage(image)}
+                                    >
+                                        <img 
+                                            src={image.url} 
+                                            alt={image.description || image.filename}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                        <div className="gallery-overlay"></div>
+                                    </div>
+                                ))}
+                            </div>
+                            {visibleImages < filteredImages.length && (
+                                <div ref={loadMoreRef} className="loading-more">
+                                    <div className="loading-spinner"></div>
+                                    <p>Загрузка еще {Math.min(9, filteredImages.length - visibleImages)} фото...</p>
                                 </div>
-                            ))}
-                        </div>
+                            )}
+                        </>
                     )}
                 </div>
 

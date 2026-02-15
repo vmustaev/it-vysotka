@@ -24,6 +24,8 @@ const FileManager = () => {
     const [confirmDialog, setConfirmDialog] = useState({ show: false, fileId: null });
     const [editingFile, setEditingFile] = useState(null);
     const [stats, setStats] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [previewFile, setPreviewFile] = useState(null);
 
     // Типы для фильтра (можно просматривать все) + вкладка Бэкапы
     const fileTypes = [
@@ -221,11 +223,61 @@ const FileManager = () => {
         try {
             await FileService.deleteFile(fileId);
             showToast('Файл успешно удален', 'success');
+            setSelectedFiles(prev => prev.filter(id => id !== fileId));
             loadFiles();
             loadStats();
         } catch (error) {
             showToast('Ошибка при удалении файла', 'error');
             console.error('Error deleting file:', error);
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedFiles.length === 0) {
+            showToast('Выберите файлы для удаления', 'error');
+            return;
+        }
+
+        try {
+            const response = await FileService.deleteMultipleFiles(selectedFiles);
+            
+            const successCount = response.results.success.length;
+            const errorCount = response.results.failed.length;
+
+            if (successCount > 0) {
+                showToast(
+                    `✅ Удалено: ${successCount} ${errorCount > 0 ? `❌ Ошибок: ${errorCount}` : ''}`,
+                    errorCount > 0 ? 'warning' : 'success'
+                );
+            } else {
+                showToast('❌ Не удалось удалить файлы', 'error');
+            }
+
+            setSelectedFiles([]);
+            setConfirmDialog({ show: false, fileId: null });
+            loadFiles();
+            loadStats();
+        } catch (error) {
+            showToast('Критическая ошибка при удалении файлов', 'error');
+            console.error('Critical error:', error);
+        }
+    };
+
+    const toggleFileSelection = (fileId) => {
+        setSelectedFiles(prev => {
+            if (prev.includes(fileId)) {
+                return prev.filter(id => id !== fileId);
+            } else {
+                return [...prev, fileId];
+            }
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedFiles.length === files.length) {
+            setSelectedFiles([]);
+        } else {
+            setSelectedFiles(files.map(f => f.id));
         }
     };
 
@@ -455,21 +507,77 @@ const FileManager = () => {
                     </>
                 ) : (
                     <>
-                <h3>Файлы ({files.length})</h3>
+                <div className="files-header">
+                    <h3>Файлы ({files.length})</h3>
+                    {selectedFiles.length > 0 && (
+                        <div className="bulk-actions">
+                            <span className="selected-count">Выбрано: {selectedFiles.length}</span>
+                            <button 
+                                className="btn-delete-selected"
+                                onClick={() => setConfirmDialog({ show: true, fileId: 'bulk' })}
+                            >
+                                Удалить выбранные
+                            </button>
+                            <button 
+                                className="btn-cancel-selection"
+                                onClick={() => setSelectedFiles([])}
+                            >
+                                Отменить
+                            </button>
+                        </div>
+                    )}
+                </div>
                 {loading ? (
                     <div className="loading">Загрузка...</div>
                 ) : files.length === 0 ? (
                     <div className="no-files">Нет файлов</div>
                 ) : (
-                    <div className="files-grid">
+                    <>
+                        {files.length > 1 && (
+                            <div className="select-all-container">
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedFiles.length === files.length}
+                                        onChange={toggleSelectAll}
+                                    />
+                                    <span>Выбрать все</span>
+                                </label>
+                            </div>
+                        )}
+                        <div className="files-grid">
                         {files.map(file => (
                             <div key={file.id} className="file-card">
-                                {file.mimetype.startsWith('image/') ? (
+                                <div className="file-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedFiles.includes(file.id)}
+                                        onChange={() => toggleFileSelection(file.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                </div>
+                                {selectedType === 'gallery' && file.mimetype.startsWith('image/') ? (
+                                    <div 
+                                        className="file-icon clickable" 
+                                        onClick={() => setPreviewFile(file)}
+                                        title="Нажмите для просмотра"
+                                    >
+                                        🖼️
+                                    </div>
+                                ) : file.mimetype.startsWith('image/') && selectedType !== '' ? (
                                     <img 
                                         src={file.url} 
                                         alt={file.filename}
                                         className="file-preview"
                                     />
+                                ) : file.mimetype.startsWith('image/') ? (
+                                    <div 
+                                        className="file-icon clickable" 
+                                        onClick={() => setPreviewFile(file)}
+                                        title="Нажмите для просмотра (галерея)"
+                                    >
+                                        🖼️
+                                    </div>
                                 ) : (
                                     <div className="file-icon">📄</div>
                                 )}
@@ -584,10 +692,38 @@ const FileManager = () => {
                             </div>
                         ))}
                     </div>
+                    </>
                 )}
                     </>
                 )}
             </div>
+
+            {/* Модальное окно для просмотра изображения */}
+            {previewFile && (
+                <div className="image-preview-modal" onClick={() => setPreviewFile(null)}>
+                    <button 
+                        className="preview-close"
+                        onClick={() => setPreviewFile(null)}
+                        aria-label="Закрыть"
+                    >
+                        ✕
+                    </button>
+                    <div className="preview-content" onClick={(e) => e.stopPropagation()}>
+                        <img 
+                            src={previewFile.url} 
+                            alt={previewFile.filename}
+                        />
+                        <div className="preview-info">
+                            <h4>{previewFile.filename}</h4>
+                            {previewFile.description && <p>{previewFile.description}</p>}
+                            <div className="preview-meta">
+                                <span>{formatFileSize(previewFile.size)}</span>
+                                {previewFile.year && <span>Год: {previewFile.year}</span>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {toast.show && (
                 <Toast
@@ -600,14 +736,22 @@ const FileManager = () => {
             {confirmDialog.show && (
                 <ConfirmDialog
                     isOpen={true}
-                    title="Удаление файла"
-                    message="Вы уверены, что хотите удалить этот файл? Это действие нельзя отменить."
+                    title={confirmDialog.fileId === 'bulk' ? 'Удаление файлов' : 'Удаление файла'}
+                    message={
+                        confirmDialog.fileId === 'bulk' 
+                            ? `Вы уверены, что хотите удалить ${selectedFiles.length} файлов? Это действие нельзя отменить.`
+                            : 'Вы уверены, что хотите удалить этот файл? Это действие нельзя отменить.'
+                    }
                     confirmText="Удалить"
                     cancelText="Отмена"
                     danger={true}
                     onConfirm={() => {
-                        handleDelete(confirmDialog.fileId);
-                        setConfirmDialog({ show: false, fileId: null });
+                        if (confirmDialog.fileId === 'bulk') {
+                            handleDeleteSelected();
+                        } else {
+                            handleDelete(confirmDialog.fileId);
+                            setConfirmDialog({ show: false, fileId: null });
+                        }
                     }}
                     onCancel={() => setConfirmDialog({ show: false, fileId: null })}
                 />

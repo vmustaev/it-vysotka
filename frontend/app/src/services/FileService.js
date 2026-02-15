@@ -92,6 +92,15 @@ class FileService {
     }
 
     /**
+     * @param {Array<number>} ids
+     * @returns {Promise}
+     */
+    async deleteMultipleFiles(ids) {
+        const response = await http.post('/admin/files/delete-multiple', { ids });
+        return response.data;
+    }
+
+    /**
      * @returns {Promise}
      */
     async getFileStats() {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FileService from '../services/FileService';
 import '../styles/public-gallery.css';
 
@@ -9,6 +9,10 @@ const PublicGallery = () => {
     const [error, setError] = useState(null);
     const [years, setYears] = useState([]);
     const [activeYear, setActiveYear] = useState(null);
+    const [visibleImages, setVisibleImages] = useState(9);
+    const observerRef = useRef(null);
+    const loadMoreRef = useRef(null);
+    const loadingMoreRef = useRef(false);
 
     useEffect(() => {
         loadGallery();
@@ -88,6 +92,44 @@ const PublicGallery = () => {
     };
 
     const filteredImages = getFilteredImages();
+    
+    // Сброс видимых изображений при смене года
+    useEffect(() => {
+        setVisibleImages(9);
+        loadingMoreRef.current = false;
+    }, [activeYear]);
+
+    // Intersection Observer для подгрузки изображений
+    useEffect(() => {
+        if (observerRef.current) observerRef.current.disconnect();
+
+        const handleObserver = (entries) => {
+            const target = entries[0];
+            if (target.isIntersecting && visibleImages < filteredImages.length && !loadingMoreRef.current) {
+                loadingMoreRef.current = true;
+                setTimeout(() => {
+                    setVisibleImages(prev => Math.min(prev + 9, filteredImages.length));
+                    loadingMoreRef.current = false;
+                }, 100);
+            }
+        };
+
+        observerRef.current = new IntersectionObserver(handleObserver, {
+            root: null,
+            rootMargin: '300px',
+            threshold: 0.1
+        });
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current);
+        }
+
+        return () => {
+            if (observerRef.current) observerRef.current.disconnect();
+        };
+    }, [visibleImages, filteredImages.length]);
+
+    const displayedImages = filteredImages.slice(0, visibleImages);
 
     if (loading) {
         return (
@@ -140,7 +182,7 @@ const PublicGallery = () => {
             )}
             
             <div className="gallery-grid">
-                {filteredImages.map((image) => (
+                {displayedImages.map((image) => (
                     <div 
                         key={image.id} 
                         className="gallery-item"
@@ -150,6 +192,7 @@ const PublicGallery = () => {
                             src={image.url} 
                             alt={image.description || image.filename}
                             loading="lazy"
+                            decoding="async"
                         />
                         {image.description && (
                             <div className="gallery-item-overlay">
@@ -159,6 +202,12 @@ const PublicGallery = () => {
                     </div>
                 ))}
             </div>
+            {visibleImages < filteredImages.length && (
+                <div ref={loadMoreRef} className="loading-more" style={{ textAlign: 'center', padding: '20px' }}>
+                    <div className="spinner"></div>
+                    <p>Загрузка еще {Math.min(9, filteredImages.length - visibleImages)} фото...</p>
+                </div>
+            )}
 
             {selectedImage && (
                 <div className="lightbox" onClick={closeLightbox}>

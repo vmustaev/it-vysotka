@@ -34,4 +34,10 @@ export default class SeatingService {
             responseType: 'blob'
         });
     }
+
+    static async exportVerificationProtocols() {
+        return $api.get('/admin/seating/export-verification-protocols', {
+            responseType: 'blob'
+        });
+    }
 }

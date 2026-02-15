@@ -21,6 +21,7 @@ import ParticipantConsent from "./pages/ParticipantConsent";
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminGuide from "./pages/admin/AdminGuide";
 import Participants from "./pages/admin/Participants";
 import Rooms from "./pages/admin/Rooms";
 import Seating from "./pages/admin/Seating";
@@ -127,6 +128,7 @@ const App = observer(() => {
                     <AdminLayout />
                 }>
                     <Route index element={<AdminDashboard />} />
+                    <Route path="guide" element={<AdminGuide />} />
                     <Route path="participants" element={<Participants />} />
                     <Route path="rooms" element={<Rooms />} />
                     <Route path="seating" element={<Seating />} />
