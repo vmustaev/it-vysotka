@@ -529,11 +529,21 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                         </div>
                     </div>
 
-                    <div className="register-actions" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '12px' }}>
+                    <div className="register-actions" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'row', gap: '12px' }}>
                         <button 
                             type="submit"
                             disabled={isLoading}
                             className="register-submit-btn"
+                            style={{ 
+                                flex: 1, 
+                                width: 'auto',
+                                transition: 'none',
+                                boxShadow: 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'none';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                         >
                             {isLoading ? 'Сохранение...' : 'Сохранить'}
                         </button>
@@ -542,6 +552,23 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave, userId = null, sho
                             onClick={onClose}
                             disabled={isLoading}
                             className="btn btn-outline"
+                            style={{ 
+                                flex: 1, 
+                                padding: '16px 32px', 
+                                fontSize: '16px', 
+                                fontWeight: '600',
+                                transition: 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '';
+                                e.currentTarget.style.borderColor = '';
+                                e.currentTarget.style.color = '';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '';
+                                e.currentTarget.style.borderColor = '';
+                                e.currentTarget.style.color = '';
+                            }}
                         >
                             Отмена
                         </button>

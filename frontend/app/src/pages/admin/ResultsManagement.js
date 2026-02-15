@@ -13,7 +13,6 @@ const ResultsManagement = () => {
     const [showAutoGenerateModal, setShowAutoGenerateModal] = useState(false);
     const [autoGenerateYear, setAutoGenerateYear] = useState(new Date().getFullYear());
     const [generatingFromParticipants, setGeneratingFromParticipants] = useState(false);
-    const [showInfoModal, setShowInfoModal] = useState(false);
     const [sendingWinnerNotifications, setSendingWinnerNotifications] = useState(false);
     const [formData, setFormData] = useState({
         year: new Date().getFullYear(),
@@ -235,40 +234,7 @@ const ResultsManagement = () => {
                     <h1 className="admin-page-title">Результаты чемпионата</h1>
                     <p className="admin-page-subtitle">Управление результатами по годам</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <button
-                        onClick={() => setShowInfoModal(true)}
-                        style={{
-                            width: '32px',
-                            height: '32px',
-                            padding: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            border: '1px solid #e2e8f0',
-                            background: 'white',
-                            color: '#64748b',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#cbd5e1';
-                            e.currentTarget.style.color = '#475569';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.color = '#64748b';
-                        }}
-                        title="Информация"
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
-                    </button>
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
                         className="btn btn-secondary btn-with-icon"
                         onClick={handleSendWinnerNotifications}
@@ -295,7 +261,6 @@ const ResultsManagement = () => {
                     >
                         + Добавить результат
                     </button>
-                    </div>
                 </div>
             </div>
 
@@ -595,33 +560,6 @@ const ResultsManagement = () => {
                     onConfirm={handleDelete}
                     onCancel={() => setConfirmDialog({ show: false, resultId: null })}
                 />
-            )}
-
-            {/* Модальное окно с инструкцией */}
-            {showInfoModal && (
-                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
-                            <button 
-                                className="modal-close"
-                                onClick={() => setShowInfoModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div style={{ lineHeight: '1.8' }}>
-                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
-                                <li>Используйте фильтры для быстрого поиска результатов по участнику, команде или месту</li>
-                                <li>Результаты можно добавлять вручную или импортировать из Excel файла</li>
-                                <li>Места распределяются автоматически при добавлении результатов</li>
-                                <li>Экспорт результатов позволяет сохранить полную таблицу результатов</li>
-                                <li>Удаление результата необратимо – убедитесь перед удалением</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );

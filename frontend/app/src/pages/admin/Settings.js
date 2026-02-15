@@ -15,7 +15,6 @@ const Settings = () => {
     const [notification, setNotification] = useState({ type: null, message: '' });
     const [showClearDialog, setShowClearDialog] = useState(false);
     const [clearing, setClearing] = useState(false);
-    const [showInfoModal, setShowInfoModal] = useState(false);
 
     useEffect(() => {
         loadSettings();
@@ -200,38 +199,6 @@ const Settings = () => {
                     <h1 className="admin-page-title">Настройки</h1>
                     <p className="admin-page-subtitle">Управление системой и регистрацией</p>
                 </div>
-                <button
-                    onClick={() => setShowInfoModal(true)}
-                    style={{
-                        width: '32px',
-                        height: '32px',
-                        padding: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        border: '1px solid #e2e8f0',
-                        background: 'white',
-                        color: '#64748b',
-                        transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#cbd5e1';
-                        e.currentTarget.style.color = '#475569';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                        e.currentTarget.style.color = '#64748b';
-                    }}
-                    title="Информация"
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                    </svg>
-                </button>
             </div>
 
             {loading ? (
@@ -366,92 +333,27 @@ const Settings = () => {
 
                     <div className="admin-card" style={{ 
                         marginTop: 'var(--spacing-xl)',
-                        border: '2px solid rgba(239, 68, 68, 0.2)',
-                        background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(255, 255, 255, 0.85))'
+                        border: '2px solid #dc2626'
                     }}>
-                        <div className="admin-card-header" style={{ 
-                            borderBottom: '2px solid rgba(239, 68, 68, 0.2)',
-                            paddingBottom: 'var(--spacing-md)'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    borderRadius: '50%',
-                                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-                                }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                                        <polyline points="3 6 5 6 21 6"/>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                        <line x1="10" y1="11" x2="10" y2="17"/>
-                                        <line x1="14" y1="11" x2="14" y2="17"/>
-                                    </svg>
-                                </div>
-                                <h2 className="admin-card-title" style={{ margin: 0, color: '#dc2626' }}>
-                                    Очистка данных для нового года
-                                </h2>
-                            </div>
+                        <div className="admin-card-header">
+                            <h2 className="admin-card-title" style={{ color: '#dc2626' }}>
+                                Очистка данных для нового года
+                            </h2>
                         </div>
                         <div className="admin-card-body">
-                            <div style={{ 
-                                padding: 'var(--spacing-lg)',
-                                borderRadius: 'var(--border-radius-md)',
-                                background: 'rgba(254, 242, 242, 0.5)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                marginBottom: 'var(--spacing-lg)'
+                            <p style={{ 
+                                marginBottom: 'var(--spacing-lg)',
+                                color: 'var(--text-primary)',
+                                lineHeight: '1.6'
                             }}>
-                                <div style={{ display: 'flex', gap: 'var(--spacing-md)', alignItems: 'flex-start' }}>
-                                    <div style={{
-                                        width: '24px',
-                                        height: '24px',
-                                        borderRadius: '50%',
-                                        background: '#ef4444',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        flexShrink: 0,
-                                        marginTop: '2px'
-                                    }}>
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                                            <path d="M12 2v20M12 2l-8 8M12 2l8 8"/>
-                                        </svg>
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <p style={{ 
-                                            margin: '0 0 var(--spacing-sm) 0', 
-                                            color: '#991b1b',
-                                            fontWeight: '600',
-                                            fontSize: 'var(--font-size-base)'
-                                        }}>
-                                            Внимание! Опасная операция
-                                        </p>
-                                        <p style={{ 
-                                            margin: 0, 
-                                            color: 'var(--text-primary)',
-                                            lineHeight: '1.6',
-                                            fontSize: 'var(--font-size-sm)'
-                                        }}>
-                                            Эта операция удалит все данные участников, команды и рассадку. 
-                                            Школы, файлы и результаты чемпионата не будут затронуты. Это действие нельзя отменить.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                                <strong style={{ color: '#dc2626' }}>Внимание!</strong> Эта операция удалит все данные участников, команды и рассадку. 
+                                Школы, файлы и результаты чемпионата не будут затронуты. Это действие нельзя отменить.
+                            </p>
                             <button
                                 type="button"
                                 className="btn btn-danger"
                                 onClick={() => setShowClearDialog(true)}
                                 disabled={clearing}
-                                style={{
-                                    width: '100%',
-                                    padding: 'var(--spacing-md) var(--spacing-lg)',
-                                    fontSize: 'var(--font-size-base)',
-                                    fontWeight: '600'
-                                }}
                             >
                                 {clearing ? (
                                     <>
@@ -465,7 +367,7 @@ const Settings = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 'var(--spacing-sm)' }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 'var(--spacing-sm)' }}>
                                             <polyline points="3 6 5 6 21 6"/>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                         </svg>
@@ -520,33 +422,6 @@ const Settings = () => {
                     onConfirm={handleClearData}
                     onCancel={() => setShowClearDialog(false)}
                 />
-            )}
-
-            {/* Модальное окно с инструкцией */}
-            {showInfoModal && (
-                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
-                            <button 
-                                className="modal-close"
-                                onClick={() => setShowInfoModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div style={{ lineHeight: '1.8' }}>
-                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
-                                <li>Настройте даты регистрации и чемпионата перед началом приема заявок</li>
-                                <li>Дата закрытия эссе определяет последний день для загрузки эссе участниками</li>
-                                <li>Все изменения сохраняются автоматически при нажатии кнопки "Сохранить настройки"</li>
-                                <li>Функция "Очистить все" удаляет все настройки – используйте осторожно</li>
-                                <li>Проверяйте корректность дат перед сохранением</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );

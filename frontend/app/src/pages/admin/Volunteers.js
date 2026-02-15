@@ -9,7 +9,6 @@ const Volunteers = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [selectedVolunteer, setSelectedVolunteer] = useState(null);
-    const [showInfoModal, setShowInfoModal] = useState(false);
     
     // Форма создания волонтера
     const [formData, setFormData] = useState({
@@ -147,43 +146,10 @@ const Volunteers = () => {
                     <h1 className="admin-page-title">Волонтеры</h1>
                     <p className="admin-page-subtitle">Управление аккаунтами волонтеров</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    <button
-                        onClick={() => setShowInfoModal(true)}
-                        style={{
-                            width: '32px',
-                            height: '32px',
-                            padding: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            border: '1px solid #e2e8f0',
-                            background: 'white',
-                            color: '#64748b',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#cbd5e1';
-                            e.currentTarget.style.color = '#475569';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.color = '#64748b';
-                        }}
-                        title="Информация"
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
-                    </button>
-                    <button 
-                        className="btn btn-primary btn-with-icon"
-                        onClick={() => setShowCreateModal(true)}
-                    >
+                <button 
+                    className="btn btn-primary btn-with-icon"
+                    onClick={() => setShowCreateModal(true)}
+                >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                         <circle cx="8.5" cy="7" r="4"/>
@@ -192,7 +158,6 @@ const Volunteers = () => {
                     </svg>
                     Создать волонтера
                 </button>
-                </div>
             </div>
 
             {loading ? (
@@ -416,33 +381,6 @@ const Volunteers = () => {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Модальное окно с инструкцией */}
-            {showInfoModal && (
-                <div className="modal-overlay" onClick={() => setShowInfoModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
-                        <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0 }}>Полезные советы</h2>
-                            <button 
-                                className="modal-close"
-                                onClick={() => setShowInfoModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div style={{ lineHeight: '1.8' }}>
-                            <ul style={{ marginLeft: '1.5rem', color: '#475569', lineHeight: '1.8' }}>
-                                <li>Создавайте аккаунты волонтеров перед началом чемпионата</li>
-                                <li>Используйте надежные пароли при создании аккаунтов волонтеров</li>
-                                <li>Волонтеры могут работать одновременно – система обрабатывает конфликты автоматически</li>
-                                <li>При необходимости можно изменить пароль волонтера через кнопку "Пароль"</li>
-                                <li>Удаление волонтера необратимо – убедитесь перед удалением</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             )}
