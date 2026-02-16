@@ -17,6 +17,7 @@ const EditParticipants = () => {
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [historyMap, setHistoryMap] = useState({}); // Map participantId -> hasHistory
     const searchInputRef = useRef(null);
+    const searchTimeoutRef = useRef(null);
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -40,8 +41,29 @@ const EditParticipants = () => {
         totalPages: 0
     });
 
+    // Debounced загрузка участников
     useEffect(() => {
-        loadParticipants();
+        // Очищаем предыдущий таймер
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+
+        // Если это поиск, добавляем задержку
+        if (filters.search) {
+            searchTimeoutRef.current = setTimeout(() => {
+                loadParticipants();
+            }, 500); // 500ms задержка
+        } else {
+            // Для остальных фильтров загружаем сразу
+            loadParticipants();
+        }
+
+        // Очистка при размонтировании
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
     }, [filters]);
 
     // Восстанавливаем фокус в поле поиска после обновления
