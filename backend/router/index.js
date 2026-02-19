@@ -37,6 +37,7 @@ router.post('/login', loginValidation, validationMiddleware, userController.logi
 router.post('/logout', userController.logout);
 router.get('/activate/:link', userController.activate);
 router.post('/refresh', userController.refresh);
+router.post('/resend-activation', userController.resendActivationEmail);
 router.get('/users', authMiddleware, userController.getUsers);
 router.get('/user/profile', authMiddleware, userController.getProfile);
 router.put('/user/profile', authMiddleware, updateProfileValidation, validationMiddleware, userController.updateProfile);
@@ -104,6 +105,10 @@ router.post('/admin/volunteers', authMiddleware, adminMiddleware, userController
 router.get('/admin/volunteers', authMiddleware, adminMiddleware, userController.getVolunteers);
 router.delete('/admin/volunteers/:volunteerId', authMiddleware, adminMiddleware, userController.deleteVolunteer);
 router.put('/admin/volunteers/:volunteerId/password', authMiddleware, adminMiddleware, userController.updateVolunteerPassword);
+
+// Admin routes - Activation management
+router.post('/admin/send-activation-emails', authMiddleware, adminMiddleware, userController.sendActivationEmailsToUnactivated);
+router.post('/admin/participants/:userId/activate', authMiddleware, adminMiddleware, userController.activateUserManually);
 
 // Admin routes - Certificates
 router.post('/admin/certificates/upload-template', authMiddleware, adminMiddleware, upload.single('template'), certificateController.uploadTemplate);

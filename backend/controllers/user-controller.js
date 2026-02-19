@@ -309,6 +309,45 @@ class UserController {
             next(e);
         }
     }
+
+    async resendActivationEmail(req, res, next) {
+        try {
+            const { email } = req.body;
+            
+            if (!email) {
+                return next(ApiError.BadRequest('Email не указан'));
+            }
+            
+            const result = await userService.resendActivationEmail(email);
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async sendActivationEmailsToUnactivated(req, res, next) {
+        try {
+            const result = await userService.sendActivationEmailsToUnactivated();
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async activateUserManually(req, res, next) {
+        try {
+            const { userId } = req.params;
+            
+            if (!userId) {
+                return next(ApiError.BadRequest('ID пользователя не указан'));
+            }
+            
+            const result = await userService.activateUserManually(parseInt(userId));
+            return res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new UserController();

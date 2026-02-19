@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Context } from "../index";
 import { observer } from "mobx-react-lite";
 import Toast from '../components/Toast';
+import AuthService from '../services/AuthService';
 import '../styles/login.css';
 
 const LoginPage = observer(() => {
@@ -10,6 +11,8 @@ const LoginPage = observer(() => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState({ type: null, message: '' });
+    const [showResendActivation, setShowResendActivation] = useState(false);
+    const [resendingActivation, setResendingActivation] = useState(false);
     const { store } = useContext(Context);
     const navigate = useNavigate();
     const location = useLocation();
@@ -86,8 +89,36 @@ const LoginPage = observer(() => {
                 } else if (responseData?.errors && responseData.errors.length > 0) {
                     errorMessage = Array.isArray(responseData.errors) ? responseData.errors[0] : responseData.errors;
                 }
+                
+                // Проверяем, не является ли ошибка связанной с неактивированным аккаунтом
+                if (errorMessage.includes('не активирован') || errorMessage.includes('активируйте')) {
+                    setShowResendActivation(true);
+                }
+                
                 setNotification({ type: 'error', message: errorMessage });
             }
+        }
+    };
+
+    const handleResendActivation = async () => {
+        if (!email) {
+            setNotification({ type: 'error', message: 'Введите email для повторной отправки письма активации' });
+            return;
+        }
+
+        try {
+            setResendingActivation(true);
+            const response = await AuthService.resendActivationEmail(email);
+            setNotification({ 
+                type: 'success', 
+                message: response.data.message || 'Письмо активации отправлено повторно. Проверьте вашу почту.' 
+            });
+            setShowResendActivation(false);
+        } catch (e) {
+            const errorMessage = e.response?.data?.message || 'Ошибка при отправке письма активации';
+            setNotification({ type: 'error', message: errorMessage });
+        } finally {
+            setResendingActivation(false);
         }
     };
 
@@ -176,6 +207,31 @@ const LoginPage = observer(() => {
                             >
                                 Войти
                             </button>
+
+                            {showResendActivation && (
+                                <button 
+                                    type="button"
+                                    onClick={handleResendActivation}
+                                    disabled={resendingActivation}
+                                    className="login-resend-btn"
+                                    style={{
+                                        marginTop: '12px',
+                                        width: '100%',
+                                        padding: '12px',
+                                        backgroundColor: '#10b981',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '16px',
+                                        fontWeight: '600',
+                                        cursor: resendingActivation ? 'not-allowed' : 'pointer',
+                                        opacity: resendingActivation ? 0.6 : 1,
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {resendingActivation ? 'Отправка...' : 'Отправить письмо активации повторно'}
+                                </button>
+                            )}
                             
                             <p className="login-register-link">
                                 Нет аккаунта? <a 

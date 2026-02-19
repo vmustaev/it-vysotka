@@ -35,6 +35,14 @@ export default class ParticipantsService {
         return $api.post('/admin/participants/send-team-format-without-team-reminders');
     }
 
+    static async sendActivationEmailsToUnactivated() {
+        return $api.post('/admin/send-activation-emails');
+    }
+
+    static async activateUserManually(userId) {
+        return $api.post(`/admin/participants/${userId}/activate`);
+    }
+
     // Метод для волонтера
     static async getAllForVolunteer(params = {}) {
         return $api.get('/volunteer/participants/list', { params });

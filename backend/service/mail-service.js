@@ -14,6 +14,107 @@ class MailService {
         })
     }
 
+    async sendActivationReminderMail(to, link){
+        const currentYear = new Date().getFullYear();
+        
+        await this.transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to,
+            subject: "Важно: активируйте аккаунт для участия в IT-ВыСотка",
+            text: `Вы зарегистрировались на чемпионат IT-ВыСотка, но не активировали свой аккаунт.\n\nБез активации аккаунта вы не сможете участвовать в чемпионате.\n\nПожалуйста, активируйте аккаунт как можно скорее, перейдя по ссылке: ${link}\n\nЕсли вы не активируете аккаунт, ваша регистрация будет аннулирована.`,
+            html: `
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Активируйте аккаунт</title>
+                </head>
+                <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background-color: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; padding: 40px 20px;">
+                        <tr>
+                            <td align="center">
+                                <!-- Контейнер письма -->
+                                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); overflow: hidden; max-width: 100%;">
+                                    
+                                    <!-- Шапка с предупреждением -->
+                                    <tr>
+                                        <td style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 48px 30px; text-align: center;">
+                                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">Требуется активация аккаунта</h1>
+                                            <p style="margin: 12px 0 0 0; color: rgba(255, 255, 255, 0.95); font-size: 15px; font-weight: 500;">IT-ВыСотка ${currentYear}</p>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Основное содержимое -->
+                                    <tr>
+                                        <td style="padding: 48px 40px;">
+                                            <h2 style="margin: 0 0 24px 0; color: #1e293b; font-size: 24px; font-weight: 700; line-height: 1.25;">Ваш аккаунт не активирован</h2>
+                                            
+                                            <p style="margin: 0 0 20px 0; color: #64748b; font-size: 16px; line-height: 1.6;">
+                                                Вы зарегистрировались на чемпионат по программированию <strong>IT-ВыСотка</strong>, но до сих пор не активировали свой аккаунт.
+                                            </p>
+                                            
+                                            <!-- Важное предупреждение -->
+                                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 32px;">
+                                                <tr>
+                                                    <td style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 24px; border-radius: 8px;">
+                                                        <p style="margin: 0 0 12px 0; color: #991b1b; font-size: 17px; font-weight: 700; line-height: 1.5;">
+                                                            Без активации аккаунта вы не сможете участвовать в чемпионате
+                                                        </p>
+                                                        <p style="margin: 0; color: #991b1b; font-size: 15px; line-height: 1.6;">
+                                                            Если вы не активируете аккаунт в ближайшее время, ваша регистрация будет аннулирована, и вы потеряете возможность участия.
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            
+                                            <p style="margin: 0 0 32px 0; color: #64748b; font-size: 16px; line-height: 1.6;">
+                                                Пожалуйста, активируйте ваш аккаунт как можно скорее, нажав на кнопку ниже:
+                                            </p>
+                                            
+                                            <!-- Кнопка -->
+                                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                                <tr>
+                                                    <td align="center" style="padding-bottom: 32px;">
+                                                        <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #ffffff !important; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: 2px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);">
+                                                            Активировать аккаунт
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            
+                                            <!-- Альтернативная ссылка -->
+                                            <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; border: 1px solid #e2e8f0;">
+                                                <p style="margin: 0 0 12px 0; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                                    Если кнопка не работает, скопируйте и вставьте эту ссылку в браузер:
+                                                </p>
+                                                <a href="${link}" style="color: #dc2626; word-break: break-all; font-size: 13px; text-decoration: none; font-family: 'Courier New', Courier, monospace;">${link}</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Футер -->
+                                    <tr>
+                                        <td style="background-color: #f8fafc; padding: 32px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                                            <p style="margin: 0 0 12px 0; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                                                Это письмо отправлено автоматически. Пожалуйста, не игнорируйте его.
+                                            </p>
+                                            <p style="margin: 0; color: #cbd5e1; font-size: 12px;">
+                                                © ${currentYear} IT-ВыСотка. Все права защищены.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `
+        })
+    }
+
     async sendActivationMail(to, link){
         const currentYear = new Date().getFullYear();
         

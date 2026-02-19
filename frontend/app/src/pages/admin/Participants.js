@@ -20,6 +20,8 @@ const Participants = () => {
     const [placeValue, setPlaceValue] = useState(''); // Значение редактируемого места
     const [sendingEssayReminders, setSendingEssayReminders] = useState(false); // Статус отправки напоминаний об эссе
     const [sendingTeamFormatWithoutTeam, setSendingTeamFormatWithoutTeam] = useState(false); // Статус отправки писем участникам с командным форматом без команды
+    const [sendingActivationEmails, setSendingActivationEmails] = useState(false); // Статус отправки писем активации
+    const [contextMenu, setContextMenu] = useState(null); // Контекстное меню для активации
 
     // Фильтры и пагинация
     const [filters, setFilters] = useState({
@@ -366,6 +368,103 @@ const Participants = () => {
         }
     };
 
+    // Отправка писем активации неактивированным участникам
+    const handleSendActivationEmails = async () => {
+        try {
+            setSendingActivationEmails(true);
+            setNotification({ type: null, message: '' });
+
+            const response = await ParticipantsService.sendActivationEmailsToUnactivated();
+            const message = response?.data?.message || 'Письма активации отправлены';
+
+            setNotification({
+                type: 'success',
+                message
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при отправке писем активации'
+            });
+        } finally {
+            setSendingActivationEmails(false);
+        }
+    };
+
+    // Показать контекстное меню для активации
+    const handleShowActivationMenu = (e, participant) => {
+        e.preventDefault(); // Предотвращаем стандартное контекстное меню
+        
+        // Показываем меню только для неактивированных участников
+        if (participant.isActivated) {
+            return;
+        }
+
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            participant: participant
+        });
+    };
+
+    // Закрыть контекстное меню
+    const handleCloseContextMenu = () => {
+        setContextMenu(null);
+    };
+
+    // Активировать участника вручную
+    const handleActivateUser = async () => {
+        if (!contextMenu) return;
+
+        const participant = contextMenu.participant;
+        setContextMenu(null); // Закрываем меню
+
+        try {
+            await ParticipantsService.activateUserManually(participant.id);
+            
+            // Обновляем список участников
+            setParticipants(prev => prev.map(p => 
+                p.id === participant.id ? { ...p, isActivated: true } : p
+            ));
+
+            // Обновляем индивидуальных участников если это активная вкладка
+            if (activeTab === 'individual') {
+                setIndividualParticipants(prev => prev.map(p => 
+                    p.id === participant.id ? { ...p, isActivated: true } : p
+                ));
+            }
+
+            // Обновляем статистику
+            loadStats();
+
+            setNotification({ 
+                type: 'success', 
+                message: 'Участник успешно активирован'
+            });
+        } catch (e) {
+            setNotification({
+                type: 'error',
+                message: e.response?.data?.message || 'Ошибка при активации участника'
+            });
+        }
+    };
+
+    // Закрываем контекстное меню при клике вне его
+    useEffect(() => {
+        const handleClickOutside = () => {
+            if (contextMenu) {
+                handleCloseContextMenu();
+            }
+        };
+
+        if (contextMenu) {
+            document.addEventListener('click', handleClickOutside);
+            return () => {
+                document.removeEventListener('click', handleClickOutside);
+            };
+        }
+    }, [contextMenu]);
+
     return (
         <div className="admin-page">
             <div className="admin-page-header">
@@ -374,6 +473,18 @@ const Participants = () => {
                     <p className="admin-page-subtitle">Управление зарегистрированными участниками</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <button 
+                        className="btn btn-secondary btn-with-icon"
+                        onClick={handleSendActivationEmails}
+                        disabled={sendingActivationEmails}
+                        title="Отправить письма активации всем неактивированным участникам"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h16v13H5.17L4 18.17z"/>
+                            <polyline points="8 9 12 13 16 9"/>
+                        </svg>
+                        {sendingActivationEmails ? 'Отправка...' : 'Письма активации'}
+                    </button>
                     <button 
                         className="btn btn-secondary btn-with-icon"
                         onClick={handleSendTeamFormatWithoutTeamReminders}
@@ -632,13 +743,18 @@ const Participants = () => {
                                 {participants.map((participant) => (
                                     <tr key={participant.id}>
                                         <td style={{ textAlign: 'center', padding: '8px 0px 8px 12px', width: '30px' }}>
-                                            <span style={{
-                                                display: 'inline-block',
-                                                width: '10px',
-                                                height: '10px',
-                                                borderRadius: '50%',
-                                                backgroundColor: participant.isActivated ? '#10b981' : '#ef4444'
-                                            }} title={participant.isActivated ? 'Активирован' : 'Не активирован'}></span>
+                                            <span 
+                                                style={{
+                                                    display: 'inline-block',
+                                                    width: '10px',
+                                                    height: '10px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: participant.isActivated ? '#10b981' : '#ef4444',
+                                                    cursor: participant.isActivated ? 'default' : 'context-menu'
+                                                }} 
+                                                title={participant.isActivated ? 'Активирован' : 'Не активирован (ПКМ для активации)'}
+                                                onContextMenu={(e) => handleShowActivationMenu(e, participant)}
+                                            ></span>
                                         </td>
                                         <td>
                                             <div className="participant-name">
@@ -973,13 +1089,18 @@ const Participants = () => {
                                         {individualParticipants.map((participant) => (
                                             <tr key={participant.id}>
                                                 <td style={{ textAlign: 'center', padding: '8px 0px 8px 12px', width: '30px' }}>
-                                                    <span style={{
-                                                        display: 'inline-block',
-                                                        width: '10px',
-                                                        height: '10px',
-                                                        borderRadius: '50%',
-                                                        backgroundColor: participant.isActivated ? '#10b981' : '#ef4444'
-                                                    }} title={participant.isActivated ? 'Активирован' : 'Не активирован'}></span>
+                                                    <span 
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            width: '10px',
+                                                            height: '10px',
+                                                            borderRadius: '50%',
+                                                            backgroundColor: participant.isActivated ? '#10b981' : '#ef4444',
+                                                            cursor: participant.isActivated ? 'default' : 'context-menu'
+                                                        }} 
+                                                        title={participant.isActivated ? 'Активирован' : 'Не активирован (ПКМ для активации)'}
+                                                        onContextMenu={(e) => handleShowActivationMenu(e, participant)}
+                                                    ></span>
                                                 </td>
                                                 <td>
                                                     <div className="participant-name">
@@ -1017,6 +1138,52 @@ const Participants = () => {
                     </>
                 )}
             </div>
+
+            {/* Контекстное меню для активации */}
+            {contextMenu && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: contextMenu.y,
+                        left: contextMenu.x,
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        zIndex: 1000,
+                        minWidth: '200px',
+                        overflow: 'hidden'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <button
+                        onClick={handleActivateUser}
+                        style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            color: '#1e293b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            transition: 'background-color 0.15s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f8fafc'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#10b981' }}>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        Активировать аккаунт
+                    </button>
+                </div>
+            )}
 
             {/* Toast уведомление */}
             {notification.type && (

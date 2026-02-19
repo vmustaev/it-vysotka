@@ -653,6 +653,139 @@ class UserService {
             } : null
         }));
     }
+
+    /**
+     * Повторная отправка письма активации
+     */
+    async resendActivationEmail(email) {
+        const user = await UserModel.findOne({ where: { email } });
+        
+        if (!user) {
+            throw ApiError.BadRequest(
+                errorMessages.EMAIL_NOT_FOUND,
+                [errorMessages.EMAIL_NOT_FOUND],
+                { email: [errorMessages.EMAIL_NOT_FOUND] }
+            );
+        }
+
+        if (user.isActivated) {
+            throw ApiError.BadRequest(
+                'Аккаунт уже активирован',
+                ['Аккаунт уже активирован']
+            );
+        }
+
+        // Удаляем старые токены активации для этого пользователя
+        await tokenService.removeAllUserTokens(user.id, 'activation');
+
+        // Генерируем новый токен активации
+        const activationToken = await tokenService.generateUuidToken(user.id, 'activation');
+        
+        // Отправка письма активации
+        try {
+            await mailService.sendActivationMail(
+                email, 
+                `${process.env.URL}/api/activate/${activationToken}`
+            );
+        } catch (e) {
+            await tokenService.removeToken(activationToken, 'activation');
+            throw ApiError.InternalError(
+                'Ошибка отправки письма активации. Попробуйте позже.',
+                ['Ошибка отправки email']
+            );
+        }
+
+        return {
+            success: true,
+            message: 'Письмо активации отправлено повторно. Проверьте вашу почту.'
+        };
+    }
+
+    /**
+     * Отправить письма активации всем неактивированным участникам (для админа)
+     */
+    async sendActivationEmailsToUnactivated() {
+        const unactivatedUsers = await UserModel.findAll({
+            where: {
+                role: 'participant',
+                isActivated: false
+            },
+            attributes: ['id', 'email', 'first_name', 'last_name']
+        });
+
+        if (!unactivatedUsers.length) {
+            return {
+                success: true,
+                message: 'Нет неактивированных участников',
+                data: { sent: 0, total: 0 }
+            };
+        }
+
+        let sentCount = 0;
+        const errors = [];
+
+        for (const user of unactivatedUsers) {
+            if (!user.email) {
+                errors.push(`Пользователь ${user.last_name} ${user.first_name} (ID: ${user.id}) не имеет email`);
+                continue;
+            }
+
+            try {
+                // Удаляем старые токены активации
+                await tokenService.removeAllUserTokens(user.id, 'activation');
+
+                // Генерируем новый токен
+                const activationToken = await tokenService.generateUuidToken(user.id, 'activation');
+                
+                // Отправляем письмо-напоминание (более строгое)
+                await mailService.sendActivationReminderMail(
+                    user.email, 
+                    `${process.env.URL}/api/activate/${activationToken}`
+                );
+                
+                sentCount++;
+            } catch (error) {
+                console.error(`Ошибка отправки письма активации для ${user.email}:`, error);
+                errors.push(`Не удалось отправить письмо на ${user.email}: ${error.message}`);
+            }
+        }
+
+        return {
+            success: true,
+            message: `Письма-напоминания об активации отправлены ${sentCount} из ${unactivatedUsers.length} неактивированным участникам`,
+            data: {
+                sent: sentCount,
+                total: unactivatedUsers.length,
+                errors: errors
+            }
+        };
+    }
+
+    /**
+     * Активировать участника вручную (для админа)
+     */
+    async activateUserManually(userId) {
+        const user = await UserModel.findByPk(userId);
+        
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+
+        if (user.isActivated) {
+            throw ApiError.BadRequest('Аккаунт уже активирован');
+        }
+
+        user.isActivated = true;
+        await user.save();
+
+        // Удаляем все токены активации для этого пользователя
+        await tokenService.removeAllUserTokens(user.id, 'activation');
+
+        return {
+            success: true,
+            message: 'Участник успешно активирован'
+        };
+    }
 }
 
 module.exports = new UserService();
