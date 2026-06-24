@@ -53,6 +53,34 @@
     text-shadow: 0 2px 16px rgba(255, 255, 255, 0.5);
 }
 
+/* Diplomas banner */
+.diplomas-banner {
+    background: rgba(239, 246, 255, 0.95);
+    border-left: 4px solid #3b82f6;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+}
+
+.diplomas-banner-text {
+    margin: 0;
+    color: #1e40af;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.diplomas-banner-link {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.diplomas-banner-link:hover {
+    text-decoration: underline;
+}
+
 /* Year Tabs */
 .year-tabs {
     display: flex;

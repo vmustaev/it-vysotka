@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ResultsService from '../services/ResultsService';
+import SettingsService from '../services/SettingsService';
+import DiplomasMessage from '../components/DiplomasMessage';
 import '../styles/results.css';
 
 const Results = () => {
@@ -7,9 +9,11 @@ const Results = () => {
     const [activeResultsTab, setActiveResultsTab] = useState(null);
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [diplomasByYear, setDiplomasByYear] = useState({});
 
     useEffect(() => {
         loadYears();
+        loadDiplomasSettings();
     }, []);
 
     useEffect(() => {
@@ -17,6 +21,18 @@ const Results = () => {
             loadResults(activeResultsTab);
         }
     }, [activeResultsTab]);
+
+    const loadDiplomasSettings = async () => {
+        try {
+            const response = await SettingsService.getRegistrationStatus();
+            const data = response.data.data;
+            if (data.diplomas_by_year) {
+                setDiplomasByYear(data.diplomas_by_year);
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки настроек дипломов:', e);
+        }
+    };
 
     const loadYears = async () => {
         try {
@@ -62,6 +78,8 @@ const Results = () => {
         return '';
     };
 
+    const activeDiplomasText = activeResultsTab ? diplomasByYear[activeResultsTab] : null;
+
     return (
         <div className="results-page">
             <div className="results-content">
@@ -87,6 +105,16 @@ const Results = () => {
                     )}
 
                     <div className="winners-content">
+                        {activeDiplomasText && (
+                            <div className="diplomas-banner">
+                                <p className="diplomas-banner-text">
+                                    <DiplomasMessage
+                                        text={activeDiplomasText}
+                                        linkClassName="diplomas-banner-link"
+                                    />
+                                </p>
+                            </div>
+                        )}
                         {loading ? (
                             <div style={{ 
                                 textAlign: 'center', 

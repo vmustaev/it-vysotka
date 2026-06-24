@@ -10,7 +10,19 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import Toast from '../components/Toast';
 import EditProfileModal from '../components/EditProfileModal';
 import InfoModal from '../components/InfoModal';
+import DiplomasMessage from '../components/DiplomasMessage';
 import '../styles/profile.css';
+
+const getLatestDiplomasText = (diplomasByYear) => {
+    const years = Object.keys(diplomasByYear)
+        .map((year) => parseInt(year, 10))
+        .filter((year) => !Number.isNaN(year) && diplomasByYear[String(year)]);
+
+    if (years.length === 0) return null;
+
+    const latestYear = Math.max(...years);
+    return diplomasByYear[String(latestYear)];
+};
 
 const Profile = () => {
     const { store } = useContext(Context);
@@ -26,6 +38,7 @@ const Profile = () => {
     const [isEditingEssay, setIsEditingEssay] = useState(false);
     const [isAccordionOpen, setIsAccordionOpen] = useState(false);
     const [essayCloseDate, setEssayCloseDate] = useState(null);
+    const [diplomasByYear, setDiplomasByYear] = useState({});
     const [essayRequirementsDoc, setEssayRequirementsDoc] = useState(null);
     const [infoModal, setInfoModal] = useState({
         isOpen: false,
@@ -85,8 +98,12 @@ const Profile = () => {
     const loadSettings = async () => {
         try {
             const response = await SettingsService.getRegistrationStatus();
-            if (response.data.data.essay_close_date) {
-                setEssayCloseDate(response.data.data.essay_close_date);
+            const data = response.data.data;
+            if (data.essay_close_date) {
+                setEssayCloseDate(data.essay_close_date);
+            }
+            if (data.diplomas_by_year) {
+                setDiplomasByYear(data.diplomas_by_year);
             }
         } catch (e) {
             console.error('Ошибка загрузки настроек:', e);
@@ -436,6 +453,7 @@ const Profile = () => {
     }
 
     const isLead = team?.members?.find(m => m.id === profile.id)?.isLead || false;
+    const latestDiplomasText = getLatestDiplomasText(diplomasByYear);
 
     return (
         <div className="profile-page">
@@ -911,6 +929,7 @@ const Profile = () => {
                                                 </span>
                                             </span>
                                         </div>
+                                        {latestDiplomasText && (
                                         <div style={{
                                             backgroundColor: '#eff6ff',
                                             borderLeft: '4px solid #3b82f6',
@@ -919,37 +938,18 @@ const Profile = () => {
                                             marginTop: '16px'
                                         }}>
                                             <p style={{
-                                                margin: '0 0 8px 0',
-                                                color: '#1e40af',
-                                                fontSize: '14px',
-                                                fontWeight: '600',
-                                                lineHeight: '1.5'
-                                            }}>
-                                                Важная информация о дипломах
-                                            </p>
-                                            <p style={{
-                                                margin: '0 0 12px 0',
+                                                margin: 0,
                                                 color: '#1e40af',
                                                 fontSize: '14px',
                                                 lineHeight: '1.6'
                                             }}>
-                                                Дипломы в скором времени появятся на сайте приемной комиссии УГНТУ:
+                                                <DiplomasMessage
+                                                    text={latestDiplomasText}
+                                                    linkClassName="certificate-link"
+                                                />
                                             </p>
-                                            <a 
-                                                href="https://pk.rusoil.net/page/olimpiada-ugntu" 
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    color: '#2563eb',
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    textDecoration: 'none',
-                                                    wordBreak: 'break-all'
-                                                }}
-                                            >
-                                                https://pk.rusoil.net/page/olimpiada-ugntu
-                                            </a>
                                         </div>
+                                        )}
                                     </>
                                 )}
                                 {profile.certificateId && (

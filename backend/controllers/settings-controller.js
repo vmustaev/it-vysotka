@@ -22,13 +22,14 @@ class SettingsController {
      */
     async updateSettings(req, res, next) {
         try {
-            const { registration_start, registration_end, championship_datetime, essay_close_date } = req.body;
+            const { registration_start, registration_end, championship_datetime, essay_close_date, diplomas_by_year } = req.body;
 
             const settings = await settingsService.updateSettings({
                 registration_start,
                 registration_end,
                 championship_datetime,
-                essay_close_date
+                essay_close_date,
+                diplomas_by_year
             });
 
             return res.json({
@@ -56,7 +57,8 @@ class SettingsController {
                     registration_start: settings.registration_start,
                     registration_end: settings.registration_end,
                     championship_datetime: settings.championship_datetime,
-                    essay_close_date: settings.essay_close_date
+                    essay_close_date: settings.essay_close_date,
+                    diplomas_by_year: settings.diplomas_by_year
                 }
             });
         } catch (e) {

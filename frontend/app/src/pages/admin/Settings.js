@@ -10,6 +10,7 @@ const Settings = () => {
         championship_datetime: '',
         essay_close_date: ''
     });
+    const [diplomasEntries, setDiplomasEntries] = useState([{ year: '', text: '' }]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [notification, setNotification] = useState({ type: null, message: '' });
@@ -52,6 +53,12 @@ const Settings = () => {
                 championship_datetime: formatDateTimeForInput(data.championship_datetime),
                 essay_close_date: formatDateForInput(data.essay_close_date)
             });
+
+            const diplomasByYear = data.diplomas_by_year || {};
+            const entries = Object.entries(diplomasByYear)
+                .sort(([a], [b]) => Number(b) - Number(a))
+                .map(([year, text]) => ({ year, text }));
+            setDiplomasEntries(entries.length > 0 ? entries : [{ year: '', text: '' }]);
         } catch (e) {
             setNotification({ 
                 type: 'error', 
@@ -60,6 +67,36 @@ const Settings = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const buildDiplomasByYear = () => {
+        return diplomasEntries.reduce((acc, entry) => {
+            const year = String(entry.year).trim();
+            const text = String(entry.text).trim();
+            if (year && text) {
+                acc[year] = text;
+            }
+            return acc;
+        }, {});
+    };
+
+    const handleDiplomasEntryChange = (index, field, value) => {
+        setDiplomasEntries(prev => prev.map((entry, i) =>
+            i === index ? { ...entry, [field]: value } : entry
+        ));
+    };
+
+    const handleAddDiplomasEntry = () => {
+        setDiplomasEntries(prev => [...prev, { year: '', text: '' }]);
+    };
+
+    const handleRemoveDiplomasEntry = (index) => {
+        setDiplomasEntries(prev => {
+            if (prev.length === 1) {
+                return [{ year: '', text: '' }];
+            }
+            return prev.filter((_, i) => i !== index);
+        });
     };
 
     const handleChange = (e) => {
@@ -112,7 +149,8 @@ const Settings = () => {
                 registration_start: settings.registration_start || null,
                 registration_end: settings.registration_end || null,
                 championship_datetime: convertToISO(settings.championship_datetime),
-                essay_close_date: settings.essay_close_date || null
+                essay_close_date: settings.essay_close_date || null,
+                diplomas_by_year: buildDiplomasByYear()
             };
 
             await SettingsService.updateSettings(dataToSend);
@@ -139,6 +177,7 @@ const Settings = () => {
             championship_datetime: '',
             essay_close_date: ''
         }));
+        setDiplomasEntries([{ year: '', text: '' }]);
     };
 
     const getRegistrationStatus = () => {
@@ -325,6 +364,92 @@ const Settings = () => {
                                         disabled={saving}
                                     >
                                         Очистить все
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div className="admin-card" style={{ marginTop: 'var(--spacing-xl)' }}>
+                        <div className="admin-card-header">
+                            <h2 className="admin-card-title">Результаты и дипломы</h2>
+                        </div>
+                        <div className="admin-card-body">
+                            <form onSubmit={handleSubmit}>
+                                {diplomasEntries.map((entry, index) => (
+                                    <div
+                                        key={index}
+                                        style={{
+                                            marginBottom: 'var(--spacing-xl)',
+                                            paddingBottom: 'var(--spacing-xl)',
+                                            borderBottom: index < diplomasEntries.length - 1 ? '1px solid var(--border-color)' : 'none'
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
+                                            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
+                                                {entry.year ? `Год ${entry.year}` : `Запись ${index + 1}`}
+                                            </h3>
+                                            {diplomasEntries.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={() => handleRemoveDiplomasEntry(index)}
+                                                >
+                                                    Удалить
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label className="form-label">Год</label>
+                                            <input
+                                                type="number"
+                                                value={entry.year}
+                                                onChange={(e) => handleDiplomasEntryChange(index, 'year', e.target.value)}
+                                                className="form-input"
+                                                placeholder="Например, 2025"
+                                                min="2000"
+                                                max="2100"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label className="form-label">Текст о дипломах</label>
+                                            <textarea
+                                                value={entry.text}
+                                                onChange={(e) => handleDiplomasEntryChange(index, 'text', e.target.value)}
+                                                className="form-input"
+                                                rows={4}
+                                                placeholder="Дипломы победителей и призёров III Чемпионата по программированию IT-Высотка можно скачать на сайте Приёмной комиссии по ссылке https://pk.rusoil.net/page/736"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={handleAddDiplomasEntry}
+                                    style={{ marginBottom: 'var(--spacing-lg)' }}
+                                >
+                                    + Добавить год
+                                </button>
+
+                                <small className="form-hint" style={{ display: 'block', marginBottom: 'var(--spacing-lg)' }}>
+                                    Для каждого года можно указать свой текст. URL в тексте станет кликабельной ссылкой. В личном кабинете призёров показывается текст за последний добавленный год.
+                                </small>
+
+                                <div className="form-actions" style={{ 
+                                    display: 'flex', 
+                                    gap: 'var(--spacing-md)', 
+                                    marginTop: 'var(--spacing-xl)' 
+                                }}>
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary"
+                                        disabled={saving}
+                                    >
+                                        {saving ? 'Сохранение...' : 'Сохранить настройки'}
                                     </button>
                                 </div>
                             </form>

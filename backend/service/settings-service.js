@@ -2,6 +2,29 @@ const SettingsModel = require('../models/settings-model');
 const ApiError = require('../exceptions/api-error');
 
 class SettingsService {
+    _parseDiplomasByYear(settingsObj) {
+        let diplomasByYear = {};
+
+        if (settingsObj.diplomas_by_year) {
+            try {
+                diplomasByYear = typeof settingsObj.diplomas_by_year === 'string'
+                    ? JSON.parse(settingsObj.diplomas_by_year)
+                    : settingsObj.diplomas_by_year;
+            } catch (e) {
+                diplomasByYear = {};
+            }
+        }
+
+        if (settingsObj.diplomas_text && settingsObj.results_year) {
+            const legacyYear = String(settingsObj.results_year);
+            if (!diplomasByYear[legacyYear]) {
+                diplomasByYear[legacyYear] = settingsObj.diplomas_text;
+            }
+        }
+
+        return diplomasByYear;
+    }
+
     /**
      * Получить все настройки
      */
@@ -27,6 +50,8 @@ class SettingsService {
             settingsObj.essay_close_date = null;
         }
 
+        settingsObj.diplomas_by_year = this._parseDiplomasByYear(settingsObj);
+
         return settingsObj;
     }
 
@@ -34,7 +59,7 @@ class SettingsService {
      * Обновить настройки
      */
     async updateSettings(settingsData) {
-        const { registration_start, registration_end, championship_datetime, essay_close_date } = settingsData;
+        const { registration_start, registration_end, championship_datetime, essay_close_date, diplomas_by_year } = settingsData;
 
         // Валидация дат регистрации
         if (registration_start && registration_end) {
@@ -69,6 +94,24 @@ class SettingsService {
             await SettingsModel.upsert({
                 key: 'essay_close_date',
                 value: essay_close_date || null
+            });
+        }
+
+        if (diplomas_by_year !== undefined) {
+            const cleaned = {};
+            if (diplomas_by_year && typeof diplomas_by_year === 'object') {
+                Object.entries(diplomas_by_year).forEach(([year, text]) => {
+                    const normalizedYear = String(year).trim();
+                    const normalizedText = text ? String(text).trim() : '';
+                    if (normalizedYear && normalizedText) {
+                        cleaned[normalizedYear] = normalizedText;
+                    }
+                });
+            }
+
+            await SettingsModel.upsert({
+                key: 'diplomas_by_year',
+                value: Object.keys(cleaned).length > 0 ? JSON.stringify(cleaned) : null
             });
         }
 
